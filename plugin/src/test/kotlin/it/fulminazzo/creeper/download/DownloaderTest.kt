@@ -17,31 +17,28 @@ import kotlin.test.Test
 import kotlin.test.assertContains
 
 class DownloaderTest {
-    private val destinationPath = Path.of("build/resources/test/downloader/http_downloader_test.txt")
+    private val downloader = Downloader.http()
 
     @Test
     fun `test that HTTP downloader works`() {
-        val downloader = Downloader.http()
-        destinationPath.deleteIfExists()
+        DESTINATION_PATH.deleteIfExists()
 
-        downloader.download("https://raw.githubusercontent.com/gradle/gradle/master/gradle.properties", destinationPath)
-        assertContains(destinationPath.readText(), "org.gradle.jvmargs=")
+        downloader.download("https://raw.githubusercontent.com/gradle/gradle/master/gradle.properties", DESTINATION_PATH)
+        assertContains(DESTINATION_PATH.readText(), "org.gradle.jvmargs=")
     }
 
     @Test
     fun `test that HTTP downloader sends correct User-Agent header`() {
         val port = 29126
-        val path = "/test/path"
 
         val requestCatcher = RequestCatcher().start(port)
         try {
-            val downloader = Downloader.http()
             assertThrows<IOException> {
-                downloader.download("http://localhost:$port$path", destinationPath)
+                downloader.download("http://localhost:$port$PATH", DESTINATION_PATH)
             }
 
             val lines = requestCatcher.getLines()
-            assertContains(lines, "GET $path HTTP/1.1")
+            assertContains(lines, "GET $PATH HTTP/1.1")
             assertContains(lines, "User-Agent: ${ProjectInfo.USER_AGENT}")
 
         } finally {
@@ -52,7 +49,6 @@ class DownloaderTest {
     @Test
     fun `test that request catcher works`() {
         val port = 29026
-        val path = "/test/path"
 
         val requestCatcher = RequestCatcher().start(port)
         try {
@@ -60,15 +56,21 @@ class DownloaderTest {
 
             assertThrows<IOException> {
                 client.send(
-                    HttpRequest.newBuilder(URI.create("http://localhost:$port$path")).build(),
+                    HttpRequest.newBuilder(URI.create("http://localhost:$port$PATH")).build(),
                     HttpResponse.BodyHandlers.ofString()
                 )
             }
 
-            assertContains(requestCatcher.getLines(), "GET $path HTTP/1.1")
+            assertContains(requestCatcher.getLines(), "GET $PATH HTTP/1.1")
         } finally {
             requestCatcher.stop()
         }
+    }
+
+    companion object {
+        private val DESTINATION_PATH = Path.of("build/resources/test/downloader/downloader_test.txt")
+        private const val PATH = "/path/to/file"
+
     }
 
 }
