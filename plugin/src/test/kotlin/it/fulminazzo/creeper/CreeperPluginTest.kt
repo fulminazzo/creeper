@@ -9,7 +9,7 @@ class CreeperPluginTest {
     @Test
     fun `test buildconfig plugin works`() {
         assertNotNull(ProjectInfo.GROUP)
-        assertNotNull(ProjectInfo.PROJECT_NAME)
+        assertNotNull(ProjectInfo.NAME)
         assertNotNull(ProjectInfo.VERSION)
     }
 
