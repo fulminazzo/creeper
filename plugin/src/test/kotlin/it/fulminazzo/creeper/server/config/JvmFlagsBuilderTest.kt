@@ -1,5 +1,8 @@
-package it.fulminazzo.creeper.config
+package it.fulminazzo.creeper.server.config
 
+import it.fulminazzo.creeper.server.config.JvmFlagsBuilder
+import it.fulminazzo.creeper.server.config.MemoryUnit
+import it.fulminazzo.creeper.server.config.gb
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 

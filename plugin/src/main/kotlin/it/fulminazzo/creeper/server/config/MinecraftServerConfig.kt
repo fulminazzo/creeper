@@ -1,4 +1,4 @@
-package it.fulminazzo.creeper.config
+package it.fulminazzo.creeper.server.config
 
 /**
  * Minecraft server configuration.
