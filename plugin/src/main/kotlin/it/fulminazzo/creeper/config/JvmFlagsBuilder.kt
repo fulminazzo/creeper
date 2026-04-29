@@ -20,8 +20,8 @@ class JvmFlagsBuilder {
      * @param value the value of the allocation
      * @param unit the unit of the allocation
      */
-    fun minimumRam(value: Int, unit: MemoryUnit) {
-        minimumRam(MemorySize(value, unit))
+    fun setMinimumRam(value: Int, unit: MemoryUnit) {
+        setMinimumRam(MemorySize(value, unit))
     }
 
     /**
@@ -29,7 +29,7 @@ class JvmFlagsBuilder {
      *
      * @param size the size of the allocation
      */
-    fun minimumRam(size: MemorySize) {
+    fun setMinimumRam(size: MemorySize) {
         minimumRam = size
     }
 
@@ -39,8 +39,8 @@ class JvmFlagsBuilder {
      * @param value the value of the allocation
      * @param unit the unit of the allocation
      */
-    fun maximumRam(value: Int, unit: MemoryUnit) {
-        maximumRam(MemorySize(value, unit))
+    fun setMaximumRam(value: Int, unit: MemoryUnit) {
+        setMaximumRam(MemorySize(value, unit))
     }
 
     /**
@@ -48,7 +48,7 @@ class JvmFlagsBuilder {
      *
      * @param size the size of the allocation
      */
-    fun maximumRam(size: MemorySize) {
+    fun setMaximumRam(size: MemorySize) {
         maximumRam = size
     }
 
