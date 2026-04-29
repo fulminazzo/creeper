@@ -24,6 +24,7 @@ gradlePlugin {
 
 tasks.test {
     useJUnitPlatform()
+    jvmArgs = listOf("-XX:+EnableDynamicAgentLoading")
 }
 
 configure<com.github.gmazzo.buildconfig.BuildConfigExtension> {
