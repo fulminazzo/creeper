@@ -2,6 +2,7 @@ package it.fulminazzo.creeper.download
 
 import it.fulminazzo.creeper.ProjectInfo
 import java.nio.file.Path
+import kotlin.io.path.absolute
 import kotlin.io.path.copyTo
 import kotlin.io.path.exists
 import kotlin.io.path.name
@@ -54,6 +55,14 @@ interface CachedDownloader {
      * Special [CachedDownloader] that stores the requested resource globally
      * before storing it in the actual destination.
      *
+     * The files are stored with the following rules:
+     * - If the current path is "/home/fulminazzo" and the destination path is "plugins/Main-1.0.jar",
+     *   then the file will be cached under "/home/fulminazzo/.gradle/caches/[ProjectInfo.NAME]/plugins/Main-1.0.jar";
+     * - If the current path is "/home/fulminazzo" and the destination path is "/home/fulminazzo/plugins/Main-1.0.jar",
+     *   then the file will be cached under "/home/fulminazzo/.gradle/caches/[ProjectInfo.NAME]/plugins/Main-1.0.jar";
+     * - If the current path is "/home/fulminazzo" and the destination path is "/server/plugins/Main-1.0.jar",
+     *   then the file will be cached under "/home/fulminazzo/.gradle/caches/[ProjectInfo.NAME]/server/plugins/Main-1.0.jar".
+     *
      * @constructor Creates a new Global Cached downloader
      *
      * @param downloader the downloader used to download the files
@@ -62,8 +71,13 @@ interface CachedDownloader {
         private val delegate = SimpleCachedDownloader(downloader)
 
         override fun download(resource: String, destination: Path, hash: String) {
-            val current = Path.of("")
-            val relative = current.toAbsolutePath().relativize(destination.toAbsolutePath())
+            val current = Path.of("").absolute().normalize()
+            val absolute = destination.absolute().normalize()
+
+            val relative = if (absolute.startsWith(current))
+                current.relativize(absolute)
+            else absolute.root.relativize(absolute)
+
             val cacheDestination = CACHE_DIRECTORY.resolve(relative)
             delegate.download(resource, cacheDestination, hash)
             cacheDestination.copyTo(destination, overwrite = true)
