@@ -1,13 +1,19 @@
 package it.fulminazzo.creeper
 
+import creeper.plugin.ProjectInfo
 import org.gradle.testfixtures.ProjectBuilder
 import kotlin.test.Test
 import kotlin.test.assertNotNull
 
-/**
- * A simple unit test for the 'it.fulminazzo.creeper' plugin.
- */
 class CreeperPluginTest {
+
+    @Test
+    fun `test buildconfig plugin works`() {
+        assertNotNull(ProjectInfo.GROUP)
+        assertNotNull(ProjectInfo.PROJECT_NAME)
+    }
+
+    //TODO: remove
     @Test fun `plugin registers task`() {
         // Create a test project and apply the plugin
         val project = ProjectBuilder.builder().build()
@@ -16,4 +22,5 @@ class CreeperPluginTest {
         // Verify the result
         assertNotNull(project.tasks.findByName("greeting"))
     }
+
 }
