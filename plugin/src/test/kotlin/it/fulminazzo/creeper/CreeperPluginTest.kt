@@ -1,6 +1,5 @@
 package it.fulminazzo.creeper
 
-import creeper.plugin.ProjectInfo
 import org.gradle.testfixtures.ProjectBuilder
 import kotlin.test.Test
 import kotlin.test.assertNotNull
@@ -10,7 +9,7 @@ class CreeperPluginTest {
     @Test
     fun `test buildconfig plugin works`() {
         assertNotNull(ProjectInfo.GROUP)
-        assertNotNull(ProjectInfo.PROJECT_NAME)
+        assertNotNull(ProjectInfo.NAME)
         assertNotNull(ProjectInfo.VERSION)
     }
 
