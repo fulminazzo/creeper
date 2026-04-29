@@ -1,7 +1,10 @@
 package it.fulminazzo.creeper.provider
 
+import it.fulminazzo.creeper.Hashable
 import it.fulminazzo.creeper.ProjectInfo
 import it.fulminazzo.creeper.ServerType
+import it.fulminazzo.creeper.download.CachedDownloader
+import it.fulminazzo.creeper.download.Downloader
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonIgnoreUnknownKeys
@@ -9,6 +12,7 @@ import java.net.URI
 import java.net.http.HttpClient
 import java.net.http.HttpRequest
 import java.net.http.HttpResponse
+import java.nio.file.Path
 import kotlin.time.Duration.Companion.seconds
 import kotlin.time.toJavaDuration
 import kotlin.uuid.Uuid
@@ -16,7 +20,8 @@ import kotlin.uuid.Uuid
 /**
  * A [MinecraftJarProvider] that uses the [MCJars API](https://mcjars.app).
  */
-class MCJarsApiProvider {
+class MCJarsApiProvider : MinecraftJarProvider {
+    private val downloader = CachedDownloader.global(Downloader.http())
 
     /**
      * Gets the requested build information.
@@ -55,6 +60,12 @@ class MCJarsApiProvider {
                 throw ApiException(response.statusCode(), error)
             }
         }
+    }
+
+    override fun get(platform: ServerType.MinecraftType, version: String, directory: Path) {
+        getBuild(platform, version)
+            ?.let { downloader.download(it.url, directory, it.toHashString()) }
+            ?: throw JarNotFoundException(platform, version)
     }
 
     companion object {
@@ -129,4 +140,8 @@ class MCJarsApiProvider {
  * @property url the URL to download the build
  * @constructor Create a new Build response
  */
-data class BuildResponse(val uuid: Uuid, val size: Long, val url: String)
+data class BuildResponse(val uuid: Uuid, val size: Long, val url: String) : Hashable {
+
+    override fun toHashString(): String = "$uuid:$size"
+
+}
