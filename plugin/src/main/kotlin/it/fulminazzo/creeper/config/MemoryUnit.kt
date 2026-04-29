@@ -41,12 +41,7 @@ data class MemorySize(val value: Long, val unit: MemoryUnit) {
 
     constructor(value: Int, unit: MemoryUnit) : this(value.toLong(), unit)
 
-    /**
-     * Converts the current size in the JVM flags format.
-     *
-     * @return the formatted size
-     */
-    fun toJvmFlags(): String = "${value}${unit.jvmUnit}"
+    override fun toString(): String = "${value}${unit.jvmUnit}"
 
 }
 
