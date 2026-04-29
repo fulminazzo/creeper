@@ -1,5 +1,8 @@
 [versions]
+# PLUGINS
 kotlin_jvm = "2.3.0"
+buildconfig = "6.0.9"
 
 [plugins]
 kotlin_jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin_jvm" }
+buildconfig = { id = "com.github.gmazzo.buildconfig", version.ref = "buildconfig" }

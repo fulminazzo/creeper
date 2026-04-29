@@ -2,6 +2,7 @@ plugins {
     `java-gradle-plugin`
 
     alias(libs.plugins.kotlin.jvm)
+    alias(libs.plugins.buildconfig)
 }
 
 repositories {
@@ -23,6 +24,18 @@ gradlePlugin {
 
 tasks.test {
     useJUnitPlatform()
+}
+
+configure<com.github.gmazzo.buildconfig.BuildConfigExtension> {
+    val group = project.group
+    val name = project.name
+
+    packageName = "${group}.${name}"
+    className = "ProjectInfo"
+
+    buildConfigField("String", "GROUP", "\"${group}\"")
+    buildConfigField("String", "PROJECT_NAME", "\"${name}\"")
+    buildConfigField("String", "VERSION", "\"${project.version}\"")
 }
 
 /**
