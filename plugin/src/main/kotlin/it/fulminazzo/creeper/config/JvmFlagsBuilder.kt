@@ -96,7 +96,7 @@ class JvmFlagsBuilder {
      * @return the list of flags
      */
     fun build(): String {
-        var flags = "-Xms${minimumRam.toJvmFlags()} -Xmx${maximumRam.toJvmFlags()}"
+        var flags = "-Xms$minimumRam -Xmx$maximumRam"
         flags += buildEnabledDeveloperFlags().takeIf { it.isNotEmpty() }?.let { " $it" } ?: ""
         flags += buildValueDeveloperFlags().takeIf { it.isNotEmpty() }?.let { " $it" } ?: ""
         flags += buildPropertyFlags().takeIf { it.isNotEmpty() }?.let { " $it" } ?: ""
@@ -118,6 +118,30 @@ class JvmFlagsBuilder {
     companion object {
         private const val DEVELOPER_FLAG_PREFIX = "-XX:"
         private const val PROPERTY_FLAG_PREFIX = "-D"
+
+        /**
+         * Akair's flags
+         */
+        val AKAIR_FLAGS = JvmFlagsBuilder().apply {
+            xx("UseG1GC", true)
+            xx("ParallelRefProcEnabled", true)
+            xx("MaxGCPauseMillis", 200)
+            xx("UnlockExperimentalVMOptions", true)
+            xx("DisableExplicitGC", true)
+            xx("AlwaysPreTouch", true)
+            xx("G1NewSizePercent", 30)
+            xx("G1MaxNewSizePercent", 40)
+            xx("G1HeapRegionSize", 8.mb)
+            xx("G1ReservePercent", 20)
+            xx("G1HeapWastePercent", 5)
+            xx("G1MixedGCCountTarget", 4)
+            xx("InitiatingHeapOccupancyPercent", 15)
+            xx("G1MixedGCLiveThresholdPercent", 90)
+            xx("G1RSetUpdatingPauseTimePercent", 5)
+            xx("SurvivorRatio", 32)
+            xx("PerfDisableSharedMem", true)
+            xx("MaxTenuringThreshold", 1)
+        }
 
     }
 
