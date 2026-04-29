@@ -14,6 +14,8 @@ dependencies {
     implementation(libs.bundles.jackson)
 
     testImplementation("org.jetbrains.kotlin:kotlin-test")
+    testImplementation("org.junit.jupiter:junit-jupiter-params")
+
     testImplementation(libs.mockk)
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 }
