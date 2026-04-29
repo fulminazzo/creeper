@@ -4,13 +4,15 @@ package it.fulminazzo.creeper
  * Identifies the type of server to run.
  */
 sealed interface ServerType {
+    val name: String
+
     /**
      * [ServerType] only for Minecraft server platforms.
      *
      * @property name the name of the platform
      * @constructor Create an empty Minecraft type
      */
-    sealed class MinecraftType(val name: String) : ServerType
+    sealed class MinecraftType(override val name: String) : ServerType
 
     data object VANILLA : MinecraftType("Vanilla")
     data object SPIGOT : MinecraftType("Spigot")
