@@ -2,7 +2,7 @@ package it.fulminazzo.creeper.provider
 
 import io.mockk.spyk
 import io.mockk.verify
-import it.fulminazzo.creeper.ServerType
+import it.fulminazzo.creeper.server.ServerType
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.assertThrows

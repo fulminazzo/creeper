@@ -1,6 +1,6 @@
 package it.fulminazzo.creeper.provider
 
-import it.fulminazzo.creeper.ServerType
+import it.fulminazzo.creeper.server.ServerType
 import java.nio.file.Path
 
 /**

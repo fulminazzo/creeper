@@ -1,4 +1,4 @@
-package it.fulminazzo.creeper
+package it.fulminazzo.creeper.server
 
 /**
  * Identifies the type of server to run.

@@ -4,7 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.annotation.JsonProperty
 import it.fulminazzo.creeper.Hashable
 import it.fulminazzo.creeper.ProjectInfo
-import it.fulminazzo.creeper.ServerType
+import it.fulminazzo.creeper.server.ServerType
 import it.fulminazzo.creeper.download.CachedDownloader
 import it.fulminazzo.creeper.download.Downloader
 import tools.jackson.module.kotlin.jacksonObjectMapper
