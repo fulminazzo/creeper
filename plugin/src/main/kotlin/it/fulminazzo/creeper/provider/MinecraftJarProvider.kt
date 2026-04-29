@@ -4,12 +4,12 @@ import it.fulminazzo.creeper.ServerType
 import java.nio.file.Path
 
 /**
- * A provider for the executable of the specified Minecraft version.
+ * A provider for the executable of the specified Minecraft platform and version.
  */
 interface MinecraftJarProvider {
 
     /**
-     * Downloads the executable of the specified Minecraft version to the given directory.
+     * Downloads the executable of the specified Minecraft platform and version to the given directory.
      *
      * @param platform the platform
      * @param version the version
