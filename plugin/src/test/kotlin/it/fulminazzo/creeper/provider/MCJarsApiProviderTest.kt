@@ -2,7 +2,9 @@ package it.fulminazzo.creeper.provider
 
 import it.fulminazzo.creeper.ServerType
 import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertThrows
 import org.junit.jupiter.api.Assertions.assertTrue
+import org.junit.jupiter.api.assertThrows
 import java.nio.file.Path
 import kotlin.io.path.deleteIfExists
 import kotlin.io.path.exists
@@ -24,6 +26,15 @@ class MCJarsApiProviderTest {
 
         provider.get(platform, version, destination)
         assertTrue(destination.exists(), "destination file does not exist: ${destination.toAbsolutePath()}")
+    }
+
+    @Test
+    fun `test that get build throws if jar is not found`() {
+        val platform = ServerType.VANILLA
+        val version = "1.8.8-not-found"
+        val destination = workDir.resolve("${platform.name.lowercase()}-$version.jar")
+
+        assertThrows<JarNotFoundException> { provider.get(platform, version, destination) }
     }
 
     @Test
