@@ -8,14 +8,11 @@ import kotlin.io.path.writeText
 
 /**
  * A downloader that caches the downloaded files in a local directory.
- *
- * @property downloader the downloader used to download the files
- * @constructor Creates a new Cached downloader
  */
-class CachedDownloader(private val downloader: Downloader = Downloader.http()) {
+fun interface CachedDownloader {
 
     /**
-     * If a file with name [destination].[HASH_EXTENSION] exists and matches
+     * If a file with name [destination].[SimpleCachedDownloader.HASH_EXTENSION] exists and matches
      * the provided hash, the resource will not be downloaded.
      * Otherwise, a new download will be initialized and a checksum file will be created.
      *
@@ -23,18 +20,42 @@ class CachedDownloader(private val downloader: Downloader = Downloader.http()) {
      * @param destination the destination path where it will be stored
      * @param hash the hash of the resource (to compare with the local one)
      */
-    fun download(resource: String, destination: Path, hash: String) {
-        val checksum = destination.resolveSibling("${destination.name}.$HASH_EXTENSION")
-        if (checksum.exists()) {
-            val expectedChecksum = checksum.readText()
-            if (hash == expectedChecksum) return
-        }
-        downloader.download(resource, destination)
-        checksum.writeText(hash)
-    }
+    fun download(resource: String, destination: Path, hash: String)
 
     companion object {
-        private const val HASH_EXTENSION = "hash"
+
+        /**
+         * Creates a new [CachedDownloader] that delegates the download part to a [Downloader].
+         *
+         * @param delegate the downloader used to download the files
+         * @return the cached downloader
+         */
+        fun simple(delegate: Downloader): CachedDownloader = SimpleCachedDownloader(delegate)
+
+    }
+
+    /**
+     * Base implementation of [CachedDownloader] that delegates the download part to a [Downloader].
+     *
+     * @property downloader the downloader used to download the files
+     * @constructor Creates a new Cached downloader
+     */
+    private class SimpleCachedDownloader(private val downloader: Downloader) : CachedDownloader {
+
+        override fun download(resource: String, destination: Path, hash: String) {
+            val checksum = destination.resolveSibling("${destination.name}.$HASH_EXTENSION")
+            if (checksum.exists()) {
+                val expectedChecksum = checksum.readText()
+                if (hash == expectedChecksum) return
+            }
+            downloader.download(resource, destination)
+            checksum.writeText(hash)
+        }
+
+        companion object {
+            private const val HASH_EXTENSION = "hash"
+
+        }
 
     }
 

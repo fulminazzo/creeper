@@ -18,7 +18,7 @@ class CachedDownloaderTest {
 
     private val hash = "1234567890"
 
-    private val downloader = CachedDownloader(Downloader.http())
+    private val downloader = CachedDownloader.simple(Downloader.http())
 
     @BeforeEach
     fun setup() {
@@ -30,7 +30,7 @@ class CachedDownloaderTest {
     @Test
     fun `test that downloader downloads resource only once`() {
         val mockDownloader = mockk<Downloader>()
-        val downloader = CachedDownloader(mockDownloader)
+        val downloader = CachedDownloader.simple(mockDownloader)
         every { mockDownloader.download(resourcePath, destinationPath) } just Runs
 
         downloader.download(resourcePath, destinationPath, hash)
