@@ -14,14 +14,16 @@ import java.net.http.HttpClient
 import java.net.http.HttpRequest
 import java.net.http.HttpResponse
 import java.nio.file.Path
+import kotlin.io.path.createDirectories
+import kotlin.io.path.writeText
 import kotlin.time.Duration.Companion.seconds
 import kotlin.time.toJavaDuration
 import kotlin.uuid.Uuid
 
 /**
- * A [MinecraftJarProvider] that uses the [MCJars API](https://mcjars.app).
+ * A [MinecraftJarProvider] and [MinecraftConfigProvider] that uses the [MCJars API](https://mcjars.app).
  */
-class MCJarsApiProvider : MinecraftJarProvider {
+class MCJarsApiProvider : MinecraftJarProvider, MinecraftConfigProvider {
     private val downloader = CachedDownloader.global(Downloader.http())
     private val cache = mutableMapOf<Pair<ServerType, String>, BuildResponse>()
 
@@ -87,12 +89,31 @@ class MCJarsApiProvider : MinecraftJarProvider {
 
     override fun get(platform: ServerType.MinecraftType, version: String, directory: Path) {
         getBuild(platform, version)
-            ?.let { downloader.download(
-                it.url,
-                directory.resolve("${platform.name.lowercase()}-$version.jar"),
-                it.toHashString()
-            ) }
+            ?.let {
+                downloader.download(
+                    it.url,
+                    directory.resolve("${platform.name.lowercase()}-$version.jar"),
+                    it.toHashString()
+                )
+            }
             ?: throw JarNotFoundException(platform, version)
+    }
+
+    override fun get(
+        name: String,
+        platform: ServerType.MinecraftType,
+        version: String,
+        directory: Path
+    ) {
+        getConfig(name, platform, version)
+            ?.let {
+                directory.createDirectories().resolve(it.name).writeText(it.data)
+            }
+            ?: throw ConfigurationNotFoundException(
+                name,
+                platform,
+                version
+            )
     }
 
     companion object {

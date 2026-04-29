@@ -9,6 +9,7 @@ import org.junit.jupiter.api.assertThrows
 import java.nio.file.Path
 import kotlin.io.path.deleteIfExists
 import kotlin.io.path.exists
+import kotlin.io.path.name
 import kotlin.test.Test
 import kotlin.test.assertNull
 import kotlin.uuid.Uuid
@@ -17,20 +18,39 @@ class MCJarsApiProviderTest {
     private val provider = MCJarsApiProvider()
 
     @Test
-    fun `test that get works`() {
+    fun `test that MinecraftJarProvider#get works`() {
         val destination = WORK_DIR.resolve("${PLATFORM.name.lowercase()}-$VERSION.jar")
         destination.deleteIfExists()
 
         provider.get(PLATFORM, VERSION, destination.parent)
-        assertTrue(destination.exists(), "destination file does not exist: ${destination.toAbsolutePath()}")
+        assertTrue(destination.exists(), "JAR file does not exist: ${destination.toAbsolutePath()}")
     }
 
     @Test
-    fun `test that get throws if jar is not found`() {
+    fun `test that MinecraftJarProvider#get throws if jar is not found`() {
         val version = "1.8.8-not-found"
         val destination = WORK_DIR.resolve("${PLATFORM.name.lowercase()}-$version.jar")
 
         assertThrows<JarNotFoundException> { provider.get(PLATFORM, version, destination.parent) }
+    }
+
+    @Test
+    fun `test that MinecraftConfigProvider#get works`() {
+        val destination = WORK_DIR.resolve("server.properties")
+        destination.deleteIfExists()
+
+        provider.get(destination.name, PLATFORM, VERSION, destination.parent)
+        assertTrue(destination.exists(), "configuration file does not exist: ${destination.toAbsolutePath()}")
+    }
+
+    @Test
+    fun `test that MinecraftConfigProvider#get throws if jar is not found`() {
+        val version = "1.8.8-not-found"
+        val destination = WORK_DIR.resolve("server.properties")
+
+        assertThrows<ConfigurationNotFoundException> {
+            provider.get(destination.name, PLATFORM, version, destination.parent)
+        }
     }
 
     @Test
