@@ -91,6 +91,21 @@ class JvmFlagsBuilder {
     }
 
     /**
+     * Applies the flags of another [JvmFlagsBuilder] to the current one.
+     *
+     * Does not override existing flags.
+     *
+     * @param other the other flags builder
+     */
+    fun from(other: JvmFlagsBuilder) = apply {
+        minimumRam = other.minimumRam
+        maximumRam = other.maximumRam
+        enabledDeveloperFlags.putAll(other.enabledDeveloperFlags)
+        valueDeveloperFlags.putAll(other.valueDeveloperFlags)
+        propertyFlags.putAll(other.propertyFlags)
+    }
+
+    /**
      * Creates a new list of flags.
      *
      * @return the list of flags

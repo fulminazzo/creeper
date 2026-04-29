@@ -6,6 +6,13 @@ import org.junit.jupiter.api.Test
 class JvmFlagsBuilderTest {
 
     @Test
+    fun `test that from and build return equal flags`() {
+        val builder = JvmFlagsBuilder()
+        builder.from(JvmFlagsBuilder.AKAIR_FLAGS)
+        assertEquals(JvmFlagsBuilder.AKAIR_FLAGS.build(), builder.build())
+    }
+
+    @Test
     fun `test that full build returns correct result`() {
         val expected = "-Xms1G -Xmx2G -XX:+UseG1GC -XX:-ParallelRefProcEnabled -XX:MaxGCPauseMillis=200 -XX:G1NewSizePercent=30 -Daikars.new.flags=true"
         val builder = JvmFlagsBuilder()
