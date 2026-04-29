@@ -26,6 +26,15 @@ gradlePlugin {
     }
 }
 
+kotlin {
+    compilerOptions {
+        freeCompilerArgs.addAll(
+            "-opt-in=kotlin.uuid.ExperimentalUuidApi",
+            "-opt-in=kotlinx.serialization.ExperimentalSerializationApi"
+        )
+    }
+}
+
 tasks.test {
     useJUnitPlatform()
     jvmArgs = listOf("-XX:+EnableDynamicAgentLoading")
