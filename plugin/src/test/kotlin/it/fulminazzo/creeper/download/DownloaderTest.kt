@@ -17,15 +17,15 @@ import kotlin.test.Test
 import kotlin.test.assertContains
 
 class DownloaderTest {
+    private val destinationPath = Path.of("build/resources/test/downloader/http_downloader_test.txt")
 
     @Test
     fun `test that HTTP downloader works`() {
         val downloader = Downloader.http()
-        val destination = Path.of("build/resources/test/downloader/http_downloader_test.txt")
-        destination.deleteIfExists()
+        destinationPath.deleteIfExists()
 
-        downloader.download("https://raw.githubusercontent.com/gradle/gradle/master/gradle.properties", destination)
-        assertContains(destination.readText(), "org.gradle.jvmargs=")
+        downloader.download("https://raw.githubusercontent.com/gradle/gradle/master/gradle.properties", destinationPath)
+        assertContains(destinationPath.readText(), "org.gradle.jvmargs=")
     }
 
     @Test
@@ -37,7 +37,7 @@ class DownloaderTest {
         try {
             val downloader = Downloader.http()
             assertThrows<IOException> {
-                downloader.download("http://localhost:$port$path", Path.of(""))
+                downloader.download("http://localhost:$port$path", destinationPath)
             }
 
             val lines = requestCatcher.getLines()
