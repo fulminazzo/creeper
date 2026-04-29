@@ -39,6 +39,8 @@ sealed class MemoryUnit(val jvmUnit: String) {
  */
 data class MemorySize(val value: Long, val unit: MemoryUnit) {
 
+    constructor(value: Int, unit: MemoryUnit) : this(value.toLong(), unit)
+
     /**
      * Converts the current size in the JVM flags format.
      *
@@ -48,12 +50,12 @@ data class MemorySize(val value: Long, val unit: MemoryUnit) {
 
 }
 
-val Int.b: MemorySize get() = MemorySize(toLong(), MemoryUnit.B)
-val Int.kb: MemorySize get() = MemorySize(toLong(), MemoryUnit.KB)
-val Int.mb: MemorySize get() = MemorySize(toLong(), MemoryUnit.MB)
-val Int.gb: MemorySize get() = MemorySize(toLong(), MemoryUnit.GB)
+val Int.b: MemorySize get() = MemorySize(this, MemoryUnit.B)
+val Int.kb: MemorySize get() = MemorySize(this, MemoryUnit.KB)
+val Int.mb: MemorySize get() = MemorySize(this, MemoryUnit.MB)
+val Int.gb: MemorySize get() = MemorySize(this, MemoryUnit.GB)
 
-val Long.b: MemorySize get() = MemorySize(toLong(), MemoryUnit.B)
-val Long.kb: MemorySize get() = MemorySize(toLong(), MemoryUnit.KB)
-val Long.mb: MemorySize get() = MemorySize(toLong(), MemoryUnit.MB)
-val Long.gb: MemorySize get() = MemorySize(toLong(), MemoryUnit.GB)
+val Long.b: MemorySize get() = MemorySize(this, MemoryUnit.B)
+val Long.kb: MemorySize get() = MemorySize(this, MemoryUnit.KB)
+val Long.mb: MemorySize get() = MemorySize(this, MemoryUnit.MB)
+val Long.gb: MemorySize get() = MemorySize(this, MemoryUnit.GB)
