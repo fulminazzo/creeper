@@ -33,7 +33,7 @@ class MCJarsApiProvider : MinecraftJarProvider {
      * @return the build information (or `null` if the build was not found)
      * @throws ApiException if the API returns an error
      */
-    fun getBuild(type: ServerType.MinecraftType, version: String): BuildResponse? {
+    internal fun getBuild(type: ServerType.MinecraftType, version: String): BuildResponse? {
         val key = type to version
         if (key in cache) return cache[key]
         val url = getBuildUrl(type, version)
@@ -143,14 +143,14 @@ class MCJarsApiProvider : MinecraftJarProvider {
 }
 
 /**
- * The build response when querying the API.
+ * The response when querying the API for a specific build.
  *
  * @property uuid the UUID of the build
  * @property size the size of the build
  * @property url the URL to download the build
  * @constructor Create a new Build response
  */
-data class BuildResponse(val uuid: Uuid, val size: Long, val url: String) : Hashable {
+internal data class BuildResponse(val uuid: Uuid, val size: Long, val url: String) : Hashable {
 
     override fun toHashString(): String = "$uuid:$size"
 
