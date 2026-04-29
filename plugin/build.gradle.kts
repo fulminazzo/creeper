@@ -1,5 +1,6 @@
 plugins {
     `java-gradle-plugin`
+    jacoco
 
     alias(libs.plugins.kotlin.jvm)
     alias(libs.plugins.buildconfig)
@@ -25,6 +26,15 @@ gradlePlugin {
 tasks.test {
     useJUnitPlatform()
     jvmArgs = listOf("-XX:+EnableDynamicAgentLoading")
+}
+
+tasks.jacocoTestReport {
+    dependsOn(tasks.check)
+
+    reports {
+        xml.required = true
+        csv.required = false
+    }
 }
 
 configure<com.github.gmazzo.buildconfig.BuildConfigExtension> {
