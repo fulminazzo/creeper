@@ -22,9 +22,10 @@ class JvmFlagsBuilderTest {
 
     @Test
     fun `test that only memory build returns correct result`() {
-        val expected = "-Xms1G -Xmx2G"
+        val expected = "-Xms1K -Xmx3G"
         val builder = JvmFlagsBuilder()
-        builder.minimumRam = 1.gb
+        builder.minimumRam(1, MemoryUnit.KB)
+        builder.maximumRam(3, MemoryUnit.GB)
         assertEquals(expected, builder.build(), "jvm flags were not equal")
     }
 
