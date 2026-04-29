@@ -5,6 +5,7 @@ import it.fulminazzo.creeper.ProjectInfo
 import it.fulminazzo.creeper.ServerType
 import it.fulminazzo.creeper.download.CachedDownloader
 import it.fulminazzo.creeper.download.Downloader
+import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonIgnoreUnknownKeys
@@ -13,7 +14,6 @@ import java.net.http.HttpClient
 import java.net.http.HttpRequest
 import java.net.http.HttpResponse
 import java.nio.file.Path
-import java.util.concurrent.ConcurrentHashMap
 import kotlin.time.Duration.Companion.seconds
 import kotlin.time.toJavaDuration
 import kotlin.uuid.Uuid
@@ -43,6 +43,23 @@ class MCJarsApiProvider : MinecraftJarProvider {
         val response = BuildResponse(data.uuid, installation.size, installation.url)
         cache[key] = response
         return response
+    }
+
+    /**
+     * Gets the requested configuration information.
+     *
+     * @param name the name of the configuration
+     * @param type the platform of the build containing the configuration
+     * @param version the version of the build containing the configuration
+     * @return the configuration information (or `null` if the configuration or build were not found)
+     * @throws ApiException if the API returns an error
+     */
+    internal fun getConfig(name: String, type: ServerType.MinecraftType, version: String): Config? {
+        val build = getBuild(type, version) ?: return null
+        val url = getBuildConfigUrl(build.uuid)
+        val raw = getFromApi(url) ?: return null
+        val response = Json.decodeFromString<ConfigResponse>(raw)
+        return response.configs.firstOrNull { it.name.endsWith(name) }
     }
 
     /**
@@ -96,6 +113,14 @@ class MCJarsApiProvider : MinecraftJarProvider {
          */
         private fun getBuildUrl(type: ServerType.MinecraftType, version: String): String =
             "builds/types/${type.name.uppercase()}/versions/$version"
+
+        /**
+         * Gets the URL to get the configurations for the given [buildId].
+         *
+         * @param buildId the UUID of the build
+         * @return the URL
+         */
+        private fun getBuildConfigUrl(buildId: Uuid): String = "builds/$buildId/configs"
 
     }
 
@@ -155,3 +180,28 @@ internal data class BuildResponse(val uuid: Uuid, val size: Long, val url: Strin
     override fun toHashString(): String = "$uuid:$size"
 
 }
+
+/**
+ * The response when querying the API for the configurations of a specific build.
+ *
+ * @property configs the configurations
+ * @constructor Create a new Config response
+ */
+@Serializable
+@JsonIgnoreUnknownKeys
+internal data class ConfigResponse(val configs: List<Config>)
+
+/**
+ * Holds a configuration from the API.
+ *
+ * @property uuid the UUID of the configuration
+ * @property data the actual configuration contents
+ * @constructor Create a new Configuration
+ */
+@Serializable
+@JsonIgnoreUnknownKeys
+internal data class Config(
+    @SerialName("value_uuid") val uuid: Uuid,
+    @SerialName("location") val name: String,
+    @SerialName("value") val data: String
+)
