@@ -21,7 +21,7 @@ class MCJarsApiProviderTest {
         val destination = WORK_DIR.resolve("${PLATFORM.name.lowercase()}-$VERSION.jar")
         destination.deleteIfExists()
 
-        provider.get(PLATFORM, VERSION, destination)
+        provider.get(PLATFORM, VERSION, destination.parent)
         assertTrue(destination.exists(), "destination file does not exist: ${destination.toAbsolutePath()}")
     }
 
@@ -30,7 +30,7 @@ class MCJarsApiProviderTest {
         val version = "1.8.8-not-found"
         val destination = WORK_DIR.resolve("${PLATFORM.name.lowercase()}-$version.jar")
 
-        assertThrows<JarNotFoundException> { provider.get(PLATFORM, version, destination) }
+        assertThrows<JarNotFoundException> { provider.get(PLATFORM, version, destination.parent) }
     }
 
     @Test

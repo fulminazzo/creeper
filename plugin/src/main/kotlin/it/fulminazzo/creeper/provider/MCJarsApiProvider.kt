@@ -23,7 +23,7 @@ import kotlin.uuid.Uuid
  */
 class MCJarsApiProvider : MinecraftJarProvider {
     private val downloader = CachedDownloader.global(Downloader.http())
-    private val cache = ConcurrentHashMap<Pair<ServerType, String>, BuildResponse>()
+    private val cache = mutableMapOf<Pair<ServerType, String>, BuildResponse>()
 
     /**
      * Gets the requested build information.
@@ -35,7 +35,7 @@ class MCJarsApiProvider : MinecraftJarProvider {
      */
     fun getBuild(type: ServerType.MinecraftType, version: String): BuildResponse? {
         val key = type to version
-        if (cache.contains(key)) return cache[key]
+        if (key in cache) return cache[key]
         val url = getBuildUrl(type, version)
         val raw = getFromApi(url) ?: return null
         val data = Json.decodeFromString<RawBuildResponse>(raw).builds.data.firstOrNull() ?: return null
@@ -70,7 +70,11 @@ class MCJarsApiProvider : MinecraftJarProvider {
 
     override fun get(platform: ServerType.MinecraftType, version: String, directory: Path) {
         getBuild(platform, version)
-            ?.let { downloader.download(it.url, directory, it.toHashString()) }
+            ?.let { downloader.download(
+                it.url,
+                directory.resolve("${platform.name.lowercase()}-$version.jar"),
+                it.toHashString()
+            ) }
             ?: throw JarNotFoundException(platform, version)
     }
 

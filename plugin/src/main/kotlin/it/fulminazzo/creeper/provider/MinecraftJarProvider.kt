@@ -9,7 +9,7 @@ import java.nio.file.Path
 interface MinecraftJarProvider {
 
     /**
-     * Gets the executable of the specified Minecraft version.
+     * Downloads the executable of the specified Minecraft version to the given directory.
      *
      * @param platform the platform
      * @param version the version
