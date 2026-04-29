@@ -36,35 +36,35 @@ fun interface Downloader {
 
     }
 
-}
-
-/**
- * Base implementation of [Downloader] that uses the HTTP protocol.
- *
- * @constructor Create an empty Http downloader
- */
-private class HttpDownloader : Downloader {
-    private val client = HttpClient.newBuilder()
-        .version(HttpClient.Version.HTTP_2)
-        .connectTimeout(30.seconds.toJavaDuration())
-        .followRedirects(HttpClient.Redirect.NORMAL)
-        .build()
-
-    override fun download(resource: String, destination: Path) {
-        destination.createParentDirectories()
-        destination.deleteIfExists()
-        destination.createFile()
-
-        val request = HttpRequest.newBuilder()
-            .header("User-Agent", USER_AGENT)
-            .uri(URI.create(resource))
+    /**
+     * Base implementation of [Downloader] that uses the HTTP protocol.
+     *
+     * @constructor Create an empty Http downloader
+     */
+    private class HttpDownloader : Downloader {
+        private val client = HttpClient.newBuilder()
+            .version(HttpClient.Version.HTTP_2)
+            .connectTimeout(30.seconds.toJavaDuration())
+            .followRedirects(HttpClient.Redirect.NORMAL)
             .build()
 
-        client.send(request, HttpResponse.BodyHandlers.ofFile(destination))
-    }
+        override fun download(resource: String, destination: Path) {
+            destination.createParentDirectories()
+            destination.deleteIfExists()
+            destination.createFile()
 
-    companion object {
-        const val USER_AGENT = "${ProjectInfo.NAME}/${ProjectInfo.VERSION}"
+            val request = HttpRequest.newBuilder()
+                .header("User-Agent", USER_AGENT)
+                .uri(URI.create(resource))
+                .build()
+
+            client.send(request, HttpResponse.BodyHandlers.ofFile(destination))
+        }
+
+        companion object {
+            const val USER_AGENT = "${ProjectInfo.NAME}/${ProjectInfo.VERSION}"
+
+        }
 
     }
 
