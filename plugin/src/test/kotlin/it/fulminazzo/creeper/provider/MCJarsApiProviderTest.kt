@@ -3,6 +3,7 @@ package it.fulminazzo.creeper.provider
 import it.fulminazzo.creeper.ServerType
 import org.junit.jupiter.api.Assertions.assertEquals
 import kotlin.test.Test
+import kotlin.test.assertNull
 import kotlin.uuid.Uuid
 
 class MCJarsApiProviderTest {
@@ -18,6 +19,11 @@ class MCJarsApiProviderTest {
 
         val actual = provider.getBuild(ServerType.VANILLA, "1.8.8")
         assertEquals(expected, actual, "build data was not equal")
+    }
+
+    @Test
+    fun `test that getFromApi of not found returns null`() {
+        assertNull(provider.getFromApi("not-found"))
     }
 
 }

@@ -2,7 +2,6 @@ package it.fulminazzo.creeper.provider
 
 import it.fulminazzo.creeper.ProjectInfo
 import it.fulminazzo.creeper.ServerType
-import it.fulminazzo.creeper.provider.MCJarsApiProvider.ErrorResponse
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonIgnoreUnknownKeys
@@ -42,7 +41,7 @@ class MCJarsApiProvider {
      * @return the body (or `null` if the resource was not found)
      * @throws ApiException if the API returns an error
      */
-    private fun getFromApi(url: String): String? {
+    internal fun getFromApi(url: String): String? {
         val request = HttpRequest.newBuilder()
             .header("User-Agent", ProjectInfo.USER_AGENT)
             .uri(URI.create("$API_URL$url"))
