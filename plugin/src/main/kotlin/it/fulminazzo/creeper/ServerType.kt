@@ -12,10 +12,11 @@ sealed interface ServerType {
      */
     sealed class MinecraftType(val name: String) : ServerType
 
-    data object VANILLA : MinecraftType("VANILLA")
-    data object SPIGOT : MinecraftType("SPIGOT")
-    data object BUKKIT : MinecraftType("BUKKIT")
-    data object PAPER : MinecraftType("PAPER")
-    data object FOLIA : MinecraftType("FOLIA")
+    data object VANILLA : MinecraftType("Vanilla")
+    data object SPIGOT : MinecraftType("Spigot")
+    data object BUKKIT : MinecraftType("Bukkit")
+    data object PAPER : MinecraftType("Paper")
+    data object PURPUR : MinecraftType("Purpur")
+    data object FOLIA : MinecraftType("Folia")
 
 }
