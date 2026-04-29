@@ -2,26 +2,22 @@ package it.fulminazzo.creeper.provider
 
 import it.fulminazzo.creeper.ProjectInfo
 import it.fulminazzo.creeper.ServerType
+import it.fulminazzo.creeper.provider.MCJarsApiProvider.ErrorResponse
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
-import java.io.Serial
+import kotlinx.serialization.json.JsonIgnoreUnknownKeys
 import java.net.URI
 import java.net.http.HttpClient
 import java.net.http.HttpRequest
 import java.net.http.HttpResponse
-import java.util.*
 import kotlin.time.Duration.Companion.seconds
 import kotlin.time.toJavaDuration
+import kotlin.uuid.Uuid
 
 /**
  * A [MinecraftJarProvider] that uses the [MCJars API](https://mcjars.app).
  */
 class MCJarsApiProvider {
-    private val client = HttpClient.newBuilder()
-        .version(HttpClient.Version.HTTP_2)
-        .connectTimeout(30.seconds.toJavaDuration())
-        .followRedirects(HttpClient.Redirect.NORMAL)
-        .build()
 
     /**
      * Gets the requested build information.
@@ -29,32 +25,14 @@ class MCJarsApiProvider {
      * @param type the platform
      * @param version the version of the build
      * @return the build information (or `null` if the build was not found)
+     * @throws ApiException if the API returns an error
      */
     fun getBuild(type: ServerType.MinecraftType, version: String): BuildResponse? {
-        @Serializable
-        data class Installation(val url: String, val size: Long)
-
-        @Serializable
-        data class BuildData(val uuid: String, val installations: List<Installation>)
-
-        @Serializable
-        data class Build(val data: List<BuildData>)
-
-        @Serializable
-        data class RawBuildResponse(val builds: Build)
-
         val url = getBuildUrl(type, version)
-        return getFromApi(url)
-            ?.let { Json.decodeFromString<RawBuildResponse>(it) }
-            ?.let {
-                val firstBuildData = it.builds.data.first()
-                val firstInstallation = firstBuildData.installations.first()
-                BuildResponse(
-                    UUID.fromString(firstBuildData.uuid),
-                    firstInstallation.size,
-                    firstInstallation.url
-                )
-            }
+        val raw = getFromApi(url) ?: return null
+        val data = Json.decodeFromString<RawBuildResponse>(raw).builds.data.firstOrNull() ?: return null
+        val installation = data.installation.firstOrNull()?.firstOrNull() ?: return null
+        return BuildResponse(data.uuid, installation.size, installation.url)
     }
 
     /**
@@ -62,13 +40,14 @@ class MCJarsApiProvider {
      *
      * @param url the url
      * @return the body (or `null` if the resource was not found)
+     * @throws ApiException if the API returns an error
      */
     private fun getFromApi(url: String): String? {
         val request = HttpRequest.newBuilder()
             .header("User-Agent", ProjectInfo.USER_AGENT)
             .uri(URI.create("$API_URL$url"))
             .build()
-        val response = client.send(request, HttpResponse.BodyHandlers.ofString())
+        val response = CLIENT.send(request, HttpResponse.BodyHandlers.ofString())
         return when (response.statusCode()) {
             200 -> response.body()
             404 -> null
@@ -81,7 +60,12 @@ class MCJarsApiProvider {
 
     companion object {
         private const val API_URL = "https://mcjars.app/api/v3/"
-        private const val BUILDS_URL = $$"builds/types/%1$s/versions/%2$s"
+
+        private val CLIENT = HttpClient.newBuilder()
+            .version(HttpClient.Version.HTTP_2)
+            .connectTimeout(30.seconds.toJavaDuration())
+            .followRedirects(HttpClient.Redirect.NORMAL)
+            .build()
 
         /**
          * Gets the URL to get the build information for the given [type] and [version].
@@ -91,7 +75,7 @@ class MCJarsApiProvider {
          * @return the URL
          */
         private fun getBuildUrl(type: ServerType.MinecraftType, version: String): String =
-            BUILDS_URL.format(type.name.uppercase(), version)
+            "builds/types/${type.name.uppercase()}/versions/$version"
 
     }
 
@@ -103,17 +87,9 @@ class MCJarsApiProvider {
      * @param statusCode the status code
      * @param response the response from the API
      */
-    private class ApiException(statusCode: Int, response: ErrorResponse) : Exception(
+    class ApiException internal constructor(statusCode: Int, response: ErrorResponse) : Exception(
         "Unexpected response code: $statusCode. Errors: ${response.errors.joinToString(", ")}"
-    ) {
-
-        companion object {
-            @Serial
-            private const val serialVersionUID: Long = -2206243090390470112L
-
-        }
-
-    }
+    )
 
     /**
      * Identifies an error response from the API.
@@ -122,7 +98,27 @@ class MCJarsApiProvider {
      * @constructor Create a new Error response
      */
     @Serializable
-    private data class ErrorResponse(val errors: List<String>)
+    internal data class ErrorResponse(val errors: List<String>)
+
+    /*
+     * BUILD
+     */
+
+    @Serializable
+    @JsonIgnoreUnknownKeys
+    private data class RawBuildResponse(val builds: BuildPage)
+
+    @Serializable
+    @JsonIgnoreUnknownKeys
+    private data class BuildPage(val data: List<BuildData>)
+
+    @Serializable
+    @JsonIgnoreUnknownKeys
+    private data class BuildData(val uuid: Uuid, val installation: List<List<Installation>>)
+
+    @Serializable
+    @JsonIgnoreUnknownKeys
+    private data class Installation(val url: String, val size: Long)
 
 }
 
@@ -134,4 +130,4 @@ class MCJarsApiProvider {
  * @property url the URL to download the build
  * @constructor Create a new Build response
  */
-data class BuildResponse(val uuid: UUID, val size: Long, val url: String)
+data class BuildResponse(val uuid: Uuid, val size: Long, val url: String)
