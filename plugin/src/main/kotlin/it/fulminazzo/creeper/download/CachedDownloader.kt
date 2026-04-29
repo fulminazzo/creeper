@@ -1,9 +1,12 @@
 package it.fulminazzo.creeper.download
 
+import it.fulminazzo.creeper.ProjectInfo
 import java.nio.file.Path
+import kotlin.io.path.copyTo
 import kotlin.io.path.exists
 import kotlin.io.path.name
 import kotlin.io.path.readText
+import kotlin.io.path.relativeTo
 import kotlin.io.path.writeText
 
 /**
@@ -12,7 +15,7 @@ import kotlin.io.path.writeText
 fun interface CachedDownloader {
 
     /**
-     * If a file with name [destination].[SimpleCachedDownloader.HASH_EXTENSION] exists and matches
+     * If a file with name [destination].[HASH_EXTENSION] exists and matches
      * the provided hash, the resource will not be downloaded.
      * Otherwise, a new download will be initialized and a checksum file will be created.
      *
@@ -23,6 +26,19 @@ fun interface CachedDownloader {
     fun download(resource: String, destination: Path, hash: String)
 
     companion object {
+        /**
+         * The global cache directory.
+         */
+        internal val CACHE_DIRECTORY
+            get() = Path.of(System.getProperty("user.home"), ".gradle", "caches", ProjectInfo.NAME)
+
+        private const val HASH_EXTENSION = "hash"
+
+        /**
+         * Creates a special [CachedDownloader] that stores the requested resource in a global local cache directory.
+         * Then, it copies the cached file to the requested destination.
+         */
+        fun global(delegate: Downloader): CachedDownloader = GlobalCachedDownloader(delegate)
 
         /**
          * Creates a new [CachedDownloader] that delegates the download part to a [Downloader].
@@ -35,12 +51,33 @@ fun interface CachedDownloader {
     }
 
     /**
+     * Special [CachedDownloader] that stores the requested resource globally
+     * before storing it in the actual destination.
+     *
+     * @constructor Creates a new Global Cached downloader
+     *
+     * @param downloader the downloader used to download the files
+     */
+    private class GlobalCachedDownloader(downloader: Downloader) : CachedDownloader {
+        private val delegate = SimpleCachedDownloader(downloader)
+
+        override fun download(resource: String, destination: Path, hash: String) {
+            val current = Path.of("")
+            val relative = current.toAbsolutePath().relativize(destination.toAbsolutePath())
+            val cacheDestination = CACHE_DIRECTORY.resolve(relative)
+            delegate.download(resource, cacheDestination, hash)
+            cacheDestination.copyTo(destination, overwrite = true)
+        }
+
+    }
+
+    /**
      * Base implementation of [CachedDownloader] that delegates the download part to a [Downloader].
      *
-     * @property downloader the downloader used to download the files
+     * @property delegate the downloader used to download the files
      * @constructor Creates a new Cached downloader
      */
-    private class SimpleCachedDownloader(private val downloader: Downloader) : CachedDownloader {
+    private class SimpleCachedDownloader(private val delegate: Downloader) : CachedDownloader {
 
         override fun download(resource: String, destination: Path, hash: String) {
             val checksum = destination.resolveSibling("${destination.name}.$HASH_EXTENSION")
@@ -48,13 +85,8 @@ fun interface CachedDownloader {
                 val expectedChecksum = checksum.readText()
                 if (hash == expectedChecksum) return
             }
-            downloader.download(resource, destination)
+            delegate.download(resource, destination)
             checksum.writeText(hash)
-        }
-
-        companion object {
-            private const val HASH_EXTENSION = "hash"
-
         }
 
     }
