@@ -28,6 +28,24 @@ class CachedDownloaderTest {
     }
 
     @Test
+    fun `test that global downloader works`() {
+        val cacheDirectory = CachedDownloader.CACHE_DIRECTORY
+        cacheDirectory.toFile().deleteRecursively()
+
+        val downloader = CachedDownloader.global(Downloader.http())
+        downloader.download(resourcePath, destinationPath, hash)
+        checkFileExists()
+
+        assertTrue(cacheDirectory.exists(), "Cache directory does not exist: ${cacheDirectory.toAbsolutePath()}")
+
+        val cachedFile = cacheDirectory.resolve(destinationPath)
+        assertTrue(cachedFile.exists(), "Cached file does not exist: ${cachedFile.toAbsolutePath()}")
+
+        val cachedChecksum = cacheDirectory.resolve(checksumPath).exists()
+        assertTrue(cachedChecksum, "Cached checksum does not exist: ${checksumPath.toAbsolutePath()}")
+    }
+
+    @Test
     fun `test that downloader downloads resource only once`() {
         val mockDownloader = mockk<Downloader>()
         val downloader = CachedDownloader.simple(mockDownloader)
@@ -51,14 +69,22 @@ class CachedDownloaderTest {
     fun `test that downloader downloads resource if checksum does not match`() {
         checksumPath.writeText(hash)
         downloader.download(resourcePath, destinationPath, "ABC")
-        assertTrue(destinationPath.exists())
+        checkFileExists()
     }
 
     @Test
     fun `test that downloader downloads resource and stores checksum`() {
         downloader.download(resourcePath, destinationPath, hash)
-        assertTrue(destinationPath.exists())
-        assertTrue(checksumPath.exists())
+        checkFileExists()
+        checkChecksumExists()
+    }
+
+    private fun checkFileExists() {
+        assertTrue(destinationPath.exists(), "Destination file does not exist: ${destinationPath.toAbsolutePath()}")
+    }
+
+    private fun checkChecksumExists() {
+        assertTrue(checksumPath.exists(), "Checksum file does not exist: ${checksumPath.toAbsolutePath()}")
     }
 
 }
