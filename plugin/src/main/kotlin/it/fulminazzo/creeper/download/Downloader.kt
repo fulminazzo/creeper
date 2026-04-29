@@ -6,6 +6,9 @@ import java.net.http.HttpClient
 import java.net.http.HttpRequest
 import java.net.http.HttpResponse
 import java.nio.file.Path
+import kotlin.io.path.createFile
+import kotlin.io.path.createParentDirectories
+import kotlin.io.path.deleteIfExists
 import kotlin.time.Duration.Companion.seconds
 import kotlin.time.toJavaDuration
 
@@ -48,6 +51,10 @@ private class HttpDownloader : Downloader {
         .build()
 
     override fun download(resource: String, destination: Path) {
+        destination.createParentDirectories()
+        destination.deleteIfExists()
+        destination.createFile()
+
         val request = HttpRequest.newBuilder()
             .header("User-Agent", USER_AGENT)
             .uri(URI.create(resource))
