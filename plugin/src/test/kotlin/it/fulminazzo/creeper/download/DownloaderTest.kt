@@ -42,7 +42,7 @@ class DownloaderTest {
 
             val lines = requestCatcher.getLines()
             assertContains(lines, "GET $path HTTP/1.1")
-            assertContains(lines, "User-Agent: ${ProjectInfo.NAME}/${ProjectInfo.VERSION}")
+            assertContains(lines, "User-Agent: ${ProjectInfo.USER_AGENT}")
 
         } finally {
             requestCatcher.stop()

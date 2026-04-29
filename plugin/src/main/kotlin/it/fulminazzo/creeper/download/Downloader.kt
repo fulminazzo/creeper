@@ -54,16 +54,11 @@ interface Downloader {
             destination.createFile()
 
             val request = HttpRequest.newBuilder()
-                .header("User-Agent", USER_AGENT)
+                .header("User-Agent", ProjectInfo.USER_AGENT)
                 .uri(URI.create(resource))
                 .build()
 
             client.send(request, HttpResponse.BodyHandlers.ofFile(destination))
-        }
-
-        companion object {
-            const val USER_AGENT = "${ProjectInfo.NAME}/${ProjectInfo.VERSION}"
-
         }
 
     }
