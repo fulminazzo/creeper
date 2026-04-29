@@ -1,23 +1,27 @@
 [versions]
 # PLUGINS
-kotlin_jvm = "2.3.0"
+kotlin-jvm = "2.3.0"
 buildconfig = "6.0.9"
-serialization = "2.3.21"
 
 # DATA FORMAT
-json = "1.11.0"
+jackson = "3.1.2"
 
 # TESTING
 mockk = "1.14.9"
 
 [libraries]
 # DATA FORMAT
-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "json" }
+jackson-kotlin = { module = "tools.jackson.module:jackson-module-kotlin", version.ref = "jackson" }
+json = { module = "tools.jackson.core:jackson-databind", version.ref = "jackson" }
+yaml = { module = "tools.jackson.dataformat:jackson-dataformat-yaml", version.ref = "jackson" }
+properties = { module = "tools.jackson.dataformat:jackson-dataformat-properties", version.ref = "jackson" }
 
 # TESTING
 mockk = { module = "io.mockk:mockk", version.ref = "mockk" }
 
+[bundles]
+jackson = ["jackson-kotlin", "json", "yaml", "properties"]
+
 [plugins]
-kotlin_jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin_jvm" }
+kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin-jvm" }
 buildconfig = { id = "com.github.gmazzo.buildconfig", version.ref = "buildconfig" }
-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "serialization" }

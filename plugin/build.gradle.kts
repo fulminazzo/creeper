@@ -4,7 +4,6 @@ plugins {
 
     alias(libs.plugins.kotlin.jvm)
     alias(libs.plugins.buildconfig)
-    alias(libs.plugins.serialization)
 }
 
 repositories {
@@ -12,7 +11,7 @@ repositories {
 }
 
 dependencies {
-    implementation(libs.json)
+    implementation(libs.bundles.jackson)
 
     testImplementation("org.jetbrains.kotlin:kotlin-test")
     testImplementation(libs.mockk)
@@ -30,7 +29,8 @@ kotlin {
     compilerOptions {
         freeCompilerArgs.addAll(
             "-opt-in=kotlin.uuid.ExperimentalUuidApi",
-            "-opt-in=kotlinx.serialization.ExperimentalSerializationApi"
+            "-opt-in=kotlinx.serialization.ExperimentalSerializationApi",
+            "-Xannotation-default-target=param-property"
         )
     }
 }

@@ -7,12 +7,12 @@ import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.assertThrows
 import java.nio.file.Path
+import java.util.*
 import kotlin.io.path.deleteIfExists
 import kotlin.io.path.exists
 import kotlin.io.path.name
 import kotlin.test.Test
 import kotlin.test.assertNull
-import kotlin.uuid.Uuid
 
 class MCJarsApiProviderTest {
     private val provider = MCJarsApiProvider()
@@ -91,12 +91,12 @@ class MCJarsApiProviderTest {
         private const val VERSION = "1.8.8"
 
         private val EXPECTED_BUILD_RESPONSE = BuildResponse(
-            Uuid.parse("4e36bf73-fa69-4bd1-b86a-24de658ae2e6"),
+            UUID.fromString("4e36bf73-fa69-4bd1-b86a-24de658ae2e6"),
             8322852L,
             "https://launcher.mojang.com/v1/objects/5fafba3f58c40dc51b5c3ca72a98f62dfdae1db7/server.jar"
         )
         private val EXPECTED_CONFIG = Config(
-            Uuid.parse("ce8ba7dd-71fd-49ba-b31e-9466033e0ef4"),
+            UUID.fromString("ce8ba7dd-71fd-49ba-b31e-9466033e0ef4"),
             "server.properties",
             """allow-flight=false
 allow-nether=true
