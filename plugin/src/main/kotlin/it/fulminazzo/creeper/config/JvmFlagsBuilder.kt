@@ -97,9 +97,9 @@ class JvmFlagsBuilder {
      */
     fun build(): String {
         var flags = "-Xms${minimumRam.toJvmFlags()} -Xmx${maximumRam.toJvmFlags()}"
-        flags += buildEnabledDeveloperFlags().takeIf { it.isNotEmpty() }.let { " $it" }
-        flags += buildValueDeveloperFlags().takeIf { it.isNotEmpty() }.let { " $it" }
-        flags += buildPropertyFlags().takeIf { it.isNotEmpty() }.let { " $it" }
+        flags += buildEnabledDeveloperFlags().takeIf { it.isNotEmpty() }?.let { " $it" } ?: ""
+        flags += buildValueDeveloperFlags().takeIf { it.isNotEmpty() }?.let { " $it" } ?: ""
+        flags += buildPropertyFlags().takeIf { it.isNotEmpty() }?.let { " $it" } ?: ""
         return flags
     }
 
