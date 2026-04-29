@@ -12,7 +12,7 @@ import kotlin.io.path.writeText
 /**
  * A downloader that caches the downloaded files in a local directory.
  */
-fun interface CachedDownloader {
+interface CachedDownloader {
 
     /**
      * If a file with name [destination].[HASH_EXTENSION] exists and matches

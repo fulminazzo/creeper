@@ -15,7 +15,7 @@ import kotlin.time.toJavaDuration
 /**
  * Function to download resources from the web.
  */
-fun interface Downloader {
+interface Downloader {
 
     /**
      * Downloads the requested resource.
