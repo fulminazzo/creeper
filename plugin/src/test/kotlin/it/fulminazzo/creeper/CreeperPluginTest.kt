@@ -11,6 +11,7 @@ class CreeperPluginTest {
     fun `test buildconfig plugin works`() {
         assertNotNull(ProjectInfo.GROUP)
         assertNotNull(ProjectInfo.PROJECT_NAME)
+        assertNotNull(ProjectInfo.VERSION)
     }
 
     //TODO: remove

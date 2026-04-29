@@ -35,6 +35,7 @@ configure<com.github.gmazzo.buildconfig.BuildConfigExtension> {
 
     buildConfigField("String", "GROUP", "\"${group}\"")
     buildConfigField("String", "PROJECT_NAME", "\"${name}\"")
+    buildConfigField("String", "VERSION", "\"${project.version}\"")
 }
 
 /**
