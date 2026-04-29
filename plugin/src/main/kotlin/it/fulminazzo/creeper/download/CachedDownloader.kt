@@ -1,14 +1,9 @@
 package it.fulminazzo.creeper.download
 
 import it.fulminazzo.creeper.ProjectInfo
+import it.fulminazzo.creeper.download.CachedDownloader.Companion.HASH_EXTENSION
 import java.nio.file.Path
-import kotlin.io.path.absolute
-import kotlin.io.path.copyTo
-import kotlin.io.path.exists
-import kotlin.io.path.name
-import kotlin.io.path.readText
-import kotlin.io.path.relativeTo
-import kotlin.io.path.writeText
+import kotlin.io.path.*
 
 /**
  * A downloader that caches the downloaded files in a local directory.
@@ -74,12 +69,13 @@ interface CachedDownloader {
             val current = Path.of("").absolute().normalize()
             val absolute = destination.absolute().normalize()
 
-            val relative = if (absolute.startsWith(current))
-                current.relativize(absolute)
-            else absolute.root.relativize(absolute)
+            val relative =
+                if (absolute.startsWith(current)) current.relativize(absolute)
+                else absolute.root.relativize(absolute)
 
             val cacheDestination = CACHE_DIRECTORY.resolve(relative)
             delegate.download(resource, cacheDestination, hash)
+            destination.parent.createDirectories()
             cacheDestination.copyTo(destination, overwrite = true)
         }
 
