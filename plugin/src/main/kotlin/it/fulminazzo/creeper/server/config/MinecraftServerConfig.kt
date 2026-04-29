@@ -57,7 +57,7 @@ class MinecraftServerConfigBuilder: ServerConfigBuilder() {
         flags.from(JvmFlagsBuilder.AKAIR_FLAGS)
     }
 
-    override fun build(): ServerConfig {
+    override fun build(): MinecraftServerConfig {
         return MinecraftServerConfig(
             eula,
             port,
