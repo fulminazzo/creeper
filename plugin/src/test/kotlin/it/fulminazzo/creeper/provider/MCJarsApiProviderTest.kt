@@ -1,5 +1,7 @@
 package it.fulminazzo.creeper.provider
 
+import io.mockk.spyk
+import io.mockk.verify
 import it.fulminazzo.creeper.ServerType
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertTrue
@@ -31,7 +33,17 @@ class MCJarsApiProviderTest {
         assertThrows<JarNotFoundException> { provider.get(PLATFORM, version, destination) }
     }
 
-        assertThrows<JarNotFoundException> { provider.get(platform, version, destination) }
+    @Test
+    fun `test getBuild internal cache`() {
+        val provider = spyk<MCJarsApiProvider>()
+
+        var actual = provider.getBuild(PLATFORM, VERSION)
+        assertEquals(EXPECTED_RESPONSE, actual, "build data was not equal")
+        verify(exactly = 1) { provider.getFromApi(any()) }
+
+        actual = provider.getBuild(PLATFORM, VERSION)
+        assertEquals(EXPECTED_RESPONSE, actual, "build data was not equal")
+        verify(exactly = 1) { provider.getFromApi(any()) }
     }
 
     @Test

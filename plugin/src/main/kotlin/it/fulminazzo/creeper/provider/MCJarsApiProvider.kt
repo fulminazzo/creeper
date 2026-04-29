@@ -13,6 +13,7 @@ import java.net.http.HttpClient
 import java.net.http.HttpRequest
 import java.net.http.HttpResponse
 import java.nio.file.Path
+import java.util.concurrent.ConcurrentHashMap
 import kotlin.time.Duration.Companion.seconds
 import kotlin.time.toJavaDuration
 import kotlin.uuid.Uuid
@@ -22,6 +23,7 @@ import kotlin.uuid.Uuid
  */
 class MCJarsApiProvider : MinecraftJarProvider {
     private val downloader = CachedDownloader.global(Downloader.http())
+    private val cache = ConcurrentHashMap<Pair<ServerType, String>, BuildResponse>()
 
     /**
      * Gets the requested build information.
@@ -32,11 +34,15 @@ class MCJarsApiProvider : MinecraftJarProvider {
      * @throws ApiException if the API returns an error
      */
     fun getBuild(type: ServerType.MinecraftType, version: String): BuildResponse? {
+        val key = type to version
+        if (cache.contains(key)) return cache[key]
         val url = getBuildUrl(type, version)
         val raw = getFromApi(url) ?: return null
         val data = Json.decodeFromString<RawBuildResponse>(raw).builds.data.firstOrNull() ?: return null
         val installation = data.installation.firstOrNull()?.firstOrNull() ?: return null
-        return BuildResponse(data.uuid, installation.size, installation.url)
+        val response = BuildResponse(data.uuid, installation.size, installation.url)
+        cache[key] = response
+        return response
     }
 
     /**
