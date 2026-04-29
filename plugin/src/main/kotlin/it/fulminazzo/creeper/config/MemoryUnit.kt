@@ -29,3 +29,31 @@ sealed class MemoryUnit(val jvmUnit: String) {
     data object GB : MemoryUnit("G")
 
 }
+
+/**
+ * Defines a memory size.
+ *
+ * @property value the value
+ * @property unit the unit of the value
+ * @constructor Create a new Memory size
+ */
+data class MemorySize(val value: Long, val unit: MemoryUnit) {
+
+    /**
+     * Converts the current size in the JVM flags format.
+     *
+     * @return the formatted size
+     */
+    fun toJvmFlags(): String = "${value}${unit.jvmUnit}"
+
+}
+
+val Int.b: MemorySize get() = MemorySize(toLong(), MemoryUnit.B)
+val Int.kb: MemorySize get() = MemorySize(toLong(), MemoryUnit.KB)
+val Int.mb: MemorySize get() = MemorySize(toLong(), MemoryUnit.MB)
+val Int.gb: MemorySize get() = MemorySize(toLong(), MemoryUnit.GB)
+
+val Long.b: MemorySize get() = MemorySize(toLong(), MemoryUnit.B)
+val Long.kb: MemorySize get() = MemorySize(toLong(), MemoryUnit.KB)
+val Long.mb: MemorySize get() = MemorySize(toLong(), MemoryUnit.MB)
+val Long.gb: MemorySize get() = MemorySize(toLong(), MemoryUnit.GB)
