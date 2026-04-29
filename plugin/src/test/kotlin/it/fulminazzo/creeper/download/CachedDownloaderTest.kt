@@ -12,19 +12,27 @@ import kotlin.io.path.writeText
 import kotlin.test.Test
 
 class CachedDownloaderTest {
-    private val resourcePath = "https://raw.githubusercontent.com/gradle/gradle/master/gradle.properties"
-    private val destinationPath = Path.of("build/resources/test/downloader/http_downloader_test.txt")
+    private val resourcePath = "https://fulminazzo.it"
+    private val destinationPath = Path.of("build/resources/test/downloader/cached_downloader_test.txt")
     private val checksumPath = destinationPath.resolveSibling("${destinationPath.name}.hash")
 
     private val hash = "1234567890"
 
-    private val downloader = CachedDownloader.simple(Downloader.http())
+    private lateinit var delegate: Downloader
+
+    private lateinit var downloader: CachedDownloader
 
     @BeforeEach
     fun setup() {
         val parent = destinationPath.parent
         if (parent.exists()) parent.toFile().deleteRecursively()
         parent.createDirectories()
+
+        delegate = mockk<Downloader>()
+        every { delegate.download(resourcePath, destinationPath) } answers {
+            arg<Path>(1).writeText("Hello, world!")
+        }
+        downloader = CachedDownloader.simple(delegate)
     }
 
     @Test
@@ -47,15 +55,13 @@ class CachedDownloaderTest {
 
     @Test
     fun `test that downloader downloads resource only once`() {
-        val mockDownloader = mockk<Downloader>()
-        val downloader = CachedDownloader.simple(mockDownloader)
-        every { mockDownloader.download(resourcePath, destinationPath) } just Runs
+        val downloader = CachedDownloader.simple(delegate)
 
         downloader.download(resourcePath, destinationPath, hash)
-        verify(exactly = 1) { mockDownloader.download(resourcePath, destinationPath) }
+        verify(exactly = 1) { delegate.download(resourcePath, destinationPath) }
 
         downloader.download(resourcePath, destinationPath, hash)
-        verify(exactly = 1) { mockDownloader.download(resourcePath, destinationPath) }
+        verify(exactly = 1) { delegate.download(resourcePath, destinationPath) }
     }
 
     @Test
