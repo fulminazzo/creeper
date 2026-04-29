@@ -1,6 +1,5 @@
 package it.fulminazzo.creeper
 
-import creeper.plugin.ProjectInfo
 import org.gradle.testfixtures.ProjectBuilder
 import kotlin.test.Test
 import kotlin.test.assertNotNull

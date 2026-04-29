@@ -27,15 +27,15 @@ tasks.test {
 }
 
 configure<com.github.gmazzo.buildconfig.BuildConfigExtension> {
-    val group = project.group
-    val name = project.name
+    val group = rootProject.group
+    val name = rootProject.name
 
     packageName = "${group}.${name}"
     className = "ProjectInfo"
 
     buildConfigField("String", "GROUP", "\"${group}\"")
     buildConfigField("String", "PROJECT_NAME", "\"${name}\"")
-    buildConfigField("String", "VERSION", "\"${project.version}\"")
+    buildConfigField("String", "VERSION", "\"${rootProject.version}\"")
 }
 
 /**
