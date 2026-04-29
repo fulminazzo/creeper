@@ -14,6 +14,7 @@ interface MinecraftJarProvider {
      * @param platform the platform
      * @param version the version
      * @param directory the directory where the executable will be stored
+     * @throws JarNotFoundException if the executable was not found
      */
     fun get(platform: ServerType.MinecraftType, version: String, directory: Path)
 
