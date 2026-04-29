@@ -4,6 +4,7 @@ plugins {
 
     alias(libs.plugins.kotlin.jvm)
     alias(libs.plugins.buildconfig)
+    alias(libs.plugins.serialization)
 }
 
 repositories {
@@ -11,6 +12,8 @@ repositories {
 }
 
 dependencies {
+    implementation(libs.json)
+
     testImplementation("org.jetbrains.kotlin:kotlin-test")
     testImplementation(libs.mockk)
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
