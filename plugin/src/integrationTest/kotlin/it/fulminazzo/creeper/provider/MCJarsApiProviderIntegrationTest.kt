@@ -96,7 +96,7 @@ class MCJarsApiProviderIntegrationTest {
     }
 
     companion object {
-        private val WORK_DIR = Path.of("build/resources/test/provider/mcjars_api_provider_test")
+        private val WORK_DIR = Path.of("build/resources/integrationTest/provider/mcjars_api_provider_test")
 
         private val PLATFORM = ServerType.VANILLA
         private const val VERSION = "1.8.8"

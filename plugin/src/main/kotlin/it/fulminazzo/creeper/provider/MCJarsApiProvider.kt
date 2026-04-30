@@ -6,6 +6,7 @@ import it.fulminazzo.creeper.Hashable
 import it.fulminazzo.creeper.ProjectInfo
 import it.fulminazzo.creeper.download.CachedDownloader
 import it.fulminazzo.creeper.server.ServerType
+import kotlinx.coroutines.runBlocking
 import tools.jackson.module.kotlin.jacksonObjectMapper
 import tools.jackson.module.kotlin.readValue
 import java.net.URI
@@ -92,11 +93,13 @@ class MCJarsApiProvider(private val downloader: CachedDownloader) : MinecraftJar
     override fun get(platform: ServerType.MinecraftType, version: String, directory: Path) {
         getBuild(platform, version)
             ?.let {
-                downloader.download(
-                    it.url,
-                    directory.resolve("${platform.name.lowercase()}-$version.jar"),
-                    it.toHashString()
-                )
+                runBlocking {
+                    downloader.download(
+                        it.url,
+                        directory.resolve("${platform.name.lowercase()}-$version.jar"),
+                        it.toHashString()
+                    ).await()
+                }
             }
             ?: throw JarNotFoundException(platform, version)
     }
