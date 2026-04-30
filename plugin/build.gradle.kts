@@ -39,7 +39,12 @@ kotlin {
     }
 }
 
-tasks.test {
+testConfiguration {
+    testType("functional")
+    testType("integration")
+}
+
+tasks.withType<Test>().configureEach {
     useJUnitPlatform()
     jvmArgs = listOf("-XX:+EnableDynamicAgentLoading")
 }
@@ -64,9 +69,4 @@ configure<com.github.gmazzo.buildconfig.BuildConfigExtension> {
     buildConfigField("String", "NAME", "\"${name}\"")
     buildConfigField("String", "VERSION", "\"${rootProject.version}\"")
     buildConfigField("String", "USER_AGENT", $$"\"$NAME/$VERSION\"")
-}
-
-testConfiguration {
-    testType("functional")
-    testType("integration")
 }
