@@ -15,7 +15,7 @@ import kotlin.io.path.writeText
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
-class CachedDownloaderTest {
+class SimpleCachedDownloaderTest {
     private lateinit var delegate: Downloader
     private val scope = CoroutineScope(Dispatchers.IO)
 
