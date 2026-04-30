@@ -1,18 +1,38 @@
 package it.fulminazzo.creeper.server.config
 
 import it.fulminazzo.creeper.server.BuildException
+import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertFalse
 import org.junit.jupiter.api.assertThrows
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.Arguments
 import org.junit.jupiter.params.provider.MethodSource
 import java.util.stream.Stream
+import kotlin.test.Test
 
 class MinecraftServerConfigBuilderTest {
+    private val builder = MinecraftServerConfigBuilder()
+
+    @Test
+    fun `test that build returns correct default values`() {
+        builder.eula = true
+        val config = builder.build()
+
+        assertEquals(25565, config.port)
+        assertEquals(20, config.players)
+        assertFalse(config.whitelist)
+        assertEquals(Difficulty.PEACEFUL, config.difficulty)
+        assertEquals(Gamemode.SURVIVAL, config.gamemode)
+        assertFalse(config.generateStructures)
+        assertFalse(config.onlineMode)
+        assertEquals(0, config.spawnProtection)
+        assertEquals(2, config.viewDistance)
+        assertEquals(2, config.simulationDistance)
+    }
 
     @ParameterizedTest
     @MethodSource("provideBuildTests")
     fun `test that build fails with invalid values`(test: (MinecraftServerConfigBuilder) -> Unit) {
-        val builder = MinecraftServerConfigBuilder()
         builder.eula = true
         assertThrows<BuildException> {
             test(builder)
