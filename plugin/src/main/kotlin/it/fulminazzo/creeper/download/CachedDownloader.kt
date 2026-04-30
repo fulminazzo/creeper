@@ -64,13 +64,10 @@ interface CachedDownloader {
      * Special [CachedDownloader] that stores the requested resource globally
      * before storing it in the actual destination.
      *
-     * The files are stored with the following rules:
-     * - If the current path is "/home/fulminazzo" and the destination path is "plugins/Main-1.0.jar",
-     *   then the file will be cached under "/home/fulminazzo/.gradle/caches/[ProjectInfo.NAME]/plugins/Main-1.0.jar";
-     * - If the current path is "/home/fulminazzo" and the destination path is "/home/fulminazzo/plugins/Main-1.0.jar",
-     *   then the file will be cached under "/home/fulminazzo/.gradle/caches/[ProjectInfo.NAME]/plugins/Main-1.0.jar";
-     * - If the current path is "/home/fulminazzo" and the destination path is "/server/plugins/Main-1.0.jar",
-     *   then the file will be cached under "/home/fulminazzo/.gradle/caches/[ProjectInfo.NAME]/server/plugins/Main-1.0.jar".
+     * The files are stored with the following rule:
+     * if the current path is "/home/fulminazzo" and the resource path is "https://www.fulminazzo.it/plugins/Main-1.0.jar",
+     * then the file will be cached under "/home/fulminazzo/.gradle/caches/[ProjectInfo.NAME]/<hash_of_website>/plugins/Main-1.0.jar"
+     * where the hash will be computed with [hashUrl].
      *
      * @constructor Creates a new Global Cached downloader
      *
