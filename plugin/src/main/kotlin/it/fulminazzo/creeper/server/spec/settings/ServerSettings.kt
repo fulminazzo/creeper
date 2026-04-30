@@ -1,11 +1,12 @@
-package it.fulminazzo.creeper.server.config
+package it.fulminazzo.creeper.server.spec.settings
 
-import it.fulminazzo.creeper.server.BuildException
-import it.fulminazzo.creeper.server.requirePort
-import it.fulminazzo.creeper.server.requirePositive
+import it.fulminazzo.creeper.server.spec.BuildException
+import it.fulminazzo.creeper.server.spec.requirePort
+import it.fulminazzo.creeper.server.spec.requirePositive
+import it.fulminazzo.creeper.util.MemorySize
 
 /**
- * General server configuration.
+ * Holds all the settings for a general server to run.
  *
  * @property eula if `false` the server will not start
  * @property port the port the server should run on
@@ -14,7 +15,7 @@ import it.fulminazzo.creeper.server.requirePositive
  * @property flags the JVM flags to use
  * @constructor Creates a new Server config
  */
-sealed class ServerConfig(
+sealed class ServerSettings(
     val eula: Boolean,
     val port: Int,
     val players: Int,
@@ -23,11 +24,11 @@ sealed class ServerConfig(
 )
 
 /**
- * Builder for [ServerConfig].
+ * Builder for [ServerSettings].
  *
- * @constructor Creates a new Server config builder
+ * @constructor Creates a new Server settings builder
  */
-sealed class ServerConfigBuilder {
+sealed class ServerSettingsBuilder {
     var eula: Boolean = false
     var port: Int = 25565
         set(value) {
@@ -44,18 +45,18 @@ sealed class ServerConfigBuilder {
     var maximumRam: MemorySize by flags::maximumRam
 
     /**
-     * Builds the server config.
+     * Builds the server settings.
      *
-     * @return the server config
+     * @return the server settings
      * @throws BuildException if the configuration is invalid
      */
-    abstract fun build(): ServerConfig
+    abstract fun build(): ServerSettings
 
     /**
-     * Applies the given configuration to the JVM flags builder.
+     * Allows editing of the JVM flags to use when running the server.
      *
-     * @param configuration the configuration
-     * @receiver the JVM flags builder
+     * @param configuration the function to apply the changes
+     * @receiver the builder to edit the JVM flags
      */
     fun flags(configuration: JvmFlagsBuilder.() -> Unit) {
         flags.apply(configuration)

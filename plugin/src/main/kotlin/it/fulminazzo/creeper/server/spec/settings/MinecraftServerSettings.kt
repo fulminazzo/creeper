@@ -1,11 +1,11 @@
-package it.fulminazzo.creeper.server.config
+package it.fulminazzo.creeper.server.spec.settings
 
-import it.fulminazzo.creeper.server.BuildException
-import it.fulminazzo.creeper.server.requireNatural
-import it.fulminazzo.creeper.server.requirePositive
+import it.fulminazzo.creeper.server.spec.BuildException
+import it.fulminazzo.creeper.server.spec.requireNatural
+import it.fulminazzo.creeper.server.spec.requirePositive
 
 /**
- * Minecraft server configuration.
+ * Holds all the settings for a Minecraft server to run.
  *
  * @property difficulty the difficulty of the server
  * @property gamemode the default gamemode of the server
@@ -22,7 +22,7 @@ import it.fulminazzo.creeper.server.requirePositive
  * @param whitelist if `true` only players on the whitelist can join
  * @param flags the JVM flags to use
  */
-class MinecraftServerConfig(
+class MinecraftServerSettings(
     eula: Boolean,
     port: Int,
     players: Int,
@@ -35,7 +35,7 @@ class MinecraftServerConfig(
     val spawnProtection: Int,
     val viewDistance: Int,
     val simulationDistance: Int
-) : ServerConfig(
+) : ServerSettings(
     eula,
     port,
     players,
@@ -44,11 +44,11 @@ class MinecraftServerConfig(
 )
 
 /**
- * Builder for [MinecraftServerConfig].
+ * Builder for [MinecraftServerSettings].
  *
- * @constructor Create a new Minecraft server config builder
+ * @constructor Create a new Minecraft server settings builder
  */
-class MinecraftServerConfigBuilder : ServerConfigBuilder() {
+class MinecraftServerSettingsBuilder : ServerSettingsBuilder() {
     var difficulty: Difficulty = Difficulty.PEACEFUL
     var gamemode: Gamemode = Gamemode.SURVIVAL
     var generateStructures: Boolean = false
@@ -70,8 +70,8 @@ class MinecraftServerConfigBuilder : ServerConfigBuilder() {
         flags.from(JvmFlagsBuilder.AKAIR_FLAGS)
     }
 
-    override fun build(): MinecraftServerConfig {
-        return if (eula) MinecraftServerConfig(
+    override fun build(): MinecraftServerSettings {
+        return if (eula) MinecraftServerSettings(
             true,
             port,
             players,

@@ -1,10 +1,11 @@
-package it.fulminazzo.creeper.server
+package it.fulminazzo.creeper.server.spec
 
-import it.fulminazzo.creeper.server.config.ServerConfig
-import it.fulminazzo.creeper.server.config.ServerConfigBuilder
+import it.fulminazzo.creeper.server.ServerType
+import it.fulminazzo.creeper.server.spec.settings.ServerSettings
+import it.fulminazzo.creeper.server.spec.settings.ServerSettingsBuilder
 
 /**
- * Holds all the server data needed to run a server.
+ * Identifies the general specification of a server to run.
  *
  * @param T the type of server platform
  * @param C the type of server configuration
@@ -12,9 +13,9 @@ import it.fulminazzo.creeper.server.config.ServerConfigBuilder
  * @property version the version of the server
  * @property config the server configuration
  * @property whitelist the whitelist of the server
- * @constructor Creates a new Server data
+ * @constructor Creates a new Server spec
  */
-sealed class ServerData<T : ServerType, C : ServerConfig>(
+sealed class ServerSpec<T : ServerType, C : ServerSettings>(
     val type: T,
     val version: String,
     val config: C,
@@ -22,14 +23,14 @@ sealed class ServerData<T : ServerType, C : ServerConfig>(
 )
 
 /**
- * Builder for [ServerData].
+ * Builder for [ServerSpec].
  *
  * @param T the type of server platform
  * @param B the type of server configuration builder
  * @param C the type of server configuration
- * @constructor Creates a new Server data builder
+ * @constructor Creates a new Server spec builder
  */
-sealed class ServerDataBuilder<T : ServerType, B : ServerConfigBuilder, C : ServerConfig> {
+sealed class ServerSpecBuilder<T : ServerType, B : ServerSettingsBuilder, C : ServerSettings> {
     private var _type: T? = null
     var type: T
         get() = _type ?: throw BuildException("Server type is required but was not set")
@@ -49,16 +50,17 @@ sealed class ServerDataBuilder<T : ServerType, B : ServerConfigBuilder, C : Serv
     protected abstract val serverConfigBuilder: B
 
     /**
-     * Builds the server data.
+     * Builds the server specification.
      *
-     * @return the server data
+     * @return the server spec
      */
-    abstract fun build(): ServerData<T, C>
+    abstract fun build(): ServerSpec<T, C>
 
     /**
-     * Applies the given configuration to the server config builder.
+     * Allows editing of the server settings to use when running the server.
      *
-     * @param configuration the configuration
+     * @param configuration the function to apply the changes
+     * @receiver the builder to edit the server settings
      */
     fun serverConfig(configuration: B.() -> Unit) {
         serverConfigBuilder.apply(configuration)
