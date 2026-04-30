@@ -90,19 +90,16 @@ class MCJarsApiProvider(private val downloader: CachedDownloader) : MinecraftJar
         }
     }
 
-    override fun get(platform: ServerType.MinecraftType, version: String, directory: Path) {
+    override fun get(platform: ServerType.MinecraftType, version: String, directory: Path) =
         getBuild(platform, version)
             ?.let {
-                runBlocking {
-                    downloader.download(
-                        it.url,
-                        directory.resolve("${platform.name.lowercase()}-$version.jar"),
-                        it.toHashString()
-                    ).await()
-                }
+                downloader.download(
+                    it.url,
+                    directory.resolve("${platform.name.lowercase()}-$version.jar"),
+                    it.toHashString()
+                )
             }
             ?: throw JarNotFoundException(platform, version)
-    }
 
     override fun get(
         name: String,

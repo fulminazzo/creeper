@@ -30,7 +30,7 @@ class MCJarsApiProviderIntegrationTest {
         val destination = WORK_DIR.resolve("${PLATFORM.name.lowercase()}-$VERSION.jar")
         destination.deleteIfExists()
 
-        runBlocking { provider.get(PLATFORM, VERSION, destination.parent) }
+        runBlocking { provider.get(PLATFORM, VERSION, destination.parent).await() }
         Assertions.assertTrue(destination.exists(), "JAR file does not exist: ${destination.toAbsolutePath()}")
     }
 
@@ -39,7 +39,11 @@ class MCJarsApiProviderIntegrationTest {
         val version = "1.8.8-not-found"
         val destination = WORK_DIR.resolve("${PLATFORM.name.lowercase()}-$version.jar")
 
-        assertThrows<JarNotFoundException> { provider.get(PLATFORM, version, destination.parent) }
+        assertThrows<JarNotFoundException> {
+            runBlocking {
+                provider.get(PLATFORM, version, destination.parent).await()
+            }
+        }
     }
 
     @Test
@@ -55,7 +59,7 @@ class MCJarsApiProviderIntegrationTest {
     }
 
     @Test
-    fun `test that MinecraftConfigProvider#get throws if jar is not found`() {
+    fun `test that MinecraftConfigProvider#get throws if configuration is not found`() {
         val version = "1.8.8-not-found"
         val destination = WORK_DIR.resolve("server.properties")
 
