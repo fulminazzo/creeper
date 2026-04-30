@@ -35,6 +35,14 @@ sealed class ServerInstaller<T : ServerType, C : ServerSettings, S : ServerSpec<
 ) {
 
     /**
+     * Installs the server in the given directory.
+     *
+     * @param directory the working directory where the server will be installed
+     * @return the path of the installed server jar
+     */
+    open fun install(directory: Path): CompletableFuture<Path> = installJar(directory)
+
+    /**
      * Installs a server configuration in the given directory.
      * Then, it edits it with the given function.
      *
