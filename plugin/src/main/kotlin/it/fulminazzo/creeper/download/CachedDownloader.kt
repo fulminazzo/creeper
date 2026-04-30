@@ -6,6 +6,7 @@ import it.fulminazzo.creeper.util.sha256
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.async
+import java.io.File
 import java.net.URI
 import java.nio.file.Path
 import kotlin.io.path.*
@@ -107,9 +108,9 @@ interface CachedDownloader {
                 val query = uri.rawQuery
                 var finalUrl = "$scheme://${uri.host}"
                 if (port != -1) finalUrl += ":$port"
-                finalUrl += uri.path
+                finalUrl = finalUrl.sha256() + uri.path.replace("/", File.separator)
                 if (query != null) finalUrl += "?$query"
-                return finalUrl.sha256()
+                return finalUrl
             }
 
         }
