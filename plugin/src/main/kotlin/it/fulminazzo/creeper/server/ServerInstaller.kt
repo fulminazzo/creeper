@@ -5,6 +5,11 @@ import it.fulminazzo.creeper.provider.JarProvider
 import it.fulminazzo.creeper.server.spec.ServerSpec
 import it.fulminazzo.creeper.server.spec.settings.ServerSettings
 import org.gradle.api.logging.Logger
+import tools.jackson.databind.ObjectMapper
+import tools.jackson.dataformat.javaprop.JavaPropsMapper
+import tools.jackson.dataformat.yaml.YAMLMapper
+import tools.jackson.module.kotlin.jacksonObjectMapper
+import tools.jackson.module.kotlin.kotlinModule
 import java.nio.file.Path
 import java.util.concurrent.CompletableFuture
 
@@ -54,5 +59,25 @@ sealed class ServerInstaller<T : ServerType, C : ServerSettings, S : ServerSpec<
 
     private fun getServerDirectory(parent: Path) =
         parent.resolve("${specification.type.name.lowercase()}-${specification.version}")
+
+    private companion object {
+        private val JSON_MAPPER = jacksonObjectMapper()
+        private val YAML_MAPPER = YAMLMapper.builder().addModule(kotlinModule()).build()
+        private val PROPERTIES_MAPPER = JavaPropsMapper.builder().addModule(kotlinModule()).build()
+
+        /**
+         * Gets an appropriate Jackson mapper for the given format.
+         *
+         * @param format the format of the mapper (file extension)
+         * @return the mapper
+         */
+        fun getMapper(format: String): ObjectMapper = when (format) {
+            "json" -> JSON_MAPPER
+            "yaml", "yml" -> YAML_MAPPER
+            "properties" -> PROPERTIES_MAPPER
+            else -> throw IllegalArgumentException("Unsupported format: $format")
+        }
+
+    }
 
 }
