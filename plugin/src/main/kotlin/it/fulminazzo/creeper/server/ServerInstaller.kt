@@ -22,16 +22,16 @@ import kotlin.io.path.name
  * @param C the type of the server settings
  * @param S the type of the server specification
  * @property specification the specification of the server to install
+ * @property logger the logger to use for logging
  * @property jarProvider the provider of the server jar
  * @property configProvider the provider of the server configurations
- * @property logger the logger to use for logging
  * @constructor Creates a new Server installer
  */
 sealed class ServerInstaller<T : ServerType, C : ServerSettings, S : ServerSpec<T, C>>(
-    private val specification: S,
+    protected val specification: S,
+    protected val logger: Logger,
     private val jarProvider: JarProvider<T>,
-    private val configProvider: ConfigProvider<T>,
-    private val logger: Logger
+    private val configProvider: ConfigProvider<T>
 ) {
 
     /**
