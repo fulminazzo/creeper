@@ -1,50 +1,70 @@
 package it.fulminazzo.creeper.download
 
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.runBlocking
+import io.mockk.every
+import io.mockk.mockk
+import io.mockk.verify
 import org.junit.jupiter.api.Assertions.assertTrue
+import org.junit.jupiter.api.BeforeEach
 import java.nio.file.Path
+import kotlin.io.path.createDirectories
 import kotlin.io.path.exists
+import kotlin.io.path.writeText
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
 class GlobalCachedDownloaderIntegrationTest {
-    private val scope = CoroutineScope(Dispatchers.IO)
+    private val downloader = CachedDownloader.global(Downloader.http())
+    private val cacheDirectory = CachedDownloader.CACHE_DIRECTORY
 
-    private val downloader = CachedDownloader.global(Downloader.http(), scope)
+    @BeforeEach
+    fun setup() {
+        cacheDirectory.toFile().deleteRecursively()
+    }
+
+    @Test
+    fun `test that global downloader caches requests and only downloads once`() {
+        val delegate = mockk<Downloader>()
+        every { delegate.download(any(), any()) } answers {
+            val destination = arg<Path>(1)
+            destination.parent.createDirectories()
+            destination.writeText("Hello, world!")
+            Thread.sleep(1_000)
+        }
+
+        val downloader = CachedDownloader.global(delegate)
+
+        val resource = "https://www.google.com"
+        val path = Path.of("build/resources/test/download/global_cached_downloader_test.txt")
+        val hash = "1234567890"
+
+        val first = downloader.download(resource, path, hash).join()
+        val second = downloader.download(resource, path, hash).join()
+
+        assertEquals(first, second, "downloads were not equal")
+        verify(exactly = 1) { delegate.download(resource, any()) }
+    }
 
     @Test
     fun `test that global downloader works with relative path`() {
-        runBlocking {
-            val cacheDirectory = CachedDownloader.CACHE_DIRECTORY
-            cacheDirectory.toFile().deleteRecursively()
+        val path = downloader.download(RESOURCE_PATH, DESTINATION_PATH, HASH).join()
+        assertTrue(
+            DESTINATION_PATH.exists(),
+            "Destination file does not exist: ${DESTINATION_PATH.toAbsolutePath()}"
+        )
+        assertEquals(DESTINATION_PATH, path, "Destination and downloaded path did not match")
 
-            val path = downloader.download(RESOURCE_PATH, DESTINATION_PATH, HASH).await()
-            assertTrue(
-                DESTINATION_PATH.exists(),
-                "Destination file does not exist: ${DESTINATION_PATH.toAbsolutePath()}"
-            )
-            assertEquals(DESTINATION_PATH, path, "Destination and downloaded path did not match")
-
-            checkCacheFiles(cacheDirectory)
-        }
+        checkCacheFiles(cacheDirectory)
     }
 
     @Test
     fun `test that global downloader works with absolute path`() {
-        runBlocking {
-            val destinationPath = Path.of("/tmp/cached_downloader_test.txt")
+        val destinationPath = Path.of("/tmp/cached_downloader_test.txt")
 
-            val cacheDirectory = CachedDownloader.CACHE_DIRECTORY
-            cacheDirectory.toFile().deleteRecursively()
+        val path = downloader.download(RESOURCE_PATH, destinationPath, HASH).join()
+        assertTrue(destinationPath.exists(), "Destination file does not exist: ${destinationPath.toAbsolutePath()}")
+        assertEquals(destinationPath, path, "Destination and downloaded path did not match")
 
-            val path = downloader.download(RESOURCE_PATH, destinationPath, HASH).await()
-            assertTrue(destinationPath.exists(), "Destination file does not exist: ${destinationPath.toAbsolutePath()}")
-            assertEquals(destinationPath, path, "Destination and downloaded path did not match")
-
-            checkCacheFiles(cacheDirectory)
-        }
+        checkCacheFiles(cacheDirectory)
     }
 
     private fun checkCacheFiles(cacheDirectory: Path) {

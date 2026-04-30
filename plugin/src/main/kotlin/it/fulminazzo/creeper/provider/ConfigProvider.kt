@@ -1,8 +1,8 @@
 package it.fulminazzo.creeper.provider
 
 import it.fulminazzo.creeper.server.ServerType
-import kotlinx.coroutines.Deferred
 import java.nio.file.Path
+import java.util.concurrent.CompletableFuture
 
 /**
  * A provider for configurations of the specified server platform and version.
@@ -24,7 +24,7 @@ sealed interface ConfigProvider<T : ServerType> {
         platform: T,
         version: String,
         directory: Path
-    ): Deferred<Path>
+    ): CompletableFuture<Path>
 
 }
 

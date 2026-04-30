@@ -4,9 +4,9 @@ import it.fulminazzo.creeper.provider.JarProvider
 import it.fulminazzo.creeper.provider.MinecraftConfigProvider
 import it.fulminazzo.creeper.server.spec.ServerSpec
 import it.fulminazzo.creeper.server.spec.settings.ServerSettings
-import kotlinx.coroutines.Deferred
 import org.gradle.api.logging.Logger
 import java.nio.file.Path
+import java.util.concurrent.CompletableFuture
 
 /**
  * Generic installer for a server.
@@ -33,7 +33,7 @@ class ServerInstaller<T : ServerType, C : ServerSettings, S : ServerSpec<T, C>>(
      * @param directory the working directory where the server will be installed
      * @return the path of the installed server jar
      */
-    internal fun installJar(directory: Path): Deferred<Path> {
+    internal fun installJar(directory: Path): CompletableFuture<Path> {
         val serverDirectory = getServerDirectory(directory)
         logger.info("Installing server ${specification.type} ${specification.version} in: $serverDirectory")
         return jarProvider.get(
