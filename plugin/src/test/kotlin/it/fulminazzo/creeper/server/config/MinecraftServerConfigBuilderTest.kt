@@ -16,6 +16,7 @@ class MinecraftServerConfigBuilderTest {
     @Test
     fun `test that build returns correct default values`() {
         builder.eula = true
+        builder.spawnProtection = 5
         val config = builder.build()
 
         assertEquals(25565, config.port)
@@ -25,7 +26,7 @@ class MinecraftServerConfigBuilderTest {
         assertEquals(Gamemode.SURVIVAL, config.gamemode)
         assertFalse(config.generateStructures)
         assertFalse(config.onlineMode)
-        assertEquals(0, config.spawnProtection)
+        assertEquals(5, config.spawnProtection)
         assertEquals(2, config.viewDistance)
         assertEquals(2, config.simulationDistance)
     }
