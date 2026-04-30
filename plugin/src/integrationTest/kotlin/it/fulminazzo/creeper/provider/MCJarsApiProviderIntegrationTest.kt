@@ -5,23 +5,21 @@ import io.mockk.verify
 import it.fulminazzo.creeper.download.CachedDownloader
 import it.fulminazzo.creeper.download.Downloader
 import it.fulminazzo.creeper.server.ServerType
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.runBlocking
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.assertThrows
 import java.nio.file.Path
 import java.util.*
+import java.util.concurrent.CompletionException
 import kotlin.io.path.deleteIfExists
 import kotlin.io.path.exists
 import kotlin.io.path.name
 import kotlin.io.path.readLines
 import kotlin.test.Test
+import kotlin.test.assertIs
 import kotlin.test.assertNull
 
 class MCJarsApiProviderIntegrationTest {
-    private val scope = CoroutineScope(Dispatchers.IO)
-    private val downloader = CachedDownloader.global(Downloader.http(), scope)
+    private val downloader = CachedDownloader.global(Downloader.http())
 
     private val provider = MCJarsApiProvider(downloader)
 
@@ -30,7 +28,7 @@ class MCJarsApiProviderIntegrationTest {
         val destination = WORK_DIR.resolve("${PLATFORM.name.lowercase()}-$VERSION.jar")
         destination.deleteIfExists()
 
-        runBlocking { provider.get(PLATFORM, VERSION, destination.parent).await() }
+        provider.get(PLATFORM, VERSION, destination.parent).join()
         Assertions.assertTrue(destination.exists(), "JAR file does not exist: ${destination.toAbsolutePath()}")
     }
 
@@ -39,11 +37,10 @@ class MCJarsApiProviderIntegrationTest {
         val version = "1.8.8-not-found"
         val destination = WORK_DIR.resolve("${PLATFORM.name.lowercase()}-$version.jar")
 
-        assertThrows<JarNotFoundException> {
-            runBlocking {
-                provider.get(PLATFORM, version, destination.parent).await()
-            }
+        val e = assertThrows<CompletionException> {
+            provider.get(PLATFORM, version, destination.parent).join()
         }
+        assertIs<JarNotFoundException>(e.cause)
     }
 
     @Test
@@ -51,7 +48,7 @@ class MCJarsApiProviderIntegrationTest {
         val destination = WORK_DIR.resolve("server.properties")
         destination.deleteIfExists()
 
-        runBlocking { provider.get(destination.name, PLATFORM, VERSION, destination.parent) }
+        provider.get(destination.name, PLATFORM, VERSION, destination.parent).join()
         Assertions.assertTrue(
             destination.exists(),
             "configuration file does not exist: ${destination.toAbsolutePath()}"
@@ -63,40 +60,41 @@ class MCJarsApiProviderIntegrationTest {
         val version = "1.8.8-not-found"
         val destination = WORK_DIR.resolve("server.properties")
 
-        assertThrows<ConfigurationNotFoundException> {
-            runBlocking { provider.get(destination.name, PLATFORM, version, destination.parent) }
+        val e = assertThrows<CompletionException> {
+            provider.get(destination.name, PLATFORM, version, destination.parent).join()
         }
+        assertIs<ConfigurationNotFoundException>(e.cause)
     }
 
     @Test
     fun `test getBuild internal cache`() {
         val provider = spyk(provider)
 
-        var actual = provider.getBuild(PLATFORM, VERSION)
+        var actual = provider.getBuild(PLATFORM, VERSION).join()
         Assertions.assertEquals(EXPECTED_BUILD_RESPONSE, actual, "build data was not equal")
         verify(exactly = 1) { provider.getFromApi(any()) }
 
-        actual = provider.getBuild(PLATFORM, VERSION)
+        actual = provider.getBuild(PLATFORM, VERSION).join()
         Assertions.assertEquals(EXPECTED_BUILD_RESPONSE, actual, "build data was not equal")
         verify(exactly = 1) { provider.getFromApi(any()) }
     }
 
     @Test
     fun `test that getBuild returns correct data`() {
-        val actual = provider.getBuild(PLATFORM, VERSION)
+        val actual = provider.getBuild(PLATFORM, VERSION).join()
         Assertions.assertEquals(EXPECTED_BUILD_RESPONSE, actual, "build data was not equal")
     }
 
     @Test
     fun `test that getConfig returns correct data`() {
         val expectedConfig = EXPECTED_CONFIG
-        val actual = provider.getConfig(expectedConfig.name, PLATFORM, VERSION)
+        val actual = provider.getConfig(expectedConfig.name, PLATFORM, VERSION).join()
         Assertions.assertEquals(expectedConfig, actual, "config data was not equal")
     }
 
     @Test
     fun `test that getFromApi of not found returns null`() {
-        assertNull(provider.getFromApi("not-found"))
+        assertNull(provider.getFromApi("not-found").join())
     }
 
     companion object {
