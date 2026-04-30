@@ -2,7 +2,12 @@ package it.fulminazzo.creeper.provider
 
 import io.mockk.spyk
 import io.mockk.verify
+import it.fulminazzo.creeper.download.CachedDownloader
+import it.fulminazzo.creeper.download.Downloader
 import it.fulminazzo.creeper.server.ServerType
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.runBlocking
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.assertThrows
 import java.nio.file.Path
@@ -10,18 +15,22 @@ import java.util.*
 import kotlin.io.path.deleteIfExists
 import kotlin.io.path.exists
 import kotlin.io.path.name
+import kotlin.io.path.readLines
 import kotlin.test.Test
 import kotlin.test.assertNull
 
 class MCJarsApiProviderIntegrationTest {
-    private val provider = MCJarsApiProvider()
+    private val scope = CoroutineScope(Dispatchers.IO)
+    private val downloader = CachedDownloader.global(Downloader.http(), scope)
+
+    private val provider = MCJarsApiProvider(downloader)
 
     @Test
     fun `test that MinecraftJarProvider#get works`() {
         val destination = WORK_DIR.resolve("${PLATFORM.name.lowercase()}-$VERSION.jar")
         destination.deleteIfExists()
 
-        provider.get(PLATFORM, VERSION, destination.parent)
+        runBlocking { provider.get(PLATFORM, VERSION, destination.parent) }
         Assertions.assertTrue(destination.exists(), "JAR file does not exist: ${destination.toAbsolutePath()}")
     }
 
@@ -38,7 +47,7 @@ class MCJarsApiProviderIntegrationTest {
         val destination = WORK_DIR.resolve("server.properties")
         destination.deleteIfExists()
 
-        provider.get(destination.name, PLATFORM, VERSION, destination.parent)
+        runBlocking { provider.get(destination.name, PLATFORM, VERSION, destination.parent) }
         Assertions.assertTrue(
             destination.exists(),
             "configuration file does not exist: ${destination.toAbsolutePath()}"
@@ -51,13 +60,13 @@ class MCJarsApiProviderIntegrationTest {
         val destination = WORK_DIR.resolve("server.properties")
 
         assertThrows<ConfigurationNotFoundException> {
-            provider.get(destination.name, PLATFORM, version, destination.parent)
+            runBlocking { provider.get(destination.name, PLATFORM, version, destination.parent) }
         }
     }
 
     @Test
     fun `test getBuild internal cache`() {
-        val provider = spyk<MCJarsApiProvider>()
+        val provider = spyk(provider)
 
         var actual = provider.getBuild(PLATFORM, VERSION)
         Assertions.assertEquals(EXPECTED_BUILD_RESPONSE, actual, "build data was not equal")
@@ -87,7 +96,7 @@ class MCJarsApiProviderIntegrationTest {
     }
 
     companion object {
-        private val WORK_DIR = Path.of("build/resources/test/mcjars_api_provider_test")
+        private val WORK_DIR = Path.of("build/resources/test/provider/mcjars_api_provider_test")
 
         private val PLATFORM = ServerType.VANILLA
         private const val VERSION = "1.8.8"
@@ -100,41 +109,9 @@ class MCJarsApiProviderIntegrationTest {
         private val EXPECTED_CONFIG = Config(
             UUID.fromString("ce8ba7dd-71fd-49ba-b31e-9466033e0ef4"),
             "server.properties",
-            """allow-flight=false
-allow-nether=true
-announce-player-achievements=true
-difficulty=1
-enable-command-block=false
-enable-query=false
-enable-rcon=false
-force-gamemode=false
-gamemode=0
-generate-structures=true
-generator-settings=
-level-name=world
-level-seed=
-level-type=DEFAULT
-max-build-height=256
-max-players=20
-max-tick-time=60000
-max-world-size=29999984
-motd=A Minecraft Server
-network-compression-threshold=256
-online-mode=true
-op-permission-level=4
-player-idle-timeout=0
-pvp=true
-resource-pack-hash=
-resource-pack=
-server-ip=
-server-port=25565
-snooper-enabled=true
-spawn-animals=true
-spawn-monsters=true
-spawn-npcs=true
-use-native-transport=true
-view-distance=10
-white-list=false"""
+            Path.of("build/resources/integrationTest/provider/server.properties")
+                .readLines()
+                .joinToString("\n")
         )
 
     }
