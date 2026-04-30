@@ -10,8 +10,10 @@ import tools.jackson.dataformat.javaprop.JavaPropsMapper
 import tools.jackson.dataformat.yaml.YAMLMapper
 import tools.jackson.module.kotlin.jacksonObjectMapper
 import tools.jackson.module.kotlin.kotlinModule
+import tools.jackson.module.kotlin.readValue
 import java.nio.file.Path
 import java.util.concurrent.CompletableFuture
+import kotlin.io.path.name
 
 /**
  * Generic installer for a server.
@@ -33,12 +35,35 @@ sealed class ServerInstaller<T : ServerType, C : ServerSettings, S : ServerSpec<
 ) {
 
     /**
+     * Installs a server configuration in the given directory.
+     * Then, it edits it with the given function.
+     *
+     * @param name the name of the configuration
+     * @param directory the working directory where the server will be installed
+     * @param configuration the function to apply to the configuration
+     * @receiver the current configuration
+     * @return the path of the installed server configuration
+     */
+    protected fun installAndEditConfig(
+        name: String,
+        directory: Path,
+        configuration: MutableMap<String, Any>.() -> Unit
+    ): CompletableFuture<Path> =
+        installConfig(name, directory).thenApply { path ->
+            val mapper = getMapper(path.name)
+            val currentConfig = mapper.readValue<MutableMap<String, Any>>(path.toFile())
+            configuration(currentConfig)
+            mapper.writeValue(path, currentConfig)
+            path
+        }
+
+    /**
      * Installs the server jar in the given directory.
      *
      * @param directory the working directory where the server will be installed
      * @return the path of the installed server jar
      */
-    internal fun installJar(directory: Path): CompletableFuture<Path> {
+    private fun installJar(directory: Path): CompletableFuture<Path> {
         val serverDirectory = getServerDirectory(directory)
         logger.info("Installing server ${specification.type.name} ${specification.version} in: $serverDirectory")
         return jarProvider.get(specification.type, specification.version, serverDirectory)
@@ -51,7 +76,7 @@ sealed class ServerInstaller<T : ServerType, C : ServerSettings, S : ServerSpec<
      * @param directory the working directory where the server will be installed
      * @return the path of the installed server configuration
      */
-    protected fun installConfig(name: String, directory: Path): CompletableFuture<Path> {
+    private fun installConfig(name: String, directory: Path): CompletableFuture<Path> {
         val serverDirectory = getServerDirectory(directory)
         logger.info("Installing configuration file $name for ${specification.type.name} ${specification.version} in: $serverDirectory")
         return configProvider.get(name, specification.type, specification.version, serverDirectory)
