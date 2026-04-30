@@ -2,9 +2,11 @@ package it.fulminazzo.creeper.download
 
 import it.fulminazzo.creeper.ProjectInfo
 import it.fulminazzo.creeper.download.CachedDownloader.Companion.HASH_EXTENSION
+import it.fulminazzo.creeper.util.sha256
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.async
+import java.net.URI
 import java.nio.file.Path
 import kotlin.io.path.*
 
@@ -37,8 +39,13 @@ interface CachedDownloader {
         /**
          * Creates a special [CachedDownloader] that stores the requested resource in a global local cache directory.
          * Then, it copies the cached file to the requested destination.
+         *
+         * @param delegate the downloader used to download the files
+         * @param scope the scope of the coroutine
+         * @return the cached downloader
          */
-        fun global(delegate: Downloader): CachedDownloader = GlobalCachedDownloader(delegate)
+        fun global(delegate: Downloader, scope: CoroutineScope): CachedDownloader =
+            GlobalCachedDownloader(delegate, scope)
 
         /**
          * Creates a new [CachedDownloader] that delegates the download part to a [Downloader].
@@ -47,7 +54,8 @@ interface CachedDownloader {
          * @param scope the scope of the coroutine
          * @return the cached downloader
          */
-        fun simple(delegate: Downloader, scope: CoroutineScope): CachedDownloader = SimpleCachedDownloader(delegate, scope)
+        fun simple(delegate: Downloader, scope: CoroutineScope): CachedDownloader =
+            SimpleCachedDownloader(delegate, scope)
 
     }
 
@@ -74,17 +82,28 @@ interface CachedDownloader {
         override fun download(resource: String, destination: Path, hash: String) {
             //TODO: path should be universal based on resource
 
-            val current = Path.of("").absolute().normalize()
-            val absolute = destination.absolute().normalize()
+        companion object {
 
-            val relative =
-                if (absolute.startsWith(current)) current.relativize(absolute)
-                else absolute.root.relativize(absolute)
+            /**
+             * Extracts a hash digest of the given URL.
+             *
+             * @param url the URL to hash
+             * @return the hash digest
+             */
+            fun hashUrl(url: String): String {
+                val uri = URI(url).normalize()
+                val scheme = uri.scheme
+                var port = uri.port
+                if (port == 80 && scheme == "http") port = -1
+                else if (port == 443 && scheme == "https") port = -1
+                val query = uri.rawQuery
+                var finalUrl = "$scheme://${uri.host}"
+                if (port != -1) finalUrl += ":$port"
+                finalUrl += uri.path
+                if (query != null) finalUrl += "?$query"
+                return finalUrl.sha256()
+            }
 
-            val cacheDestination = CACHE_DIRECTORY.resolve(relative)
-            delegate.download(resource, cacheDestination, hash)
-            destination.parent.createDirectories()
-            cacheDestination.copyTo(destination, overwrite = true)
         }
 
     }
