@@ -13,8 +13,6 @@ repositories {
 }
 
 dependencies {
-    implementation(libs.coroutines)
-
     implementation(libs.bundles.jackson)
 
     testImplementation("org.jetbrains.kotlin:kotlin-test")
