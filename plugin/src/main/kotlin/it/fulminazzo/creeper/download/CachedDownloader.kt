@@ -74,13 +74,21 @@ interface CachedDownloader {
      * @constructor Creates a new Global Cached downloader
      *
      * @param downloader the downloader used to download the files
+     * @property scope the scope of the coroutine
      */
-    private class GlobalCachedDownloader(downloader: Downloader) : CachedDownloader {
-        private val delegate = SimpleCachedDownloader(downloader)
+    class GlobalCachedDownloader(downloader: Downloader, private val scope: CoroutineScope) : CachedDownloader {
+        private val delegate = SimpleCachedDownloader(downloader, scope)
 
-        @Deprecated
-        override fun download(resource: String, destination: Path, hash: String) {
-            //TODO: path should be universal based on resource
+        override fun download(resource: String, destination: Path, hash: String): Deferred<Path> {
+            return scope.async {
+                val url = hashUrl(resource)
+                val cacheDestination = CACHE_DIRECTORY.resolve(url)
+                val downloadedFile = delegate.download(resource, cacheDestination, hash).await()
+                destination.parent.createDirectories()
+                downloadedFile.copyTo(destination, overwrite = true)
+                destination
+            }
+        }
 
         companion object {
 
