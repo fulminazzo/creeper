@@ -1,11 +1,40 @@
 package it.fulminazzo.creeper.download
 
+import io.mockk.every
+import io.mockk.mockk
+import io.mockk.verify
 import it.fulminazzo.creeper.util.sha256
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.CsvSource
+import java.nio.file.Path
+import kotlin.test.Test
 import kotlin.test.assertEquals
 
 class GlobalCachedDownloaderTest {
+
+    @Test
+    fun `test that downloader caches requests and only downloads once`() {
+        val delegate = mockk<Downloader>()
+        every { delegate.download(any(), any()) } answers {
+            Thread.sleep(1_000)
+        }
+
+        val scope = CoroutineScope(Dispatchers.IO)
+
+        val downloader = CachedDownloader.global(delegate, scope)
+
+        val resource = "https://www.google.com"
+        val path = Path.of("build/resources/test/downloader/global_cached_downloader_test.txt")
+        val hash = "1234567890"
+
+        val first = downloader.download(resource, path, hash)
+        val second = downloader.download(resource, path, hash)
+
+        assertEquals(first, second, "downloads were not equal")
+        verify(exactly = 1) { delegate.download(resource, any()) }
+    }
 
     @ParameterizedTest
     @CsvSource(

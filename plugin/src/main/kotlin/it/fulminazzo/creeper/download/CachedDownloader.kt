@@ -9,6 +9,7 @@ import kotlinx.coroutines.async
 import java.io.File
 import java.net.URI
 import java.nio.file.Path
+import java.util.concurrent.ConcurrentHashMap
 import kotlin.io.path.*
 
 /**
@@ -74,17 +75,19 @@ interface CachedDownloader {
      * @param downloader the downloader used to download the files
      * @property scope the scope of the coroutine
      */
-    class GlobalCachedDownloader(downloader: Downloader, private val scope: CoroutineScope) : CachedDownloader {
+    class GlobalCachedDownloader internal constructor(downloader: Downloader, private val scope: CoroutineScope) : CachedDownloader {
         private val delegate = SimpleCachedDownloader(downloader, scope)
+        private val operations = ConcurrentHashMap<String, Deferred<Path>>()
 
         override fun download(resource: String, destination: Path, hash: String): Deferred<Path> {
-            return scope.async {
-                val url = hashUrl(resource)
-                val cacheDestination = CACHE_DIRECTORY.resolve(url)
-                val downloadedFile = delegate.download(resource, cacheDestination, hash).await()
-                destination.parent.createDirectories()
-                downloadedFile.copyTo(destination, overwrite = true)
-                destination
+            return operations.computeIfAbsent(hashUrl(resource)) { u ->
+                scope.async {
+                    val cacheDestination = CACHE_DIRECTORY.resolve(u)
+                    val downloadedFile = delegate.download(resource, cacheDestination, hash).await()
+                    destination.parent.createDirectories()
+                    downloadedFile.copyTo(destination, overwrite = true)
+                    destination
+                }
             }
         }
 
