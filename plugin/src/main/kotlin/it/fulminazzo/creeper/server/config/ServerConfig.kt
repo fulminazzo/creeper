@@ -1,5 +1,9 @@
 package it.fulminazzo.creeper.server.config
 
+import it.fulminazzo.creeper.server.BuildException
+import it.fulminazzo.creeper.server.requirePort
+import it.fulminazzo.creeper.server.requirePositive
+
 /**
  * General server configuration.
  *
@@ -26,7 +30,13 @@ sealed class ServerConfig(
 sealed class ServerConfigBuilder {
     var eula: Boolean = false
     var port: Int = 25565
+        set(value) {
+            field = value.requirePort()
+        }
     var players: Int = 20
+        set(value) {
+            field = value.requirePositive("players count")
+        }
     var whitelist: Boolean = false
     protected val flags: JvmFlagsBuilder = JvmFlagsBuilder()
 
@@ -37,6 +47,7 @@ sealed class ServerConfigBuilder {
      * Builds the server config.
      *
      * @return the server config
+     * @throws BuildException if the configuration is invalid
      */
     abstract fun build(): ServerConfig
 

@@ -1,5 +1,7 @@
 package it.fulminazzo.creeper.server
 
+import jdk.internal.org.jline.utils.Colors.s
+
 /**
  * Identifies an exception occurred during the build process.
  *
@@ -28,7 +30,7 @@ fun Int.requirePort(name: String = "port"): Int = requireBetween(1, 65535, name)
  * @throws BuildException if it fails
  */
 fun Int.requireBetween(min: Int, max: Int, name: String): Int =
-    require({ it in min..max }, "Invalid $name '%$1s': must be between $min and $max")
+    require({ it in min..max }, $$"Invalid $$name '%1$s': must be between $$min and $$max")
 
 /**
  * Requires that the given [Int] is a natural number (greater than or equal to 0).
@@ -38,7 +40,7 @@ fun Int.requireBetween(min: Int, max: Int, name: String): Int =
  * @throws BuildException if it fails
  */
 fun Int.requireNatural(name: String): Int =
-    require({ it >= 0 }, "Invalid $name '%$1s': must be at least 0")
+    require({ it >= 0 }, $$"Invalid $$name '%1$s': must be at least 0")
 
 /**
  * Requires that the given [Int] is a positive number.
@@ -48,7 +50,7 @@ fun Int.requireNatural(name: String): Int =
  * @throws BuildException if it fails
  */
 fun Int.requirePositive(name: String): Int =
-    require({ it > 0 }, "Invalid $name '%$1s': must be positive")
+    require({ it > 0 }, $$"Invalid $$name '%1$s': must be positive")
 
 /**
  * Requires that the given [Int] satisfies the [predicate].
@@ -59,6 +61,5 @@ fun Int.requirePositive(name: String): Int =
  * @return the value
  * @throws BuildException if it fails
  */
-fun Int.require(predicate: (Int) -> Boolean, message: String): Int {
-    return if (predicate(this)) this else throw BuildException(message.format(this))
-}
+fun Int.require(predicate: (Int) -> Boolean, message: String): Int =
+    if (predicate(this)) this else throw BuildException(message.format(this))

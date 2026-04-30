@@ -1,11 +1,21 @@
 package it.fulminazzo.creeper.server.config
 
+import it.fulminazzo.creeper.server.requirePositive
+
 /**
  * Builder for JVM flags.
  */
 class JvmFlagsBuilder {
     var minimumRam = 512.mb
+        set(value) {
+            value.value.toInt().requirePositive("minimum allocated RAM")
+            field = value
+        }
     var maximumRam = 2.gb
+        set(value) {
+            value.value.toInt().requirePositive("maximum allocated RAM")
+            field = value
+        }
     private val enabledDeveloperFlags = mutableMapOf<String, Boolean>()
     private val valueDeveloperFlags = mutableMapOf<String, String>()
     private val propertyFlags = mutableMapOf<String, String>()
@@ -93,7 +103,7 @@ class JvmFlagsBuilder {
     /**
      * Applies the flags of another [JvmFlagsBuilder] to the current one.
      *
-     * Does not override existing flags.
+     * It will overwrite existing flags without clearing them first.
      *
      * @param other the other flags builder
      */

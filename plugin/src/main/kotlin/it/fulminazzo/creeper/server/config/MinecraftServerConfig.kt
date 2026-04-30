@@ -1,5 +1,9 @@
 package it.fulminazzo.creeper.server.config
 
+import it.fulminazzo.creeper.server.BuildException
+import it.fulminazzo.creeper.server.requireNatural
+import it.fulminazzo.creeper.server.requirePositive
+
 /**
  * Minecraft server configuration.
  *
@@ -44,22 +48,31 @@ class MinecraftServerConfig(
  *
  * @constructor Create a new Minecraft server config builder
  */
-class MinecraftServerConfigBuilder: ServerConfigBuilder() {
+class MinecraftServerConfigBuilder : ServerConfigBuilder() {
     var difficulty: Difficulty = Difficulty.PEACEFUL
     var gamemode: Gamemode = Gamemode.SURVIVAL
     var generateStructures: Boolean = false
     var onlineMode: Boolean = false
     var spawnProtection: Int = 0
+        set(value) {
+            field = value.requireNatural("spawn protection")
+        }
     var viewDistance: Int = 2
+        set(value) {
+            field = value.requirePositive("view distance")
+        }
     var simulationDistance: Int = 2
+        set(value) {
+            field = value.requirePositive("simulation distance")
+        }
 
     init {
         flags.from(JvmFlagsBuilder.AKAIR_FLAGS)
     }
 
     override fun build(): MinecraftServerConfig {
-        return MinecraftServerConfig(
-            eula,
+        return if (eula) MinecraftServerConfig(
+            true,
             port,
             players,
             whitelist,
@@ -71,7 +84,8 @@ class MinecraftServerConfigBuilder: ServerConfigBuilder() {
             spawnProtection,
             viewDistance,
             simulationDistance
-        )
+        ) else throw BuildException("EULA must be accepted to run a Minecraft server. " +
+                "Check https://aka.ms/MinecraftEULA for more information")
     }
 
 }

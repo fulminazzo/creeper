@@ -1,23 +1,30 @@
 package it.fulminazzo.creeper.server.config
 
+import it.fulminazzo.creeper.server.BuildException
 import it.fulminazzo.creeper.server.config.JvmFlagsBuilder
 import it.fulminazzo.creeper.server.config.MemoryUnit
 import it.fulminazzo.creeper.server.config.gb
+import org.gradle.api.GradleException
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.assertThrows
+import org.junit.jupiter.params.ParameterizedTest
+import org.junit.jupiter.params.provider.CsvSource
+import org.junit.jupiter.params.provider.ValueSource
 
 class JvmFlagsBuilderTest {
+    private val builder = JvmFlagsBuilder()
 
     @Test
     fun `test that from and build return equal flags`() {
-        val builder = JvmFlagsBuilder()
         builder.from(JvmFlagsBuilder.AKAIR_FLAGS)
         assertEquals(JvmFlagsBuilder.AKAIR_FLAGS.build(), builder.build())
     }
 
     @Test
     fun `test that full build returns correct result`() {
-        val expected = "-Xms1G -Xmx2G -XX:+UseG1GC -XX:-ParallelRefProcEnabled -XX:MaxGCPauseMillis=200 -XX:G1NewSizePercent=30 -Daikars.new.flags=true"
+        val expected =
+            "-Xms1G -Xmx2G -XX:+UseG1GC -XX:-ParallelRefProcEnabled -XX:MaxGCPauseMillis=200 -XX:G1NewSizePercent=30 -Daikars.new.flags=true"
         val builder = JvmFlagsBuilder()
         builder.minimumRam = 1.gb
         builder.xx("UseG1GC", true)
@@ -33,7 +40,6 @@ class JvmFlagsBuilderTest {
     @Test
     fun `test that only memory build returns correct result`() {
         val expected = "-Xms1K -Xmx3G"
-        val builder = JvmFlagsBuilder()
         builder.minRam(1, MemoryUnit.KB)
         builder.maxRam(3, MemoryUnit.GB)
         assertEquals(expected, builder.build(), "jvm flags were not equal")
@@ -42,7 +48,6 @@ class JvmFlagsBuilderTest {
     @Test
     fun `test that only developer boolean build returns correct result`() {
         val expected = "-Xms512M -Xmx2G -XX:+UseG1GC -XX:-ParallelRefProcEnabled"
-        val builder = JvmFlagsBuilder()
         builder.xx("UseG1GC", true)
         builder.xx("ParallelRefProcEnabled", false)
         assertEquals(expected, builder.build(), "jvm flags were not equal")
@@ -51,7 +56,6 @@ class JvmFlagsBuilderTest {
     @Test
     fun `test that only developer value build returns correct result`() {
         val expected = "-Xms512M -Xmx2G -XX:MaxGCPauseMillis=200 -XX:G1NewSizePercent=30"
-        val builder = JvmFlagsBuilder()
         builder.xx("MaxGCPauseMillis", 200)
         builder.xx("G1NewSizePercent", 30)
         assertEquals(expected, builder.build(), "jvm flags were not equal")
@@ -60,9 +64,24 @@ class JvmFlagsBuilderTest {
     @Test
     fun `test that only property build returns correct result`() {
         val expected = "-Xms512M -Xmx2G -Daikars.new.flags=true"
-        val builder = JvmFlagsBuilder()
         builder.property("aikars.new.flags", true)
         assertEquals(expected, builder.build(), "jvm flags were not equal")
+    }
+
+    @ParameterizedTest
+    @CsvSource(
+        value = [
+            "-1, 2",
+            "0, 2",
+            "512, 0",
+            "512, -1"
+        ]
+    )
+    fun `test that negative or zero memory throws`(min: String, max: String) {
+        assertThrows<BuildException> {
+            builder.minRam(min.toInt(), MemoryUnit.MB)
+            builder.maxRam(max.toInt(), MemoryUnit.MB)
+        }
     }
 
 }
