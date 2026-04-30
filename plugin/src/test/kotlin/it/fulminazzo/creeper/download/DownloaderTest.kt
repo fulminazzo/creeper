@@ -1,6 +1,11 @@
 package it.fulminazzo.creeper.download
 
 import it.fulminazzo.creeper.ProjectInfo
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Deferred
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
+import kotlinx.coroutines.runBlocking
 import org.junit.jupiter.api.assertThrows
 import java.io.IOException
 import java.net.ServerSocket
@@ -10,9 +15,6 @@ import java.net.http.HttpClient
 import java.net.http.HttpRequest
 import java.net.http.HttpResponse
 import java.nio.file.Path
-import java.util.concurrent.CompletableFuture
-import kotlin.io.path.deleteIfExists
-import kotlin.io.path.readText
 import kotlin.test.Test
 import kotlin.test.assertContains
 
@@ -23,18 +25,20 @@ class DownloaderTest {
     fun `test that HTTP downloader sends correct User-Agent header`() {
         val port = 29126
 
-        val requestCatcher = RequestCatcher().start(port)
-        try {
-            assertThrows<IOException> {
-                downloader.download("http://localhost:$port$PATH", DESTINATION_PATH)
+        runBlocking {
+            val requestCatcher = RequestCatcher(this).start(port)
+            try {
+                assertThrows<IOException> {
+                    downloader.download("http://localhost:$port$PATH", DESTINATION_PATH)
+                }
+
+                val lines = requestCatcher.getLines()
+                assertContains(lines, "GET $PATH HTTP/1.1")
+                assertContains(lines, "User-Agent: ${ProjectInfo.USER_AGENT}")
+
+            } finally {
+                requestCatcher.stop()
             }
-
-            val lines = requestCatcher.getLines()
-            assertContains(lines, "GET $PATH HTTP/1.1")
-            assertContains(lines, "User-Agent: ${ProjectInfo.USER_AGENT}")
-
-        } finally {
-            requestCatcher.stop()
         }
     }
 
@@ -42,20 +46,22 @@ class DownloaderTest {
     fun `test that request catcher works`() {
         val port = 29026
 
-        val requestCatcher = RequestCatcher().start(port)
-        try {
-            val client = HttpClient.newHttpClient()
+        runBlocking {
+            val requestCatcher = RequestCatcher(this).start(port)
+            try {
+                val client = HttpClient.newHttpClient()
 
-            assertThrows<IOException> {
-                client.send(
-                    HttpRequest.newBuilder(URI.create("http://localhost:$port$PATH")).build(),
-                    HttpResponse.BodyHandlers.ofString()
-                )
+                assertThrows<IOException> {
+                    client.send(
+                        HttpRequest.newBuilder(URI.create("http://localhost:$port$PATH")).build(),
+                        HttpResponse.BodyHandlers.ofString()
+                    )
+                }
+
+                assertContains(requestCatcher.getLines(), "GET $PATH HTTP/1.1")
+            } finally {
+                requestCatcher.stop()
             }
-
-            assertContains(requestCatcher.getLines(), "GET $PATH HTTP/1.1")
-        } finally {
-            requestCatcher.stop()
         }
     }
 
@@ -67,23 +73,21 @@ class DownloaderTest {
 
 }
 
-private class RequestCatcher {
+private class RequestCatcher(private val scope: CoroutineScope) {
     private var server: ServerSocket? = null
-    private var request: CompletableFuture<List<String>>? = null
+    private var request: Deferred<List<String>>? = null
 
-    fun getLines(): List<String> = request!!.join()
+    suspend fun getLines(): List<String> = request?.await() ?: throw IllegalStateException("Request not started")
 
     fun start(port: Int): RequestCatcher {
         server = ServerSocket(port)
-        request = CompletableFuture.supplyAsync {
-            val client = server!!.accept()
-            val lines = handle(client)
-            client.close()
-
-            server?.close()
-            server = null
-
-            return@supplyAsync lines
+        request = scope.async(Dispatchers.IO) {
+            try {
+                server?.accept()?.use { handle(it) } ?: emptyList()
+            } finally {
+                server?.close()
+                server = null
+            }
         }
         return this
     }
@@ -92,7 +96,7 @@ private class RequestCatcher {
         server?.close()
         server = null
 
-        request?.cancel(true)
+        request?.cancel()
         request = null
     }
 
