@@ -44,8 +44,24 @@ class MinecraftServerInstaller(
                     put("spawn-protection", config.spawnProtection)
                     put("view-distance", config.viewDistance)
                     put("simulation-distance", config.simulationDistance)
-                }.thenApply { executable }
+                }.thenApply {
+                    writeEula(directory)
+                    executable
+                }
             }
+    }
+
+    /**
+     * Writes the EULA file in the given directory.
+     *
+     * @param directory the directory where the EULA file will be written
+     */
+    private fun writeEula(directory: Path) {
+        val eulaFile = directory.resolve("eula.txt")
+        eulaFile.toFile().writeText(
+            """#By changing the setting below to TRUE you are indicating your agreement to our EULA (https://aka.ms/MinecraftEULA).
+            |eula=true""".trimMargin()
+        )
     }
 
     private companion object {

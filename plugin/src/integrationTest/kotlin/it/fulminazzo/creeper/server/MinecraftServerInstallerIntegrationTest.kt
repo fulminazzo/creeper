@@ -10,8 +10,6 @@ import it.fulminazzo.creeper.server.spec.settings.Gamemode
 import it.fulminazzo.creeper.server.spec.settings.MinecraftServerSettingsBuilder
 import org.gradle.api.logging.Logging
 import tools.jackson.dataformat.javaprop.JavaPropsMapper
-import tools.jackson.dataformat.yaml.YAMLMapper
-import tools.jackson.module.kotlin.jacksonObjectMapper
 import tools.jackson.module.kotlin.kotlinModule
 import tools.jackson.module.kotlin.readValue
 import java.nio.file.Path
@@ -21,6 +19,7 @@ import kotlin.io.path.createFile
 import kotlin.io.path.deleteIfExists
 import kotlin.io.path.exists
 import kotlin.test.Test
+import kotlin.test.assertContains
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
@@ -64,6 +63,10 @@ class MinecraftServerInstallerIntegrationTest {
         val installer = MinecraftServerInstaller(specification, logger, jarProvider, configProvider)
 
         installer.install(DIRECTORY).join()
+
+        val eulaFile = DIRECTORY.resolve("eula.txt")
+        assertTrue(eulaFile.exists(), "eula file does not exist")
+        assertContains(eulaFile.toFile().readText(), "eula=true")
 
         val serverProperties = DIRECTORY.resolve("server.properties")
         assertTrue(serverProperties.exists(), "server.properties file does not exist")
