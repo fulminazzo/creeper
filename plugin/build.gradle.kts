@@ -54,6 +54,11 @@ tasks.withType<Test>().configureEach {
 tasks.jacocoTestReport {
     dependsOn(tasks.check)
 
+    val testTasks = tasks.withType<Test>()
+    executionData.setFrom(testTasks.map { testTask ->
+        testTask.extensions.getByType<JacocoTaskExtension>().destinationFile
+    })
+
     reports {
         xml.required = true
         csv.required = false
