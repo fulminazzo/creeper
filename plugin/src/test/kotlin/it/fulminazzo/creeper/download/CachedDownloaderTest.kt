@@ -1,6 +1,9 @@
 package it.fulminazzo.creeper.download
 
 import io.mockk.*
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.runBlocking
 import org.junit.jupiter.api.Assertions.assertFalse
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.BeforeEach
@@ -10,9 +13,11 @@ import kotlin.io.path.exists
 import kotlin.io.path.name
 import kotlin.io.path.writeText
 import kotlin.test.Test
+import kotlin.test.assertEquals
 
 class CachedDownloaderTest {
     private lateinit var delegate: Downloader
+    private val scope = CoroutineScope(Dispatchers.IO)
 
     private lateinit var downloader: CachedDownloader
 
@@ -26,39 +31,52 @@ class CachedDownloaderTest {
         every { delegate.download(RESOURCE_PATH, DESTINATION_PATH) } answers {
             arg<Path>(1).writeText("Hello, world!")
         }
-        downloader = CachedDownloader.simple(delegate)
+        downloader = CachedDownloader.simple(delegate, scope)
     }
 
     @Test
     fun `test that downloader downloads resource only once`() {
-        val downloader = CachedDownloader.simple(delegate)
+        runBlocking {
+            downloader.download(RESOURCE_PATH, DESTINATION_PATH, HASH).await()
+            verify(exactly = 1) { delegate.download(RESOURCE_PATH, DESTINATION_PATH) }
 
-        downloader.download(RESOURCE_PATH, DESTINATION_PATH, HASH)
-        verify(exactly = 1) { delegate.download(RESOURCE_PATH, DESTINATION_PATH) }
-
-        downloader.download(RESOURCE_PATH, DESTINATION_PATH, HASH)
-        verify(exactly = 1) { delegate.download(RESOURCE_PATH, DESTINATION_PATH) }
+            downloader.download(RESOURCE_PATH, DESTINATION_PATH, HASH).await()
+            verify(exactly = 1) { delegate.download(RESOURCE_PATH, DESTINATION_PATH) }
+        }
     }
 
     @Test
     fun `test that downloader does not download resource if checksum matches`() {
-        CHECKSUM_PATH.writeText(HASH)
-        downloader.download(RESOURCE_PATH, DESTINATION_PATH, HASH)
-        assertFalse(DESTINATION_PATH.exists())
+        runBlocking {
+            CHECKSUM_PATH.writeText(HASH)
+            val path = downloader.download(RESOURCE_PATH, DESTINATION_PATH, HASH).await()
+            assertFalse(DESTINATION_PATH.exists())
+            checkDestinationPath(path)
+        }
     }
 
     @Test
     fun `test that downloader downloads resource if checksum does not match`() {
-        CHECKSUM_PATH.writeText(HASH)
-        downloader.download(RESOURCE_PATH, DESTINATION_PATH, "ABC")
-        checkFileExists()
+        runBlocking {
+            CHECKSUM_PATH.writeText(HASH)
+            val path = downloader.download(RESOURCE_PATH, DESTINATION_PATH, "ABC").await()
+            checkFileExists()
+            checkDestinationPath(path)
+        }
     }
 
     @Test
     fun `test that downloader downloads resource and stores checksum`() {
-        downloader.download(RESOURCE_PATH, DESTINATION_PATH, HASH)
-        checkFileExists()
-        checkChecksumExists()
+        runBlocking {
+            val path = downloader.download(RESOURCE_PATH, DESTINATION_PATH, HASH).await()
+            checkFileExists()
+            checkChecksumExists()
+            checkDestinationPath(path)
+        }
+    }
+
+    private fun checkDestinationPath(path: Path) {
+        assertEquals(DESTINATION_PATH, path, "Destination path did not match")
     }
 
     private fun checkFileExists() {
