@@ -1,14 +1,15 @@
-package it.fulminazzo.creeper.server
+package it.fulminazzo.creeper.server.spec
 
+import it.fulminazzo.creeper.server.ServerType
 import org.junit.jupiter.api.assertThrows
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
-class MinecraftServerDataBuilderTest {
+class MinecraftServerSpecBuilderTest {
 
     @Test
     fun `test that build returns correct default values`() {
-        val builder = MinecraftServerDataBuilder()
+        val builder = MinecraftServerSpecBuilder()
         builder.type = ServerType.VANILLA
         builder.version = "1.16.5"
         builder.whitelist("Fulminazzo")
@@ -22,12 +23,12 @@ class MinecraftServerDataBuilderTest {
         assertEquals(ServerType.VANILLA, data.type)
         assertEquals("1.16.5", data.version)
         assertEquals(setOf("Fulminazzo", "xca_mux"), data.whitelist)
-        assertEquals(25567, data.config.port)
+        assertEquals(25567, data.settings.port)
     }
 
     @Test
     fun `test that build with no type throws`() {
-        val builder = MinecraftServerDataBuilder()
+        val builder = MinecraftServerSpecBuilder()
         builder.version = "1.16.5"
         builder.serverConfig { eula = true }
         assertThrows<BuildException> { builder.build() }
@@ -35,7 +36,7 @@ class MinecraftServerDataBuilderTest {
 
     @Test
     fun `test that build with no version throws`() {
-        val builder = MinecraftServerDataBuilder()
+        val builder = MinecraftServerSpecBuilder()
         builder.type = ServerType.VANILLA
         builder.serverConfig { eula = true }
         assertThrows<BuildException> { builder.build() }

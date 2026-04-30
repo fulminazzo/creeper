@@ -1,6 +1,10 @@
-package it.fulminazzo.creeper.server.config
+package it.fulminazzo.creeper.server.spec.settings
 
-import it.fulminazzo.creeper.server.requirePositive
+import it.fulminazzo.creeper.server.spec.requirePositive
+import it.fulminazzo.creeper.util.MemorySize
+import it.fulminazzo.creeper.util.MemoryUnit
+import it.fulminazzo.creeper.util.gb
+import it.fulminazzo.creeper.util.mb
 
 /**
  * Builder for JVM flags.

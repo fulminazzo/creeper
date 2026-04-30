@@ -1,6 +1,8 @@
-package it.fulminazzo.creeper.server.config
+package it.fulminazzo.creeper.server.spec.settings
 
-import it.fulminazzo.creeper.server.BuildException
+import it.fulminazzo.creeper.server.spec.BuildException
+import it.fulminazzo.creeper.util.MemoryUnit
+import it.fulminazzo.creeper.util.gb
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows

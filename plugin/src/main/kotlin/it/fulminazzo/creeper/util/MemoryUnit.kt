@@ -1,4 +1,4 @@
-package it.fulminazzo.creeper.server.config
+package it.fulminazzo.creeper.util
 
 /**
  * Identifies the memory unit when specifying RAM allocation size.

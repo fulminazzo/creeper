@@ -1,6 +1,4 @@
-package it.fulminazzo.creeper.server
-
-import jdk.internal.org.jline.utils.Colors.s
+package it.fulminazzo.creeper.server.spec
 
 /**
  * Identifies an exception occurred during the build process.
