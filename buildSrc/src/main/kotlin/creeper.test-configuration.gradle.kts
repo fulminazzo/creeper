@@ -15,6 +15,11 @@ interface TestConfigurationExtension {
     val testTypes: SetProperty<String>
 
     /**
+     * The name of the main source set
+     */
+    val mainSourceSet: Property<String>
+
+    /**
      * Adds a new test type.
      *
      * @param testType the test type
@@ -33,6 +38,12 @@ afterEvaluate {
 
         val sourceSetName = "${testType}Test"
         val testSourceSet = sourceSets.create(sourceSetName) {}
+
+        val mainSourceSetName = extension.mainSourceSet.getOrElse("main")
+        val mainSourceSet = sourceSets.getByName(mainSourceSetName)
+
+        testSourceSet.compileClasspath += mainSourceSet.output
+        testSourceSet.runtimeClasspath += mainSourceSet.output
 
         configurations["${sourceSetName}Implementation"].extendsFrom(configurations["testImplementation"])
         configurations["${sourceSetName}RuntimeOnly"].extendsFrom(configurations["testRuntimeOnly"])
