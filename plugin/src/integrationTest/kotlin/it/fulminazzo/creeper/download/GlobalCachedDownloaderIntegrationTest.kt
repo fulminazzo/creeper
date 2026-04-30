@@ -6,7 +6,6 @@ import kotlinx.coroutines.runBlocking
 import org.junit.jupiter.api.Assertions.assertTrue
 import java.nio.file.Path
 import kotlin.io.path.exists
-import kotlin.io.path.name
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
