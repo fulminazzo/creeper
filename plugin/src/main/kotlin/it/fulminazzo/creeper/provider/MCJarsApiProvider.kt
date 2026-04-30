@@ -4,9 +4,8 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.annotation.JsonProperty
 import it.fulminazzo.creeper.Hashable
 import it.fulminazzo.creeper.ProjectInfo
-import it.fulminazzo.creeper.server.ServerType
 import it.fulminazzo.creeper.download.CachedDownloader
-import it.fulminazzo.creeper.download.Downloader
+import it.fulminazzo.creeper.server.ServerType
 import tools.jackson.module.kotlin.jacksonObjectMapper
 import tools.jackson.module.kotlin.readValue
 import java.net.URI
@@ -22,9 +21,11 @@ import kotlin.time.toJavaDuration
 
 /**
  * A [MinecraftJarProvider] and [MinecraftConfigProvider] that uses the [MCJars API](https://mcjars.app).
+ *
+ * @property downloader the internal downloader
+ * @constructor Creates a new MCJars API provider
  */
-class MCJarsApiProvider : MinecraftJarProvider, MinecraftConfigProvider {
-    private val downloader = CachedDownloader.global(Downloader.http())
+class MCJarsApiProvider(private val downloader: CachedDownloader) : MinecraftJarProvider, MinecraftConfigProvider {
     private val cache = mutableMapOf<Pair<ServerType, String>, BuildResponse>()
     private val mapper = jacksonObjectMapper()
 
