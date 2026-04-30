@@ -33,7 +33,6 @@ kotlin {
     compilerOptions {
         freeCompilerArgs.addAll(
             "-opt-in=kotlin.uuid.ExperimentalUuidApi",
-            "-opt-in=kotlinx.serialization.ExperimentalSerializationApi",
             "-Xannotation-default-target=param-property"
         )
     }
