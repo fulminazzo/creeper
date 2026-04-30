@@ -35,7 +35,6 @@ val extension = extensions.create<TestConfigurationExtension>("testConfiguration
 afterEvaluate {
 
     extension.testTypes.getOrElse(setOf()).forEach { testType ->
-
         val sourceSetName = "${testType}Test"
         val testSourceSet = sourceSets.create(sourceSetName) {}
 
@@ -47,6 +46,16 @@ afterEvaluate {
 
         configurations["${sourceSetName}Implementation"].extendsFrom(configurations["testImplementation"])
         configurations["${sourceSetName}RuntimeOnly"].extendsFrom(configurations["testRuntimeOnly"])
+
+        // Enables internal visibility
+        pluginManager.withPlugin("org.jetbrains.kotlin.jvm") {
+            val kotlin = extensions.getByType(org.jetbrains.kotlin.gradle.dsl.KotlinJvmProjectExtension::class.java)
+
+            val mainCompilation = kotlin.target.compilations.getByName(mainSourceSetName)
+            val testCompilation = kotlin.target.compilations.getByName(sourceSetName)
+
+            testCompilation.associateWith(mainCompilation)
+        }
 
         val task = tasks.register<Test>(sourceSetName) {
             description = "Runs the $testType test suite."
