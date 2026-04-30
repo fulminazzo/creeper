@@ -13,7 +13,7 @@ import tools.jackson.module.kotlin.kotlinModule
 import tools.jackson.module.kotlin.readValue
 import java.nio.file.Path
 import java.util.concurrent.CompletableFuture
-import kotlin.io.path.name
+import kotlin.io.path.extension
 
 /**
  * Generic installer for a server.
@@ -58,7 +58,7 @@ sealed class ServerInstaller<T : ServerType, C : ServerSettings, S : ServerSpec<
         configuration: MutableMap<String, Any>.() -> Unit
     ): CompletableFuture<Path> =
         installConfig(name, directory).thenApply { path ->
-            val mapper = getMapper(path.name)
+            val mapper = getMapper(path.extension)
             val currentConfig = mapper.readValue<MutableMap<String, Any>>(path.toFile())
             configuration(currentConfig)
             mapper.writeValue(path, currentConfig)
