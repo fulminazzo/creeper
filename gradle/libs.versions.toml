@@ -13,16 +13,16 @@ mockk = "1.14.9"
 kotlin-jvm = { module = "org.jetbrains.kotlin:kotlin-gradle-plugin", version.ref = "kotlin-jvm" }
 
 # DATA FORMAT
-jackson-kotlin = { module = "tools.jackson.module:jackson-module-kotlin", version.ref = "jackson" }
 json = { module = "tools.jackson.core:jackson-databind", version.ref = "jackson" }
 yaml = { module = "tools.jackson.dataformat:jackson-dataformat-yaml", version.ref = "jackson" }
 properties = { module = "tools.jackson.dataformat:jackson-dataformat-properties", version.ref = "jackson" }
+jackson-kotlin = { module = "tools.jackson.module:jackson-module-kotlin", version.ref = "jackson" }
 
 # TESTING
 mockk = { module = "io.mockk:mockk", version.ref = "mockk" }
 
 [bundles]
-jackson = ["jackson-kotlin", "json", "yaml", "properties"]
+jackson = ["json", "yaml", "properties", "jackson-kotlin"]
 
 [plugins]
 buildconfig = { id = "com.github.gmazzo.buildconfig", version.ref = "buildconfig" }
