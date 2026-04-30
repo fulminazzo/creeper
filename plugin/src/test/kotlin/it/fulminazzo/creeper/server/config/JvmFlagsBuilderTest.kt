@@ -1,16 +1,11 @@
 package it.fulminazzo.creeper.server.config
 
 import it.fulminazzo.creeper.server.BuildException
-import it.fulminazzo.creeper.server.config.JvmFlagsBuilder
-import it.fulminazzo.creeper.server.config.MemoryUnit
-import it.fulminazzo.creeper.server.config.gb
-import org.gradle.api.GradleException
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.CsvSource
-import org.junit.jupiter.params.provider.ValueSource
 
 class JvmFlagsBuilderTest {
     private val builder = JvmFlagsBuilder()
