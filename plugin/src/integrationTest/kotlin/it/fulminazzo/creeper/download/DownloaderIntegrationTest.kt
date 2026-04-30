@@ -18,7 +18,7 @@ class DownloaderIntegrationTest {
     }
 
     companion object {
-        private val DESTINATION_PATH = Path.of("build/resources/integrationTest/downloader/downloader_test.txt")
+        private val DESTINATION_PATH = Path.of("build/resources/integrationTest/download/downloader_test.txt")
 
     }
 

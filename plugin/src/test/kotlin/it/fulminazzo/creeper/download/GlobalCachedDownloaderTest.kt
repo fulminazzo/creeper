@@ -26,7 +26,7 @@ class GlobalCachedDownloaderTest {
         val downloader = CachedDownloader.global(delegate, scope)
 
         val resource = "https://www.google.com"
-        val path = Path.of("build/resources/test/downloader/global_cached_downloader_test.txt")
+        val path = Path.of("build/resources/test/download/global_cached_downloader_test.txt")
         val hash = "1234567890"
 
         val first = downloader.download(resource, path, hash)

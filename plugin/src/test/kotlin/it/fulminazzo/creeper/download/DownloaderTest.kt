@@ -66,7 +66,7 @@ class DownloaderTest {
     }
 
     companion object {
-        private val DESTINATION_PATH = Path.of("build/resources/test/downloader/downloader_test.txt")
+        private val DESTINATION_PATH = Path.of("build/resources/test/download/downloader_test.txt")
         private const val PATH = "/path/to/file"
 
     }

@@ -89,7 +89,7 @@ class SimpleCachedDownloaderTest {
 
     companion object {
         private const val RESOURCE_PATH = "https://fulminazzo.it"
-        private val DESTINATION_PATH = Path.of("build/resources/test/downloader/cached_downloader_test.txt")
+        private val DESTINATION_PATH = Path.of("build/resources/test/download/cached_downloader_test.txt")
         private val CHECKSUM_PATH = DESTINATION_PATH.resolveSibling("${DESTINATION_PATH.name}.hash")
 
         private const val HASH = "1234567890"
