@@ -59,7 +59,7 @@ sealed class ServerDataBuilder<T : ServerType, B : ServerConfigBuilder, C : Serv
      * @param name the name of the player
      */
     fun whitelist(name: String) {
-        whitelist + name
+        whitelist += name
     }
 
 }
