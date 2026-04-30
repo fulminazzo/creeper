@@ -30,7 +30,8 @@ class MinecraftServerData(
  *
  * @constructor Creates a new Minecraft server data builder
  */
-class MinecraftServerDataBuilder : ServerDataBuilder<ServerType.MinecraftType, MinecraftServerConfigBuilder, MinecraftServerConfig>() {
+class MinecraftServerDataBuilder :
+    ServerDataBuilder<ServerType.MinecraftType, MinecraftServerConfigBuilder, MinecraftServerConfig>() {
     override val serverConfigBuilder: MinecraftServerConfigBuilder = MinecraftServerConfigBuilder()
 
     override fun build(): ServerData<ServerType.MinecraftType, MinecraftServerConfig> {
