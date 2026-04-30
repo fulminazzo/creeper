@@ -69,15 +69,27 @@ class MinecraftServerInstallerIntegrationTest {
         assertTrue(serverProperties.exists(), "server.properties file does not exist")
 
         val data = PROPERTIES_MAPPER.readValue<Map<String, Any>>(serverProperties.toFile())
-        assertEquals(settings.port, data["server-port"], "server-port was not set correctly")
-        assertEquals(settings.players, data["max-players"], "max-players was not set correctly")
+        assertEquals(settings.port.toString(), data["server-port"], "server-port was not set correctly")
+        assertEquals(settings.players.toString(), data["max-players"], "max-players was not set correctly")
         assertEquals(settings.difficulty.name.lowercase(), data["difficulty"], "difficulty was not set correctly")
         assertEquals(settings.gamemode.name.lowercase(), data["gamemode"], "gamemode was not set correctly")
-        assertEquals(settings.generateStructures, data["generate-structures"], "generate-structures was not set correctly")
-        assertEquals(settings.onlineMode, data["online-mode"], "online-mode was not set correctly")
-        assertEquals(settings.spawnProtection, data["spawn-protection"], "spawn-protection was not set correctly")
-        assertEquals(settings.viewDistance, data["view-distance"], "view-distance was not set correctly")
-        assertEquals(settings.simulationDistance, data["simulation-distance"], "simulation-distance was not set correctly")
+        assertEquals(
+            settings.generateStructures.toString(),
+            data["generate-structures"],
+            "generate-structures was not set correctly"
+        )
+        assertEquals(settings.onlineMode.toString(), data["online-mode"], "online-mode was not set correctly")
+        assertEquals(
+            settings.spawnProtection.toString(),
+            data["spawn-protection"],
+            "spawn-protection was not set correctly"
+        )
+        assertEquals(settings.viewDistance.toString(), data["view-distance"], "view-distance was not set correctly")
+        assertEquals(
+            settings.simulationDistance.toString(),
+            data["simulation-distance"],
+            "simulation-distance was not set correctly"
+        )
     }
 
     companion object {
