@@ -29,7 +29,6 @@ import kotlin.time.toJavaDuration
  */
 class MCJarsApiProvider(private val downloader: CachedDownloader) : MinecraftJarProvider, MinecraftConfigProvider {
     private val cache = ConcurrentHashMap<Pair<ServerType, String>, CompletableFuture<BuildResponse?>>()
-    private val mapper = jacksonObjectMapper()
 
     /**
      * Gets the requested build information.
@@ -43,7 +42,7 @@ class MCJarsApiProvider(private val downloader: CachedDownloader) : MinecraftJar
         cache.computeIfAbsent(type to version) {
             getFromApi(getBuildUrl(type, version)).thenApply { raw ->
                 raw ?: return@thenApply null
-                val data = mapper.readValue<RawBuildResponse>(raw).builds.data.firstOrNull()
+                val data = MAPPER.readValue<RawBuildResponse>(raw).builds.data.firstOrNull()
                     ?: return@thenApply null
                 val installation = data.installation.firstOrNull()?.firstOrNull()
                     ?: return@thenApply null
@@ -66,7 +65,7 @@ class MCJarsApiProvider(private val downloader: CachedDownloader) : MinecraftJar
                 build ?: return@thenCompose CompletableFuture.completedFuture(null)
                 getFromApi(getBuildConfigUrl(build.uuid)).thenApply { raw ->
                     raw ?: return@thenApply null
-                    mapper.readValue<ConfigResponse>(raw).configs.firstOrNull { it.name.endsWith(name) }
+                    MAPPER.readValue<ConfigResponse>(raw).configs.firstOrNull { it.name.endsWith(name) }
                 }
             }
 
@@ -87,7 +86,7 @@ class MCJarsApiProvider(private val downloader: CachedDownloader) : MinecraftJar
             200 -> response.body()
             404 -> null
             else -> {
-                val error = mapper.readValue<ErrorResponse>(response.body())
+                val error = MAPPER.readValue<ErrorResponse>(response.body())
                 throw ApiException(response.statusCode(), error)
             }
         }
@@ -126,6 +125,7 @@ class MCJarsApiProvider(private val downloader: CachedDownloader) : MinecraftJar
             .connectTimeout(30.seconds.toJavaDuration())
             .followRedirects(HttpClient.Redirect.NORMAL)
             .build()
+        private val MAPPER = jacksonObjectMapper()
 
         /**
          * Gets the URL to get the build information for the given [type] and [version].
