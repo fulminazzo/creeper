@@ -20,14 +20,6 @@ class DownloaderTest {
     private val downloader = Downloader.http()
 
     @Test
-    fun `test that HTTP downloader works`() {
-        DESTINATION_PATH.deleteIfExists()
-
-        downloader.download("https://raw.githubusercontent.com/gradle/gradle/master/gradle.properties", DESTINATION_PATH)
-        assertContains(DESTINATION_PATH.readText(), "org.gradle.jvmargs=")
-    }
-
-    @Test
     fun `test that HTTP downloader sends correct User-Agent header`() {
         val port = 29126
 

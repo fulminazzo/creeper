@@ -3,18 +3,14 @@ package it.fulminazzo.creeper.provider
 import io.mockk.spyk
 import io.mockk.verify
 import it.fulminazzo.creeper.server.ServerType
-import org.junit.jupiter.api.Assertions.assertEquals
-import org.junit.jupiter.api.Assertions.assertTrue
+import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.assertThrows
 import java.nio.file.Path
-import java.util.*
-import kotlin.io.path.deleteIfExists
-import kotlin.io.path.exists
-import kotlin.io.path.name
+import java.util.UUID
 import kotlin.test.Test
 import kotlin.test.assertNull
 
-class MCJarsApiProviderTest {
+class MCJarsApiProviderIntegrationTest {
     private val provider = MCJarsApiProvider()
 
     @Test
@@ -23,7 +19,7 @@ class MCJarsApiProviderTest {
         destination.deleteIfExists()
 
         provider.get(PLATFORM, VERSION, destination.parent)
-        assertTrue(destination.exists(), "JAR file does not exist: ${destination.toAbsolutePath()}")
+        Assertions.assertTrue(destination.exists(), "JAR file does not exist: ${destination.toAbsolutePath()}")
     }
 
     @Test
@@ -40,7 +36,10 @@ class MCJarsApiProviderTest {
         destination.deleteIfExists()
 
         provider.get(destination.name, PLATFORM, VERSION, destination.parent)
-        assertTrue(destination.exists(), "configuration file does not exist: ${destination.toAbsolutePath()}")
+        Assertions.assertTrue(
+            destination.exists(),
+            "configuration file does not exist: ${destination.toAbsolutePath()}"
+        )
     }
 
     @Test
@@ -58,25 +57,25 @@ class MCJarsApiProviderTest {
         val provider = spyk<MCJarsApiProvider>()
 
         var actual = provider.getBuild(PLATFORM, VERSION)
-        assertEquals(EXPECTED_BUILD_RESPONSE, actual, "build data was not equal")
+        Assertions.assertEquals(EXPECTED_BUILD_RESPONSE, actual, "build data was not equal")
         verify(exactly = 1) { provider.getFromApi(any()) }
 
         actual = provider.getBuild(PLATFORM, VERSION)
-        assertEquals(EXPECTED_BUILD_RESPONSE, actual, "build data was not equal")
+        Assertions.assertEquals(EXPECTED_BUILD_RESPONSE, actual, "build data was not equal")
         verify(exactly = 1) { provider.getFromApi(any()) }
     }
 
     @Test
     fun `test that getBuild returns correct data`() {
         val actual = provider.getBuild(PLATFORM, VERSION)
-        assertEquals(EXPECTED_BUILD_RESPONSE, actual, "build data was not equal")
+        Assertions.assertEquals(EXPECTED_BUILD_RESPONSE, actual, "build data was not equal")
     }
 
     @Test
     fun `test that getConfig returns correct data`() {
         val expectedConfig = EXPECTED_CONFIG
         val actual = provider.getConfig(expectedConfig.name, PLATFORM, VERSION)
-        assertEquals(expectedConfig, actual, "config data was not equal")
+        Assertions.assertEquals(expectedConfig, actual, "config data was not equal")
     }
 
     @Test
