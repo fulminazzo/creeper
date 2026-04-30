@@ -1,7 +1,7 @@
 package it.fulminazzo.creeper.server
 
+import it.fulminazzo.creeper.provider.ConfigProvider
 import it.fulminazzo.creeper.provider.JarProvider
-import it.fulminazzo.creeper.provider.MinecraftConfigProvider
 import it.fulminazzo.creeper.server.spec.ServerSpec
 import it.fulminazzo.creeper.server.spec.settings.ServerSettings
 import org.gradle.api.logging.Logger
@@ -20,10 +20,10 @@ import java.util.concurrent.CompletableFuture
  * @property logger the logger to use for logging
  * @constructor Creates a new Server installer
  */
-class ServerInstaller<T : ServerType, C : ServerSettings, S : ServerSpec<T, C>>(
+sealed class ServerInstaller<T : ServerType, C : ServerSettings, S : ServerSpec<T, C>>(
     private val specification: S,
     private val jarProvider: JarProvider<T>,
-    private val configProvider: MinecraftConfigProvider,
+    private val configProvider: ConfigProvider<T>,
     private val logger: Logger
 ) {
 
@@ -35,12 +35,21 @@ class ServerInstaller<T : ServerType, C : ServerSettings, S : ServerSpec<T, C>>(
      */
     internal fun installJar(directory: Path): CompletableFuture<Path> {
         val serverDirectory = getServerDirectory(directory)
-        logger.info("Installing server ${specification.type} ${specification.version} in: $serverDirectory")
-        return jarProvider.get(
-            specification.type,
-            specification.version,
-            serverDirectory
-        )
+        logger.info("Installing server ${specification.type.name} ${specification.version} in: $serverDirectory")
+        return jarProvider.get(specification.type, specification.version, serverDirectory)
+    }
+
+    /**
+     * Installs a server configuration in the given directory.
+     *
+     * @param name the name of the configuration
+     * @param directory the working directory where the server will be installed
+     * @return the path of the installed server configuration
+     */
+    protected fun installConfig(name: String, directory: Path): CompletableFuture<Path> {
+        val serverDirectory = getServerDirectory(directory)
+        logger.info("Installing configuration file $name for ${specification.type.name} ${specification.version} in: $serverDirectory")
+        return configProvider.get(name, specification.type, specification.version, serverDirectory)
     }
 
     private fun getServerDirectory(parent: Path) =
