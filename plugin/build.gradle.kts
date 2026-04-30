@@ -4,6 +4,8 @@ plugins {
 
     alias(libs.plugins.kotlin.jvm)
     alias(libs.plugins.buildconfig)
+
+    id("creeper.test-configuration")
 }
 
 repositories {
@@ -64,25 +66,7 @@ configure<com.github.gmazzo.buildconfig.BuildConfigExtension> {
     buildConfigField("String", "USER_AGENT", $$"\"$NAME/$VERSION\"")
 }
 
-/**
- * FUNCTIONAL TESTS CONFIGURATION
- */
-val functionalTestSourceSet = sourceSets.create("functionalTest") {
-}
-
-configurations["functionalTestImplementation"].extendsFrom(configurations["testImplementation"])
-configurations["functionalTestRuntimeOnly"].extendsFrom(configurations["testRuntimeOnly"])
-
-val functionalTest by tasks.registering(Test::class) {
-    description = "Runs the functional test suite."
-    testClassesDirs = functionalTestSourceSet.output.classesDirs
-    classpath = functionalTestSourceSet.runtimeClasspath
-    useJUnitPlatform()
-}
-
-gradlePlugin.testSourceSets.add(functionalTestSourceSet)
-
-tasks.check {
-    // Run the functional tests as part of `check`
-    dependsOn(functionalTest)
+testConfiguration {
+    testType("functional")
+    testType("integration")
 }
