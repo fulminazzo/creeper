@@ -60,14 +60,13 @@ class MCJarsApiProvider(private val downloader: CachedDownloader) : MinecraftJar
      * @throws ApiException if the API returns an error
      */
     internal fun getConfig(name: String, type: ServerType.MinecraftType, version: String): CompletableFuture<Config?> =
-        getBuild(type, version)
-            .thenCompose { build ->
-                build ?: return@thenCompose CompletableFuture.completedFuture(null)
-                getFromApi(getBuildConfigUrl(build.uuid)).thenApply { raw ->
-                    raw ?: return@thenApply null
-                    MAPPER.readValue<ConfigResponse>(raw).configs.firstOrNull { it.name.endsWith(name) }
-                }
+        getBuild(type, version).thenCompose { build ->
+            build ?: return@thenCompose CompletableFuture.completedFuture(null)
+            getFromApi(getBuildConfigUrl(build.uuid)).thenApply { raw ->
+                raw ?: return@thenApply null
+                MAPPER.readValue<ConfigResponse>(raw).configs.firstOrNull { it.name.endsWith(name) }
             }
+        }
 
     /**
      * Executes a GET request to the given [url] and returns the response body.
@@ -93,15 +92,14 @@ class MCJarsApiProvider(private val downloader: CachedDownloader) : MinecraftJar
     }
 
     override fun get(platform: ServerType.MinecraftType, version: String, directory: Path): CompletableFuture<Path> =
-        getBuild(platform, version)
-            .thenCompose { buildResponse ->
-                val build = buildResponse ?: throw JarNotFoundException(platform, version)
-                downloader.download(
-                    build.url,
-                    directory.resolve("${platform.name.lowercase()}-$version.jar"),
-                    build.toHashString()
-                )
-            }
+        getBuild(platform, version).thenCompose { buildResponse ->
+            val build = buildResponse ?: throw JarNotFoundException(platform, version)
+            downloader.download(
+                build.url,
+                directory.resolve("${platform.name.lowercase()}-$version.jar"),
+                build.toHashString()
+            )
+        }
 
     override fun get(
         name: String,
@@ -109,13 +107,12 @@ class MCJarsApiProvider(private val downloader: CachedDownloader) : MinecraftJar
         version: String,
         directory: Path
     ): CompletableFuture<Path> =
-        getConfig(name, platform, version)
-            .thenApply { config ->
-                val resolved = config ?: throw ConfigurationNotFoundException(name, platform, version)
-                val destination = directory.createDirectories().resolve(resolved.name)
-                destination.writeText(resolved.data)
-                destination
-            }
+        getConfig(name, platform, version).thenApply { config ->
+            val resolved = config ?: throw ConfigurationNotFoundException(name, platform, version)
+            val destination = directory.createDirectories().resolve(resolved.name)
+            destination.writeText(resolved.data)
+            destination
+        }
 
     companion object {
         private const val API_URL = "https://mcjars.app/api/v3/"
