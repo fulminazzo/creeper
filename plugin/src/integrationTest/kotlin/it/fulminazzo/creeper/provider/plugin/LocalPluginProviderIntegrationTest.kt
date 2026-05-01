@@ -14,7 +14,7 @@ class LocalPluginProviderIntegrationTest {
     private val provider = LocalPluginProvider(
         DIRECTORY,
         LoggerFactory.getLogger(LocalPluginProviderIntegrationTest::class.java)
-    )
+    ) { it.run() }
 
     @Test
     fun `test that provider correctly copies plugin`() {

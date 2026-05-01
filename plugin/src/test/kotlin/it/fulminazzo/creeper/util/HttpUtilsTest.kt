@@ -1,13 +1,15 @@
 package it.fulminazzo.creeper.util
 
+import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.assertThrows
 import java.util.concurrent.CompletionException
+import java.util.concurrent.Executors
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertIs
 
 class HttpUtilsTest {
-    private val requestCatcher = RequestCatcher()
+    private val requestCatcher = RequestCatcher(EXECUTOR)
 
     @Test
     fun `test that getApi returns correct response on 200`() {
@@ -22,7 +24,7 @@ class HttpUtilsTest {
                 |test""".trimMargin().toByteArray()
                 )
             }
-            val response = HttpUtils.getApi("http://localhost:$port/test").join()
+            val response = HttpUtils.getApi("http://localhost:$port/test", EXECUTOR).join()
             assertEquals("test", response)
         } finally {
             requestCatcher.stop()
@@ -42,7 +44,7 @@ class HttpUtilsTest {
                 |test""".trimMargin().toByteArray()
                 )
             }
-            val response = HttpUtils.getApi("http://localhost:$port/test").join()
+            val response = HttpUtils.getApi("http://localhost:$port/test", EXECUTOR).join()
             assertEquals(null, response)
         } finally {
             requestCatcher.stop()
@@ -62,7 +64,8 @@ class HttpUtilsTest {
                 |test""".trimMargin().toByteArray()
                 )
             }
-            val e = assertThrows<CompletionException> { HttpUtils.getApi("http://localhost:$port/test").join() }
+            val e =
+                assertThrows<CompletionException> { HttpUtils.getApi("http://localhost:$port/test", EXECUTOR).join() }
             assertIs<HttpUtils.ApiException>(e.cause)
         } finally {
             requestCatcher.stop()
@@ -82,7 +85,7 @@ class HttpUtilsTest {
                 |test""".trimMargin().toByteArray()
                 )
             }
-            val response = HttpUtils.postApi("http://localhost:$port/test", "").join()
+            val response = HttpUtils.postApi("http://localhost:$port/test", "", EXECUTOR).join()
             assertEquals("test", response)
         } finally {
             requestCatcher.stop()
@@ -102,7 +105,7 @@ class HttpUtilsTest {
                 |test""".trimMargin().toByteArray()
                 )
             }
-            val response = HttpUtils.postApi("http://localhost:$port/test", "").join()
+            val response = HttpUtils.postApi("http://localhost:$port/test", "", EXECUTOR).join()
             assertEquals(null, response)
         } finally {
             requestCatcher.stop()
@@ -122,7 +125,9 @@ class HttpUtilsTest {
                 |test""".trimMargin().toByteArray()
                 )
             }
-            val e = assertThrows<CompletionException> { HttpUtils.postApi("http://localhost:$port/test", "").join() }
+            val e = assertThrows<CompletionException> {
+                HttpUtils.postApi("http://localhost:$port/test", "", EXECUTOR).join()
+            }
             assertIs<HttpUtils.ApiException>(e.cause)
         } finally {
             requestCatcher.stop()
@@ -130,9 +135,17 @@ class HttpUtilsTest {
     }
 
     private companion object {
+        private val EXECUTOR = Executors.newCachedThreadPool()
+
         private var port = 10026
 
         fun getPort() = port++
+
+        @JvmStatic
+        @AfterAll
+        fun tearDown() {
+            EXECUTOR.shutdown()
+        }
 
     }
 

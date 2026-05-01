@@ -10,6 +10,7 @@ import java.net.URI
 import java.nio.file.Path
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.ConcurrentHashMap
+import java.util.concurrent.Executor
 import kotlin.io.path.*
 
 /**
@@ -37,17 +38,21 @@ interface CachedDownloader {
          * Then, it copies the cached file to the requested destination.
          *
          * @param delegate the downloader used to download the files
+         * @param executor the executor to use for asynchronous downloads
          * @return the cached downloader
          */
-        fun global(delegate: Downloader): CachedDownloader = GlobalCachedDownloader(delegate)
+        fun global(delegate: Downloader, executor: Executor): CachedDownloader =
+            GlobalCachedDownloader(delegate, executor)
 
         /**
          * Creates a new [CachedDownloader] that delegates the download part to a [Downloader].
          *
          * @param delegate the downloader used to download the files
+         * @param executor the executor to use for asynchronous downloads
          * @return the cached downloader
          */
-        fun simple(delegate: Downloader): CachedDownloader = SimpleCachedDownloader(delegate)
+        fun simple(delegate: Downloader, executor: Executor): CachedDownloader =
+            SimpleCachedDownloader(delegate, executor)
 
     }
 
@@ -63,9 +68,13 @@ interface CachedDownloader {
      * @constructor Creates a new Global Cached downloader
      *
      * @param downloader the downloader used to download the files
+     * @param executor the executor to use for asynchronous downloads
      */
-    class GlobalCachedDownloader internal constructor(downloader: Downloader) : CachedDownloader {
-        private val delegate = SimpleCachedDownloader(downloader)
+    class GlobalCachedDownloader internal constructor(
+        downloader: Downloader,
+        executor: Executor
+    ) : CachedDownloader {
+        private val delegate = SimpleCachedDownloader(downloader, executor)
         private val operations = ConcurrentHashMap<String, CompletableFuture<Path>>()
 
         override fun download(resource: String, destination: Path, hash: String): CompletableFuture<Path> {
@@ -109,20 +118,23 @@ interface CachedDownloader {
      * Base implementation of [CachedDownloader] that delegates the download part to a [Downloader].
      *
      * @property delegate the downloader used to download the files
+     * @property executor the executor to use for asynchronous downloads
      * @constructor Creates a new Cached downloader
      */
-    private class SimpleCachedDownloader(private val delegate: Downloader) : CachedDownloader {
+    private class SimpleCachedDownloader(
+        private val delegate: Downloader,
+        private val executor: Executor
+    ) : CachedDownloader {
 
-        override fun download(resource: String, destination: Path, hash: String): CompletableFuture<Path> {
-            return CompletableFuture.supplyAsync {
+        override fun download(resource: String, destination: Path, hash: String): CompletableFuture<Path> =
+            CompletableFuture.supplyAsync({
                 val checksum = destination.resolveSibling("${destination.name}.$HASH_EXTENSION")
                 if (!checksum.exists() || hash != checksum.readText()) {
                     delegate.download(resource, destination)
                     checksum.writeText(hash)
                 }
                 destination
-            }
-        }
+            }, executor)
 
     }
 

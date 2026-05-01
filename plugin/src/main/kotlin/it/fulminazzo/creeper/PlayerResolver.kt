@@ -7,6 +7,7 @@ import tools.jackson.module.kotlin.jacksonObjectMapper
 import tools.jackson.module.kotlin.readValue
 import java.util.*
 import java.util.concurrent.ConcurrentHashMap
+import java.util.concurrent.Executor
 import kotlin.io.path.exists
 import kotlin.uuid.Uuid
 import kotlin.uuid.toJavaUuid
@@ -15,9 +16,13 @@ import kotlin.uuid.toJavaUuid
  * A resolver for Minecraft players profiles.
  *
  * @property logger the logger to use to log messages
+ * @property executor the executor to use for asynchronous operations
  * @constructor Creates a new Player resolver
  */
-class PlayerResolver(private val logger: Logger) {
+class PlayerResolver(
+    private val logger: Logger,
+    private val executor: Executor
+) {
     private val cache: MutableMap<String, UUID> by lazy {
         if (CACHE_FILE.exists())
             JSON_MAPPER.readValue<ConcurrentHashMap<String, UUID>>(CACHE_FILE.toFile())
@@ -60,7 +65,7 @@ class PlayerResolver(private val logger: Logger) {
         if (missing.isNotEmpty()) {
             logger.info("Fetching the API for player ids of: ${missing.joinToString(", ")}")
             missing.chunked(MAXIMUM_PLAYERS).forEach { chunk ->
-                val profiles = HttpUtils.postApi(API_URL, JSON_MAPPER.writeValueAsString(chunk)).join()
+                val profiles = HttpUtils.postApi(API_URL, JSON_MAPPER.writeValueAsString(chunk), executor).join()
                     ?.let { JSON_MAPPER.readValue<List<PlayerProfileResponse>>(it) }
                 profiles?.let {
                     it.forEach { profile ->

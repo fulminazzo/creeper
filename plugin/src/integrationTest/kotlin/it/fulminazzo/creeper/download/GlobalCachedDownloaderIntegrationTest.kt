@@ -15,7 +15,7 @@ import kotlin.test.assertEquals
 import kotlin.test.assertNotEquals
 
 class GlobalCachedDownloaderIntegrationTest {
-    private val downloader = CachedDownloader.global(Downloader.http())
+    private val downloader = CachedDownloader.global(Downloader.http()) { it.run() }
     private val cacheDirectory = CreeperPlugin.CACHE_DIRECTORY
 
     @BeforeEach
@@ -33,7 +33,7 @@ class GlobalCachedDownloaderIntegrationTest {
             Thread.sleep(1_000)
         }
 
-        val downloader = CachedDownloader.global(delegate)
+        val downloader = CachedDownloader.global(delegate) { it.run() }
 
         val resource = "https://www.google.com"
         val path1 = Path.of("build/resources/test/download/global_cached_downloader_test1.txt")

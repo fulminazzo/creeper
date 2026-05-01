@@ -4,6 +4,7 @@ import it.fulminazzo.creeper.download.Downloader
 import org.slf4j.Logger
 import java.nio.file.Path
 import java.util.concurrent.CompletableFuture
+import java.util.concurrent.Executor
 
 /**
  * Implementation of [PluginProvider] that will download plugins from the web.
@@ -13,20 +14,23 @@ import java.util.concurrent.CompletableFuture
  *
  * @param directory the directory to download plugins to
  * @param logger the logger to use for logging
+ * @param executor the executor to use for asynchronous operations
  */
 class HttpPluginProvider internal constructor(
     directory: Path,
     logger: Logger,
+    executor: Executor,
     private val downloader: Downloader
 ) : PluginProvider<HttpPluginRequest>(
     directory,
-    logger
+    logger,
+    executor
 ) {
 
-    override fun handleRequest(request: HttpPluginRequest): CompletableFuture<Path> = CompletableFuture.supplyAsync {
+    override fun handleRequest(request: HttpPluginRequest): CompletableFuture<Path> = CompletableFuture.supplyAsync({
         logger.info("Downloading plugin from ${request.url}")
         downloader.downloadIn(request.url, directory)
-    }
+    }, executor)
 
 }
 

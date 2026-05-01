@@ -14,6 +14,7 @@ class HttpPluginProviderIntegrationTest {
     private val provider = HttpPluginProvider(
         DIRECTORY,
         LoggerFactory.getLogger(HttpPluginProviderIntegrationTest::class.java),
+        { it.run() },
         Downloader.http()
     )
 

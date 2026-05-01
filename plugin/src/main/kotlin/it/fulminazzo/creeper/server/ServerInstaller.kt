@@ -15,6 +15,7 @@ import tools.jackson.module.kotlin.kotlinModule
 import tools.jackson.module.kotlin.readValue
 import java.nio.file.Path
 import java.util.concurrent.CompletableFuture
+import java.util.concurrent.Executor
 import kotlin.io.path.extension
 
 /**
@@ -25,17 +26,19 @@ import kotlin.io.path.extension
  * @param S the type of the server specification
  * @property specification the specification of the server to install
  * @property logger the logger to use for logging
+ * @property executor the executor to use for asynchronous operations
+ * @property downloader the downloader to use for downloading the plugins
  * @property jarProvider the provider of the server jar
  * @property configProvider the provider of the server configurations
- * @property downloader the downloader to use for downloading the plugins
  * @constructor Creates a new Server installer
  */
 sealed class ServerInstaller<T : ServerType, C : ServerSettings, S : ServerSpec<T, C>>(
     protected val specification: S,
     protected val logger: Logger,
+    protected val executor: Executor,
+    private val downloader: CachedDownloader,
     private val jarProvider: JarProvider<T>,
-    private val configProvider: ConfigProvider<T>,
-    private val downloader: CachedDownloader
+    private val configProvider: ConfigProvider<T>
 ) {
 
     /**
@@ -104,7 +107,7 @@ sealed class ServerInstaller<T : ServerType, C : ServerSettings, S : ServerSpec<
     private fun installPlugins(directory: Path): CompletableFuture<List<Path>> {
         val serverDirectory = getServerDirectory(directory).resolve("plugins")
         logger.info("Installing plugins for ${specification.type.name} ${specification.version} in: $serverDirectory")
-        val pluginProvider = RedirectPluginProvider(serverDirectory, logger, downloader)
+        val pluginProvider = RedirectPluginProvider(serverDirectory, logger, executor, downloader)
         val futures = specification.plugins.map { pluginProvider.handleRequest(it) }
         return CompletableFuture.allOf(*futures.toTypedArray()).thenApply { futures.map { it.join() } }
     }

@@ -13,9 +13,9 @@ import tools.jackson.module.kotlin.readValue
 import java.nio.file.Path
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.ConcurrentHashMap
+import java.util.concurrent.Executor
 import kotlin.io.path.createDirectories
 import kotlin.io.path.exists
-import kotlin.math.log
 import kotlin.time.Duration.Companion.hours
 
 /**
@@ -26,14 +26,17 @@ import kotlin.time.Duration.Companion.hours
  *
  * @param directory the directory to download plugins to
  * @param logger the logger to use for logging
+ * @param executor the executor to use for asynchronous operations
  */
 class GitHubPluginProvider internal constructor(
     directory: Path,
     logger: Logger,
+    executor: Executor,
     private val downloader: CachedDownloader
 ) : PluginProvider<GitHubPluginRequest>(
     directory,
-    logger
+    logger,
+    executor
 ) {
     val cacheDuration = 6.hours
 
@@ -46,11 +49,12 @@ class GitHubPluginProvider internal constructor(
      */
     internal fun fetchReleaseMetadata(request: GitHubPluginRequest): CompletableFuture<Release?> =
         getTimedCachedRelease(request)?.let { CompletableFuture.completedFuture(it) }
-            ?: HttpUtils.getApi(getReleaseUrl(request.owner, request.repository, request.release)).thenApply { r ->
-                r?.let { raw -> JSON_MAPPER.readValue<ReleaseResponse>(raw) }
-                    ?.assets
-                    ?.firstOrNull { it.name == request.name }
-            }
+            ?: HttpUtils.getApi(getReleaseUrl(request.owner, request.repository, request.release), executor)
+                .thenApply { r ->
+                    r?.let { raw -> JSON_MAPPER.readValue<ReleaseResponse>(raw) }
+                        ?.assets
+                        ?.firstOrNull { it.name == request.name }
+                }
 
     /**
      * Gets the cached release for the given request from the global cache.

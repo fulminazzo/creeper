@@ -21,12 +21,12 @@ import kotlin.test.Test
 import kotlin.test.assertIs
 
 class MCJarsApiProviderIntegrationTest {
-    private val downloader = CachedDownloader.global(Downloader.http())
+    private val downloader = CachedDownloader.global(Downloader.http()) { it.run() }
 
     private val provider = MCJarsApiProvider(
         downloader,
         LoggerFactory.getLogger(MCJarsApiProviderIntegrationTest::class.java)
-    )
+    ) { it.run() }
 
     @Test
     fun `test that MinecraftJarProvider#get works`() {
@@ -77,11 +77,11 @@ class MCJarsApiProviderIntegrationTest {
 
         var actual = provider.fetchBuild(PLATFORM, VERSION).join()
         Assertions.assertEquals(EXPECTED_BUILD_RESPONSE, actual, "build data was not equal")
-        verify(exactly = 1) { HttpUtils.getApi(any()) }
+        verify(exactly = 1) { HttpUtils.getApi(any(), any()) }
 
         actual = provider.fetchBuild(PLATFORM, VERSION).join()
         Assertions.assertEquals(EXPECTED_BUILD_RESPONSE, actual, "build data was not equal")
-        verify(exactly = 1) { HttpUtils.getApi(any()) }
+        verify(exactly = 1) { HttpUtils.getApi(any(), any()) }
 
         unmockkObject(HttpUtils)
     }

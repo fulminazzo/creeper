@@ -26,7 +26,8 @@ class GithubPluginProviderIntegrationTest {
     private val provider = GitHubPluginProvider(
         DIRECTORY,
         LoggerFactory.getLogger(GithubPluginProviderIntegrationTest::class.java),
-        CachedDownloader.simple(Downloader.http())
+        { it.run() },
+        CachedDownloader.simple(Downloader.http()) { it.run() }
     )
 
     @Test
@@ -69,7 +70,11 @@ class GithubPluginProviderIntegrationTest {
         val key = REQUEST.toHashString()
         assertContains(data, key, "Cache file does not contain request hash:")
         val cache = data[key]!!
-        assertEquals(cache, GitHubPluginProvider.getCachedRelease(REQUEST), "Cache file does not contain cached release:")
+        assertEquals(
+            cache,
+            GitHubPluginProvider.getCachedRelease(REQUEST),
+            "Cache file does not contain cached release:"
+        )
         assertEquals(RELEASE, cache.release, "Cache file does not contain release data:")
     }
 

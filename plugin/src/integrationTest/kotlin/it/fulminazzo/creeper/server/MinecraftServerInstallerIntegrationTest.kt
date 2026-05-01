@@ -83,9 +83,10 @@ class MinecraftServerInstallerIntegrationTest {
         val installer = MinecraftServerInstaller(
             specification,
             logger,
+            { it.run() },
+            CachedDownloader.simple(Downloader.http()) { it.run() },
             jarProvider,
-            configProvider,
-            CachedDownloader.simple(Downloader.http())
+            configProvider
         )
 
         val executable = installer.install(DIRECTORY).join()
@@ -189,6 +190,7 @@ class MinecraftServerInstallerIntegrationTest {
         return MinecraftServerInstaller(
             specification.build() as MinecraftServerSpec,
             logger,
+            { it.run() },
             mockk(),
             mockk(),
             mockk()

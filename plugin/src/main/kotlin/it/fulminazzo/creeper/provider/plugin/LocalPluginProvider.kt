@@ -3,6 +3,7 @@ package it.fulminazzo.creeper.provider.plugin
 import org.slf4j.Logger
 import java.nio.file.Path
 import java.util.concurrent.CompletableFuture
+import java.util.concurrent.Executor
 import kotlin.io.path.copyTo
 import kotlin.io.path.createDirectories
 import kotlin.io.path.exists
@@ -14,16 +15,19 @@ import kotlin.io.path.exists
  *
  * @param directory the directory to download plugins to
  * @param logger the logger to use for logging
+ * @param executor the executor to use for asynchronous operations
  */
 class LocalPluginProvider internal constructor(
     directory: Path,
-    logger: Logger
+    logger: Logger,
+    executor: Executor
 ) : PluginProvider<LocalPluginRequest>(
     directory,
-    logger
+    logger,
+    executor
 ) {
 
-    override fun handleRequest(request: LocalPluginRequest): CompletableFuture<Path> = CompletableFuture.supplyAsync {
+    override fun handleRequest(request: LocalPluginRequest): CompletableFuture<Path> = CompletableFuture.supplyAsync({
         val file = request.file
         val destination = directory.createDirectories().resolve(file.fileName)
         if (!destination.exists() || request.overwrite) {
@@ -31,7 +35,7 @@ class LocalPluginProvider internal constructor(
             file.copyTo(destination, overwrite = true)
         }
         destination
-    }
+    }, executor)
 
 }
 

@@ -2,6 +2,8 @@ package it.fulminazzo.creeper.download
 
 import it.fulminazzo.creeper.ProjectInfo
 import it.fulminazzo.creeper.util.RequestCatcher
+import org.junit.jupiter.api.AfterAll
+import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.assertThrows
 import org.junit.jupiter.params.ParameterizedTest
@@ -12,6 +14,7 @@ import java.net.http.HttpClient
 import java.net.http.HttpRequest
 import java.net.http.HttpResponse
 import java.nio.file.Path
+import java.util.concurrent.Executors
 import kotlin.io.path.createDirectories
 import kotlin.io.path.deleteIfExists
 import kotlin.io.path.exists
@@ -21,6 +24,8 @@ import kotlin.test.assertContains
 import kotlin.test.assertTrue
 
 class DownloaderTest {
+    private val requestCatcher = RequestCatcher(EXECUTOR)
+
     private val downloader = Downloader.http()
 
     @BeforeEach
@@ -33,7 +38,6 @@ class DownloaderTest {
     fun `test that HTTP downloader with directory path correctly stores file with content disposition header present`() {
         val port = getPort()
 
-        val requestCatcher = RequestCatcher()
         requestCatcher.requestHandler = { client ->
             client.outputStream.write(
                 """HTTP/1.1 200 OK
@@ -74,7 +78,6 @@ class DownloaderTest {
     ) {
         val port = getPort()
 
-        val requestCatcher = RequestCatcher()
         requestCatcher.requestHandler = { client ->
             val outputStream = client.outputStream
             outputStream.write("HTTP/1.1 200 OK \n".toByteArray())
@@ -101,7 +104,6 @@ class DownloaderTest {
     fun `test that HTTP downloader with directory path throws if it could not find the file name`() {
         val port = getPort()
 
-        val requestCatcher = RequestCatcher()
         requestCatcher.requestHandler = { client ->
             val outputStream = client.outputStream
             outputStream.write("HTTP/1.1 200 OK \n".toByteArray())
@@ -121,7 +123,7 @@ class DownloaderTest {
     fun `test that HTTP downloader sends correct User-Agent header`() {
         val port = getPort()
 
-        val requestCatcher = RequestCatcher().start(port)
+        requestCatcher.start(port)
         try {
             assertThrows<IOException> {
                 downloader.download("http://localhost:$port$PATH", DESTINATION_PATH)
@@ -140,7 +142,7 @@ class DownloaderTest {
     fun `test that request catcher works`() {
         val port = getPort()
 
-        val requestCatcher = RequestCatcher().start(port)
+        requestCatcher.start(port)
         try {
             val client = HttpClient.newHttpClient()
 
@@ -157,13 +159,21 @@ class DownloaderTest {
         }
     }
 
-    companion object {
+    private companion object {
         private val DESTINATION_PATH = Path.of("build/resources/test/download/downloader_test.txt")
         private const val PATH = "/path/to/file/downloader_test.txt"
+
+        private val EXECUTOR = Executors.newSingleThreadExecutor()
 
         private var port = 29026
 
         fun getPort(): Int = port++
+
+        @JvmStatic
+        @AfterAll
+        fun tearDown() {
+            EXECUTOR.shutdown()
+        }
 
     }
 

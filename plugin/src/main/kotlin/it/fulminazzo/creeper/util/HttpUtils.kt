@@ -6,6 +6,7 @@ import java.net.http.HttpClient
 import java.net.http.HttpRequest
 import java.net.http.HttpResponse
 import java.util.concurrent.CompletableFuture
+import java.util.concurrent.Executor
 import kotlin.time.Duration.Companion.seconds
 import kotlin.time.toJavaDuration
 
@@ -23,43 +24,47 @@ object HttpUtils {
      * Executes an HTTP GET request to the REST API at the given [url] and returns the raw response body.
      *
      * @param url the url
+     * @param executor the executor to execute the request with
      * @return the body (or `null` if the resource was not found)
      * @throws ApiException if the API returns an error
      */
-    internal fun getApi(url: String): CompletableFuture<String?> = CompletableFuture.supplyAsync {
-        val request = HttpRequest.newBuilder()
-            .header("User-Agent", ProjectInfo.USER_AGENT)
-            .uri(URI.create(url))
-            .build()
-        val response = CLIENT.send(request, HttpResponse.BodyHandlers.ofString())
-        when (response.statusCode()) {
-            200 -> response.body()
-            404 -> null
-            else -> throw ApiException(response.statusCode())
-        }
-    }
+    internal fun getApi(url: String, executor: Executor): CompletableFuture<String?> =
+        CompletableFuture.supplyAsync({
+            val request = HttpRequest.newBuilder()
+                .header("User-Agent", ProjectInfo.USER_AGENT)
+                .uri(URI.create(url))
+                .build()
+            val response = CLIENT.send(request, HttpResponse.BodyHandlers.ofString())
+            when (response.statusCode()) {
+                200 -> response.body()
+                404 -> null
+                else -> throw ApiException(response.statusCode())
+            }
+        }, executor)
 
     /**
      * Executes an HTTP POST request to the REST API at the given [url] and returns the raw response body.
      *
      * @param url the url
      * @param data the data to send
+     * @param executor the executor to execute the request with
      * @return the body (or `null` if the resource was not found)
      * @throws ApiException if the API returns an error
      */
-    internal fun postApi(url: String, data: String): CompletableFuture<String?> = CompletableFuture.supplyAsync {
-        val request = HttpRequest.newBuilder()
-            .header("User-Agent", ProjectInfo.USER_AGENT)
-            .uri(URI.create(url))
-            .POST(HttpRequest.BodyPublishers.ofString(data))
-            .build()
-        val response = CLIENT.send(request, HttpResponse.BodyHandlers.ofString())
-        when (response.statusCode()) {
-            200 -> response.body()
-            404 -> null
-            else -> throw ApiException(response.statusCode())
-        }
-    }
+    internal fun postApi(url: String, data: String, executor: Executor): CompletableFuture<String?> =
+        CompletableFuture.supplyAsync({
+            val request = HttpRequest.newBuilder()
+                .header("User-Agent", ProjectInfo.USER_AGENT)
+                .uri(URI.create(url))
+                .POST(HttpRequest.BodyPublishers.ofString(data))
+                .build()
+            val response = CLIENT.send(request, HttpResponse.BodyHandlers.ofString())
+            when (response.statusCode()) {
+                200 -> response.body()
+                404 -> null
+                else -> throw ApiException(response.statusCode())
+            }
+        }, executor)
 
     /**
      * Exception thrown on unknown response code while querying the API.

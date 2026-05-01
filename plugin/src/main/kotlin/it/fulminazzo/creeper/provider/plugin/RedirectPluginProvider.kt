@@ -5,6 +5,7 @@ import it.fulminazzo.creeper.download.Downloader
 import org.slf4j.Logger
 import java.nio.file.Path
 import java.util.concurrent.CompletableFuture
+import java.util.concurrent.Executor
 
 /**
  * A special [PluginProvider] that redirects requests to the most appropriate provider.
@@ -13,19 +14,22 @@ import java.util.concurrent.CompletableFuture
  *
  * @param directory the directory to download plugins to
  * @param logger the logger to use for logging
+ * @param executor the executor to use for asynchronous operations
  * @param downloader the downloader to use for downloading the plugins
  */
 class RedirectPluginProvider(
     directory: Path,
     logger: Logger,
+    executor: Executor,
     downloader: CachedDownloader
 ) : PluginProvider<PluginRequest>(
     directory,
-    logger
+    logger,
+    executor
 ) {
-    private val gitHubPluginProvider = GitHubPluginProvider(directory, logger, downloader)
-    private val httpPluginProvider = HttpPluginProvider(directory, logger, Downloader.http())
-    private val localPluginProvider = LocalPluginProvider(directory, logger)
+    private val gitHubPluginProvider = GitHubPluginProvider(directory, logger, executor, downloader)
+    private val httpPluginProvider = HttpPluginProvider(directory, logger, executor, Downloader.http())
+    private val localPluginProvider = LocalPluginProvider(directory, logger, executor)
 
     override fun handleRequest(request: PluginRequest): CompletableFuture<Path> =
         when (request) {

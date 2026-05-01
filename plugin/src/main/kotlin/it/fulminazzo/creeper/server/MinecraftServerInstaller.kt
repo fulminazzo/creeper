@@ -10,6 +10,7 @@ import org.slf4j.Logger
 import tools.jackson.module.kotlin.jacksonObjectMapper
 import java.nio.file.Path
 import java.util.concurrent.CompletableFuture
+import java.util.concurrent.Executor
 import kotlin.collections.mapOf
 import kotlin.io.path.createDirectories
 
@@ -20,24 +21,27 @@ import kotlin.io.path.createDirectories
  *
  * @param specification the specification of the server to install
  * @param logger the logger to use for logging
+ * @param executor the executor to use for asynchronous operations
+ * @param downloader the downloader to use for downloading the plugins
  * @param jarProvider the provider of the server jar
  * @param configProvider the provider of the server configurations
- * @param downloader the downloader to use for downloading the plugins
  */
 class MinecraftServerInstaller(
     specification: MinecraftServerSpec,
     logger: Logger,
+    executor: Executor,
+    downloader: CachedDownloader,
     jarProvider: JarProvider<ServerType.MinecraftType>,
-    configProvider: ConfigProvider<ServerType.MinecraftType>,
-    downloader: CachedDownloader
+    configProvider: ConfigProvider<ServerType.MinecraftType>
 ) : ServerInstaller<ServerType.MinecraftType, MinecraftServerSettings, MinecraftServerSpec>(
     specification,
     logger,
+    executor,
+    downloader,
     jarProvider,
-    configProvider,
-    downloader
+    configProvider
 ) {
-    private val playerResolver = PlayerResolver(logger)
+    private val playerResolver = PlayerResolver(logger, executor)
 
     override fun install(directory: Path): CompletableFuture<Path> {
         return super.install(directory)

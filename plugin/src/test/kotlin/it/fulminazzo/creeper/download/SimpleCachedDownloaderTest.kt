@@ -7,6 +7,7 @@ import org.junit.jupiter.api.Assertions.assertFalse
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.BeforeEach
 import java.nio.file.Path
+import java.util.concurrent.Executor
 import kotlin.io.path.createDirectories
 import kotlin.io.path.exists
 import kotlin.io.path.name
@@ -29,7 +30,7 @@ class SimpleCachedDownloaderTest {
         every { delegate.download(RESOURCE_PATH, DESTINATION_PATH) } answers {
             arg<Path>(1).writeText("Hello, world!")
         }
-        downloader = CachedDownloader.simple(delegate)
+        downloader = CachedDownloader.simple(delegate) { it.run() }
     }
 
     @Test

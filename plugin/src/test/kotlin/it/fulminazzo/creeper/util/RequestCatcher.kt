@@ -3,8 +3,9 @@ package it.fulminazzo.creeper.util
 import java.net.ServerSocket
 import java.net.Socket
 import java.util.concurrent.CompletableFuture
+import java.util.concurrent.Executor
 
-class RequestCatcher {
+class RequestCatcher(private val executor: Executor) {
     var requestHandler: ((Socket) -> Unit)? = null
     private var server: ServerSocket? = null
     private var request: CompletableFuture<List<String>>? = null
@@ -13,7 +14,7 @@ class RequestCatcher {
 
     fun start(port: Int): RequestCatcher {
         server = ServerSocket(port)
-        request = CompletableFuture.supplyAsync {
+        request = CompletableFuture.supplyAsync({
             val client = server!!.accept()
             val lines = handle(client)
             requestHandler?.invoke(client)
@@ -23,7 +24,7 @@ class RequestCatcher {
             server = null
 
             return@supplyAsync lines
-        }
+        }, executor)
         return this
     }
 
