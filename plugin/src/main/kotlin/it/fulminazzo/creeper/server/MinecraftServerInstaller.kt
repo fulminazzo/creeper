@@ -44,6 +44,7 @@ class MinecraftServerInstaller(
                     put("spawn-protection", settings.spawnProtection)
                     put("view-distance", settings.viewDistance)
                     put("simulation-distance", settings.simulationDistance)
+                    put("white-list", settings.whitelist)
                 }.thenApply {
                     writeEula(directory)
                     executable

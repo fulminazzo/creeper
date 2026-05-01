@@ -53,6 +53,7 @@ class MinecraftServerInstallerIntegrationTest {
         settings.spawnProtection = 10
         settings.viewDistance = 6
         settings.simulationDistance = 7
+        settings.whitelist = true
         val specification = MinecraftServerSpec(
             ServerType.VANILLA,
             "1.21.1",
@@ -93,6 +94,7 @@ class MinecraftServerInstallerIntegrationTest {
             data["simulation-distance"],
             "simulation-distance was not set correctly"
         )
+        assertEquals(settings.whitelist.toString(), data["white-list"], "white-list was not set correctly")
     }
 
     companion object {
