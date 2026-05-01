@@ -1,5 +1,6 @@
 package it.fulminazzo.creeper.server
 
+import it.fulminazzo.creeper.download.CachedDownloader
 import it.fulminazzo.creeper.provider.ConfigProvider
 import it.fulminazzo.creeper.provider.JarProvider
 import it.fulminazzo.creeper.server.spec.MinecraftServerSpec
@@ -17,17 +18,20 @@ import java.util.concurrent.CompletableFuture
  * @param logger the logger to use for logging
  * @param jarProvider the provider of the server jar
  * @param configProvider the provider of the server configurations
+ * @param downloader the downloader to use for downloading the plugins
  */
 class MinecraftServerInstaller(
     specification: MinecraftServerSpec,
     logger: Logger,
     jarProvider: JarProvider<ServerType.MinecraftType>,
-    configProvider: ConfigProvider<ServerType.MinecraftType>
+    configProvider: ConfigProvider<ServerType.MinecraftType>,
+    downloader: CachedDownloader
 ) : ServerInstaller<ServerType.MinecraftType, MinecraftServerSettings, MinecraftServerSpec>(
     specification,
     logger,
     jarProvider,
-    configProvider
+    configProvider,
+    downloader
 ) {
 
     override fun install(directory: Path): CompletableFuture<Path> {

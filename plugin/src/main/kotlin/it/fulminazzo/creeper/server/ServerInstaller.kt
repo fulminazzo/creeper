@@ -1,7 +1,10 @@
 package it.fulminazzo.creeper.server
 
+import it.fulminazzo.creeper.download.CachedDownloader
+import it.fulminazzo.creeper.download.Downloader
 import it.fulminazzo.creeper.provider.ConfigProvider
 import it.fulminazzo.creeper.provider.JarProvider
+import it.fulminazzo.creeper.provider.plugin.RedirectPluginProvider
 import it.fulminazzo.creeper.server.spec.ServerSpec
 import it.fulminazzo.creeper.server.spec.settings.ServerSettings
 import org.slf4j.Logger
@@ -25,13 +28,15 @@ import kotlin.io.path.extension
  * @property logger the logger to use for logging
  * @property jarProvider the provider of the server jar
  * @property configProvider the provider of the server configurations
+ * @property downloader the downloader to use for downloading the plugins
  * @constructor Creates a new Server installer
  */
 sealed class ServerInstaller<T : ServerType, C : ServerSettings, S : ServerSpec<T, C>>(
     protected val specification: S,
     protected val logger: Logger,
     private val jarProvider: JarProvider<T>,
-    private val configProvider: ConfigProvider<T>
+    private val configProvider: ConfigProvider<T>,
+    private val downloader: CachedDownloader
 ) {
 
     /**
@@ -41,6 +46,7 @@ sealed class ServerInstaller<T : ServerType, C : ServerSettings, S : ServerSpec<
      * @return the path of the installed server jar
      */
     open fun install(directory: Path): CompletableFuture<Path> = installJar(directory)
+        .thenCompose { executable -> installPlugins(directory).thenApply { executable } }
 
     /**
      * Installs a server configuration in the given directory.
@@ -88,6 +94,20 @@ sealed class ServerInstaller<T : ServerType, C : ServerSettings, S : ServerSpec<
         val serverDirectory = getServerDirectory(directory)
         logger.info("Installing configuration file $name for ${specification.type.name} ${specification.version} in: $serverDirectory")
         return configProvider.get(name, specification.type, specification.version, serverDirectory)
+    }
+
+    /**
+     * Installs all the requested plugins in the given directory.
+     *
+     * @param directory the working directory where the server will be installed
+     * @return the list of paths of the installed plugins
+     */
+    private fun installPlugins(directory: Path): CompletableFuture<List<Path>> {
+        val serverDirectory = getServerDirectory(directory).resolve("plugins")
+        logger.info("Installing plugins for ${specification.type.name} ${specification.version} in: $serverDirectory")
+        val pluginProvider = RedirectPluginProvider(serverDirectory, logger, downloader)
+        val futures = specification.plugins.map { pluginProvider.handleRequest(it) }
+        return CompletableFuture.allOf(*futures.toTypedArray()).thenApply { futures.map { it.join() } }
     }
 
     private fun getServerDirectory(parent: Path) =
