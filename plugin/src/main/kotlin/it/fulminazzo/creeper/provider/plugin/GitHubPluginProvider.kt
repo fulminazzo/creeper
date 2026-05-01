@@ -10,6 +10,7 @@ import java.nio.file.Path
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.ConcurrentHashMap
 import kotlin.io.path.exists
+import kotlin.time.Duration.Companion.hours
 
 /**
  * Implementation of [PluginProvider] that will download plugins from their GitHub repositories.
@@ -28,10 +29,23 @@ class GitHubPluginProvider(
     directory,
     logger
 ) {
+    val cacheDuration = 6.hours
 
     override fun handleRequest(request: GitHubPluginRequest): CompletableFuture<Path> {
         TODO("Not yet implemented")
     }
+
+    /**
+     * Gets the cached release for the given request from the global cache.
+     * Checks [cacheDuration] to see if the release is not expired.
+     *
+     * @param request the request
+     * @return the cached release (if found)
+     */
+    internal fun getTimedCachedRelease(request: GitHubPluginRequest): Release? =
+        getCachedRelease(request)
+            ?.takeIf { it.updated + cacheDuration.inWholeMilliseconds >= System.currentTimeMillis() }
+            ?.release
 
     internal companion object {
         internal val CACHE_FILE = CachedDownloader.CACHE_DIRECTORY.resolve("github.json")
@@ -49,7 +63,7 @@ class GitHubPluginProvider(
          * @param request the request
          * @return the cached release (if found)
          */
-        internal fun getCachedRelease(request: GitHubPluginRequest): Release? = CACHE[request.toHashString()]?.release
+        internal fun getCachedRelease(request: GitHubPluginRequest): ReleaseCache? = CACHE[request.toHashString()]
 
         /**
          * Updates the cache of the given request with the fetched release.
