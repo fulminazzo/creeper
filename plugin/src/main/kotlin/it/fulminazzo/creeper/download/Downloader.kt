@@ -28,9 +28,10 @@ interface Downloader {
      *
      * @param resource the resource path on the web
      * @param directory the directory where the resource will be stored
+     * @return the path of the downloaded resource
      * @throws IllegalArgumentException if it could not derive the name of the resource
      */
-    fun downloadIn(resource: String, directory: Path)
+    fun downloadIn(resource: String, directory: Path): Path
 
     /**
      * Downloads the requested resource.
@@ -58,7 +59,7 @@ interface Downloader {
      */
     private class HttpDownloader : Downloader {
 
-        override fun downloadIn(resource: String, directory: Path) {
+        override fun downloadIn(resource: String, directory: Path): Path {
             directory.createDirectories()
 
             val request = createRequest(resource)
@@ -70,6 +71,7 @@ interface Downloader {
             response.body().use { input ->
                 Files.copy(input, destination, StandardCopyOption.REPLACE_EXISTING)
             }
+            return destination
         }
 
         override fun download(resource: String, destination: Path) {
