@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.annotation.JsonProperty
 import it.fulminazzo.creeper.CreeperPlugin
 import it.fulminazzo.creeper.Hashable
+import it.fulminazzo.creeper.cache.CacheManager
 import it.fulminazzo.creeper.download.CachedDownloader
 import it.fulminazzo.creeper.util.HttpUtils
 import it.fulminazzo.creeper.util.sha256
@@ -40,6 +41,8 @@ class GitHubPluginProvider internal constructor(
 ) {
     val cacheDuration = 6.hours
 
+    private val cache = CacheManager[CACHE_FILE, Release::class.java]
+
     /**
      * Attempts to get the requested release information from the API.
      *
@@ -48,25 +51,17 @@ class GitHubPluginProvider internal constructor(
      * @throws it.fulminazzo.creeper.util.HttpUtils.ApiException if the API returns an error
      */
     internal fun fetchReleaseMetadata(request: GitHubPluginRequest): CompletableFuture<Release?> =
-        getTimedCachedRelease(request)?.let { CompletableFuture.completedFuture(it) }
+        cache[request.toHashString()]?.let { CompletableFuture.completedFuture(it) }
             ?: HttpUtils.getApi(getReleaseUrl(request.owner, request.repository, request.release), executor)
                 .thenApply { r ->
                     r?.let { raw -> JSON_MAPPER.readValue<ReleaseResponse>(raw) }
                         ?.assets
                         ?.firstOrNull { it.name == request.name }
+                        ?.let { release ->
+                            cache.set(request.toHashString(), release, cacheDuration)
+                            release
+                        }
                 }
-
-    /**
-     * Gets the cached release for the given request from the global cache.
-     * Checks [cacheDuration] to see if the release is not expired.
-     *
-     * @param request the request
-     * @return the cached release (if found)
-     */
-    internal fun getTimedCachedRelease(request: GitHubPluginRequest): Release? =
-        getCachedRelease(request)
-            ?.takeIf { it.updated + cacheDuration.inWholeMilliseconds >= System.currentTimeMillis() }
-            ?.release
 
     override fun handleRequest(request: GitHubPluginRequest): CompletableFuture<Path> {
         logger.info("Fetching release information for ${request.owner}/${request.repository}/${request.release} (name = ${request.name})")
@@ -80,33 +75,8 @@ class GitHubPluginProvider internal constructor(
 
     internal companion object {
         internal val CACHE_FILE = CreeperPlugin.CACHE_DIRECTORY.resolve("github.json")
-        private val CACHE: MutableMap<String, ReleaseCache> by lazy {
-            if (CACHE_FILE.exists())
-                JSON_MAPPER.readValue<ConcurrentHashMap<String, ReleaseCache>>(CACHE_FILE.toFile())
-            else ConcurrentHashMap()
-        }
 
         private val JSON_MAPPER = jacksonObjectMapper()
-
-        /**
-         * Gets the cached release for the given request from the global cache.
-         *
-         * @param request the request
-         * @return the cached release (if found)
-         */
-        internal fun getCachedRelease(request: GitHubPluginRequest): ReleaseCache? = CACHE[request.toHashString()]
-
-        /**
-         * Updates the cache of the given request with the fetched release.
-         *
-         * @param request the request
-         * @param release the fetched release
-         */
-        internal fun updateCache(request: GitHubPluginRequest, release: Release) {
-            CACHE[request.toHashString()] = ReleaseCache(release, System.currentTimeMillis())
-            CACHE_FILE.parent.createDirectories()
-            CACHE_FILE.toFile().writeText(JSON_MAPPER.writeValueAsString(CACHE))
-        }
 
         /**
          * Gets the URL to get release information from the GitHub API.
@@ -160,15 +130,6 @@ internal data class Release(
     val name: String,
     val digest: String
 )
-
-/**
- * Identifies a cache for the GitHub API response for a certain release.
- *
- * @property release the release
- * @property updated the time the cache was updated
- * @constructor Creates a new Release cache
- */
-internal data class ReleaseCache(val release: Release, val updated: Long)
 
 /**
  * Exception thrown when a release could not be found.

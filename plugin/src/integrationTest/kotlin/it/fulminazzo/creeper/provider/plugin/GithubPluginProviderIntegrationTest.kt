@@ -1,7 +1,9 @@
 package it.fulminazzo.creeper.provider.plugin
 
+import it.fulminazzo.creeper.cache.CacheManager
 import it.fulminazzo.creeper.download.CachedDownloader
 import it.fulminazzo.creeper.download.Downloader
+import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.assertThrows
 import org.junit.jupiter.params.ParameterizedTest
@@ -53,31 +55,6 @@ class GithubPluginProviderIntegrationTest {
         assertEquals(RELEASE, response, "Response does not match expected release")
     }
 
-    @ParameterizedTest
-    @ValueSource(booleans = [true, false])
-    fun `test that updateCache creates and updates cache file regardless of existence`(exists: Boolean) {
-        val cacheFile = GitHubPluginProvider.CACHE_FILE
-        cacheFile.deleteIfExists()
-        if (exists) {
-            cacheFile.parent.createDirectories()
-            cacheFile.writeText("{}")
-        }
-
-        GitHubPluginProvider.updateCache(REQUEST, RELEASE)
-        assertTrue(cacheFile.exists(), "Cache file does not exist: $cacheFile")
-
-        val data = JSON_MAPPER.readValue<Map<String, ReleaseCache>>(cacheFile.toFile())
-        val key = REQUEST.toHashString()
-        assertContains(data, key, "Cache file does not contain request hash:")
-        val cache = data[key]!!
-        assertEquals(
-            cache,
-            GitHubPluginProvider.getCachedRelease(REQUEST),
-            "Cache file does not contain cached release:"
-        )
-        assertEquals(RELEASE, cache.release, "Cache file does not contain release data:")
-    }
-
     companion object {
         private val MAIN_DIRECTORY = Path.of("build/resources/integrationTest/provider/plugin")
         private val DIRECTORY = MAIN_DIRECTORY.resolve("plugins")
@@ -94,12 +71,16 @@ class GithubPluginProviderIntegrationTest {
             "sha256:6e720c6f62f6fa4c0e6f45a3ed85aa368a95ca37f1d44a97bdd36da960bc3721"
         )
 
-        private val JSON_MAPPER = jacksonObjectMapper()
-
         @JvmStatic
         @BeforeAll
         fun setup() {
             DIRECTORY.createDirectories()
+        }
+
+        @JvmStatic
+        @AfterAll
+        fun tearDown() {
+            CacheManager.closeAll()
         }
 
     }
