@@ -3,7 +3,6 @@ package it.fulminazzo.creeper.server.spec
 import it.fulminazzo.creeper.provider.plugin.GitHubPluginRequest
 import it.fulminazzo.creeper.provider.plugin.HttpPluginRequest
 import it.fulminazzo.creeper.provider.plugin.LocalPluginRequest
-import it.fulminazzo.creeper.provider.plugin.PluginRequest
 import it.fulminazzo.creeper.server.ServerType
 import org.junit.jupiter.api.assertThrows
 import java.net.URI
@@ -26,7 +25,7 @@ class MinecraftServerSpecBuilderTest {
         }
         builder.plugins {
             github("fulminazzo", "YAGL", "5.2.2", "YAGL-5.2.2.jar")
-            http(URI.create("https://github.com/fulminazzo/YAGL/releases/download/5.2.2/YAGL-5.2.2.jar"))
+            url(URI.create("https://github.com/fulminazzo/YAGL/releases/download/5.2.2/YAGL-5.2.2.jar"))
             local("build/libs/YAGL-5.2.2.jar", false)
         }
         val data = builder.build()

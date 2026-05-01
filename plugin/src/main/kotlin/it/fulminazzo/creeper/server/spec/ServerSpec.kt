@@ -121,8 +121,8 @@ class PluginRequestsBuilder {
      *
      * @param url the URL of the plugin
      */
-    fun http(url: URI) {
-        http(url.toString())
+    fun url(url: URI) {
+        url(url.toString())
     }
 
     /**
@@ -130,7 +130,7 @@ class PluginRequestsBuilder {
      *
      * @param url the URL of the plugin
      */
-    fun http(url: String) {
+    fun url(url: String) {
         requests += HttpPluginRequest(url)
     }
 
