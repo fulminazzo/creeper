@@ -14,6 +14,7 @@ import it.fulminazzo.creeper.server.spec.settings.MinecraftServerSettingsBuilder
  * @param version the version of the server
  * @param config the server configuration
  * @param whitelist the whitelist of the server
+ * @param operators the operator players of the server
  * @property plugins the plugins to install
  */
 class MinecraftServerSpec(
@@ -21,6 +22,7 @@ class MinecraftServerSpec(
     version: String,
     config: MinecraftServerSettings,
     val whitelist: Set<String>,
+    val operators: Set<String>,
     plugins: List<PluginRequest>
 ) : ServerSpec<ServerType.MinecraftType, MinecraftServerSettings>(
     type,
@@ -39,6 +41,7 @@ class MinecraftServerSpecBuilder :
     override val serverConfigBuilder: MinecraftServerSettingsBuilder = MinecraftServerSettingsBuilder()
 
     private val whitelist: MutableSet<String> = mutableSetOf()
+    private val operators: MutableSet<String> = mutableSetOf()
 
     /**
      * Adds a player to the whitelist.
@@ -49,12 +52,29 @@ class MinecraftServerSpecBuilder :
         whitelist += name
     }
 
+    /**
+     * Adds a player to the operators' list.
+     *
+     * @param name the name of the player
+     */
+    fun op(name: String) = operator(name)
+
+    /**
+     * Adds a player to the operators' list.
+     *
+     * @param name the name of the player
+     */
+    fun operator(name: String) {
+        operators += name
+    }
+
     override fun build(): ServerSpec<ServerType.MinecraftType, MinecraftServerSettings> {
         return MinecraftServerSpec(
             type,
             version,
             serverConfigBuilder.build(),
             whitelist,
+            operators,
             plugins.requests
         )
     }

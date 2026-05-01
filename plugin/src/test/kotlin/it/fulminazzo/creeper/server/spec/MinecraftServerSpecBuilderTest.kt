@@ -19,6 +19,7 @@ class MinecraftServerSpecBuilderTest {
         builder.version = "1.16.5"
         builder.whitelist("Fulminazzo")
         builder.whitelist("xca_mux")
+        builder.op("xca_mux")
         builder.serverConfig {
             eula = true
             port = 25567
@@ -33,6 +34,7 @@ class MinecraftServerSpecBuilderTest {
         assertEquals(ServerType.VANILLA, data.type)
         assertEquals("1.16.5", data.version)
         assertEquals(setOf("Fulminazzo", "xca_mux"), data.whitelist)
+        assertEquals(setOf("xca_mux"), data.operators)
         assertEquals(25567, data.settings.port)
         assertEquals(
             listOf(
