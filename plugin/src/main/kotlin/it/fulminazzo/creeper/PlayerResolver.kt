@@ -1,0 +1,73 @@
+package it.fulminazzo.creeper
+
+import it.fulminazzo.creeper.util.HttpUtils
+import org.slf4j.Logger
+import tools.jackson.module.kotlin.jacksonObjectMapper
+import tools.jackson.module.kotlin.readValue
+import java.util.*
+import java.util.concurrent.ConcurrentHashMap
+import kotlin.io.path.exists
+
+/**
+ * A resolver for Minecraft players profiles.
+ *
+ * @property logger the logger to use to log messages
+ * @constructor Creates a new Player resolver
+ */
+class PlayerResolver(private val logger: Logger) {
+    private val cache: MutableMap<String, UUID> by lazy {
+        if (CACHE_FILE.exists())
+            JSON_MAPPER.readValue<ConcurrentHashMap<String, UUID>>(CACHE_FILE.toFile())
+        else ConcurrentHashMap()
+    }
+
+    /**
+     * Gets the ids of the requested players from the API.
+     * They will be cached under [CACHE_FILE] for future use.
+     *
+     * @param usernames the usernames of the players
+     * @return the ids of the players
+     */
+    fun getOnlinePlayersIds(usernames: List<String>): List<UUID> {
+        val uuids = mutableListOf<UUID>()
+        val missing = mutableListOf<String>()
+        usernames.forEach { username -> cache[username]?.let { uuids += it } ?: missing.add(username) }
+        if (missing.isNotEmpty()) {
+            logger.info("Fetching the API for player ids of: ${missing.joinToString(", ")}")
+            val profiles = HttpUtils.postApi(API_URL, JSON_MAPPER.writeValueAsString(missing)).join()
+                ?.let { JSON_MAPPER.readValue<List<PlayerProfile>>(it) }
+            profiles?.let {
+                it.forEach { profile ->
+                    cache[profile.name] = UUID.fromString(profile.id)
+                    missing.remove(profile.name)
+                    if (missing.isNotEmpty())
+                        logger.warn("Could not find player ids for: ${missing.joinToString(", ")}")
+                }
+                if (it.isNotEmpty()) saveCache()
+            }
+        }
+        return uuids
+    }
+
+    private fun saveCache() {
+        CACHE_FILE.toFile().writeText(JSON_MAPPER.writeValueAsString(cache))
+    }
+
+    internal companion object {
+        private const val API_URL = "https://api.mojang.com/profiles/minecraft"
+
+        internal val CACHE_FILE = CreeperPlugin.CACHE_DIRECTORY.resolve("mojang.json")
+        private val JSON_MAPPER = jacksonObjectMapper()
+
+    }
+
+}
+
+/**
+ * Identifies a player profile in an API response.
+ *
+ * @property id the UUID of the player
+ * @property name the name of the player
+ * @constructor Creates a new Player profile
+ */
+internal data class PlayerProfile(val id: String, val name: String)
