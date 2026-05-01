@@ -50,7 +50,7 @@ class MinecraftServerInstaller(
                     put("simulation-distance", settings.simulationDistance)
                     put("white-list", settings.whitelist)
                 }.thenApply {
-                    writeEula(directory)
+                    writeEula(executable.parent)
                     executable
                 }
             }
