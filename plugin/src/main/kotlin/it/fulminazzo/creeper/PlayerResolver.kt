@@ -25,41 +25,48 @@ class PlayerResolver(private val logger: Logger) {
     }
 
     /**
-     * Gets the ids of the requested players.
-     * If [online] is true, the ids will be fetched from the API.
+     * Gets the profiles of the requested players.
+     * If [online] is true, the profiles will be fetched from the API.
      * Otherwise, they will be computed according to Bukkit rules.
      *
      * @param usernames the usernames of the players
-     * @param online if the ids should be fetched from the API
-     * @return the ids of the players
+     * @param online if the profiles should be fetched from the API
+     * @return the profiles of the players
      */
-    fun getPlayersIds(usernames: List<String>, online: Boolean): List<UUID> =
-        if (online) getOnlinePlayersIds(usernames)
-        else usernames
-            .map { "$OFFLINE_PLAYER_PREFIX$it" }
-            .map { UUID.nameUUIDFromBytes(it.toByteArray()) }
+    fun getPlayerProfiles(usernames: Collection<String>, online: Boolean): Set<PlayerProfile> =
+        if (online) getOnlinePlayerProfiles(usernames)
+        else usernames.map {
+            PlayerProfile(
+                UUID.nameUUIDFromBytes("$OFFLINE_PLAYER_PREFIX$it".toByteArray()),
+                it
+            )
+        }.toSet()
 
     /**
-     * Gets the ids of the requested players from the API.
+     * Gets the profiles of the requested players from the API.
      * They will be cached under [CACHE_FILE] for future use.
      *
      * @param usernames the usernames of the players
-     * @return the ids of the players
+     * @return the profiles of the players
      */
-    fun getOnlinePlayersIds(usernames: List<String>): List<UUID> {
-        val uuids = mutableListOf<UUID>()
+    fun getOnlinePlayerProfiles(usernames: Collection<String>): Set<PlayerProfile> {
+        val uuids = mutableSetOf<PlayerProfile>()
         val missing = mutableListOf<String>()
-        usernames.forEach { username -> cache[username]?.let { uuids += it } ?: missing.add(username) }
+        usernames.forEach { username ->
+            cache[username]
+                ?.let { uuids += PlayerProfile(it, username) }
+                ?: missing.add(username)
+        }
         if (missing.isNotEmpty()) {
             logger.info("Fetching the API for player ids of: ${missing.joinToString(", ")}")
             missing.chunked(MAXIMUM_PLAYERS).forEach { chunk ->
                 val profiles = HttpUtils.postApi(API_URL, JSON_MAPPER.writeValueAsString(chunk)).join()
-                    ?.let { JSON_MAPPER.readValue<List<PlayerProfile>>(it) }
+                    ?.let { JSON_MAPPER.readValue<List<PlayerProfileResponse>>(it) }
                 profiles?.let {
                     it.forEach { profile ->
                         val id = Uuid.parse(profile.id).toJavaUuid()
                         cache[profile.name] = id
-                        uuids += id
+                        uuids += PlayerProfile(id, profile.name)
                         missing.remove(profile.name)
                     }
                     if (it.isNotEmpty()) saveCache()
@@ -91,13 +98,22 @@ class PlayerResolver(private val logger: Logger) {
 
     }
 
+    /**
+     * Identifies a player profile in an API response.
+     *
+     * @property id the UUID of the player
+     * @property name the name of the player
+     * @constructor Creates a new Player profile
+     */
+    private data class PlayerProfileResponse(val id: String, val name: String)
+
 }
 
 /**
- * Identifies a player profile in an API response.
+ * Identifies a player profile.
  *
  * @property id the UUID of the player
  * @property name the name of the player
  * @constructor Creates a new Player profile
  */
-internal data class PlayerProfile(val id: String, val name: String)
+data class PlayerProfile(val id: UUID, val name: String)
