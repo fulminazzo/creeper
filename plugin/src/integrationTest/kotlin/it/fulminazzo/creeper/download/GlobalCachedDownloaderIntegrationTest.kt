@@ -84,7 +84,7 @@ class GlobalCachedDownloaderIntegrationTest {
     }
 
     companion object {
-        private const val RESOURCE_PATH = "https://fulminazzo.it"
+        private const val RESOURCE_PATH = "https://repo.fulminazzo.it"
         private val DESTINATION_PATH = Path.of("build/resources/integrationTest/download/cached_downloader_test.txt")
 
         private const val HASH = "1234567890"
