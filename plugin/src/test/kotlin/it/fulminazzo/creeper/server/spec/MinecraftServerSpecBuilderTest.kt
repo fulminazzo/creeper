@@ -1,7 +1,13 @@
 package it.fulminazzo.creeper.server.spec
 
+import it.fulminazzo.creeper.provider.plugin.GitHubPluginRequest
+import it.fulminazzo.creeper.provider.plugin.HttpPluginRequest
+import it.fulminazzo.creeper.provider.plugin.LocalPluginRequest
+import it.fulminazzo.creeper.provider.plugin.PluginRequest
 import it.fulminazzo.creeper.server.ServerType
 import org.junit.jupiter.api.assertThrows
+import java.net.URI
+import java.nio.file.Path
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
@@ -18,12 +24,25 @@ class MinecraftServerSpecBuilderTest {
             eula = true
             port = 25567
         }
+        builder.plugins {
+            github("fulminazzo", "YAGL", "5.2.2", "YAGL-5.2.2.jar")
+            http(URI.create("https://github.com/fulminazzo/YAGL/releases/download/5.2.2/YAGL-5.2.2.jar"))
+            local("build/libs/YAGL-5.2.2.jar", false)
+        }
         val data = builder.build()
 
         assertEquals(ServerType.VANILLA, data.type)
         assertEquals("1.16.5", data.version)
         assertEquals(setOf("Fulminazzo", "xca_mux"), data.whitelist)
         assertEquals(25567, data.settings.port)
+        assertEquals(
+            listOf(
+                GitHubPluginRequest("fulminazzo", "YAGL", "5.2.2", "YAGL-5.2.2.jar"),
+                HttpPluginRequest("https://github.com/fulminazzo/YAGL/releases/download/5.2.2/YAGL-5.2.2.jar"),
+                LocalPluginRequest(Path.of("build/libs/YAGL-5.2.2.jar"), false)
+            ),
+            data.plugins
+        )
     }
 
     @Test

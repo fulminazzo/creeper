@@ -1,5 +1,6 @@
 package it.fulminazzo.creeper.server.spec
 
+import it.fulminazzo.creeper.provider.plugin.PluginRequest
 import it.fulminazzo.creeper.server.ServerType
 import it.fulminazzo.creeper.server.spec.settings.MinecraftServerSettings
 import it.fulminazzo.creeper.server.spec.settings.MinecraftServerSettingsBuilder
@@ -13,17 +14,20 @@ import it.fulminazzo.creeper.server.spec.settings.MinecraftServerSettingsBuilder
  * @param version the version of the server
  * @param config the server configuration
  * @param whitelist the whitelist of the server
+ * @property plugins the plugins to install
  */
 class MinecraftServerSpec(
     type: ServerType.MinecraftType,
     version: String,
     config: MinecraftServerSettings,
-    whitelist: Set<String>
+    whitelist: Set<String>,
+    plugins: List<PluginRequest>
 ) : ServerSpec<ServerType.MinecraftType, MinecraftServerSettings>(
     type,
     version,
     config,
-    whitelist
+    whitelist,
+    plugins
 )
 
 /**
@@ -40,7 +44,8 @@ class MinecraftServerSpecBuilder :
             type,
             version,
             serverConfigBuilder.build(),
-            whitelist
+            whitelist,
+            plugins.requests
         )
     }
 
