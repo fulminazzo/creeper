@@ -28,6 +28,7 @@ class MinecraftServerSettings(
     players: Int,
     whitelist: Boolean,
     flags: String,
+    val hardcore: Boolean,
     val difficulty: Difficulty,
     val gamemode: Gamemode,
     val generateStructures: Boolean,
@@ -49,6 +50,7 @@ class MinecraftServerSettings(
  * @constructor Create a new Minecraft server settings builder
  */
 class MinecraftServerSettingsBuilder : ServerSettingsBuilder() {
+    var hardcore: Boolean = false
     var difficulty: Difficulty = Difficulty.PEACEFUL
     var gamemode: Gamemode = Gamemode.SURVIVAL
     var generateStructures: Boolean = false
@@ -77,6 +79,7 @@ class MinecraftServerSettingsBuilder : ServerSettingsBuilder() {
             players,
             whitelist,
             flags.build(),
+            hardcore,
             difficulty,
             gamemode,
             generateStructures,

@@ -39,6 +39,7 @@ class MinecraftServerInstaller(
             .thenCompose { executable ->
                 installAndEditConfig(SERVER_PROPERTIES, directory) {
                     val settings = specification.settings
+                    put("hardcore", settings.hardcore)
                     put("server-port", settings.port)
                     put("max-players", settings.players)
                     put("difficulty", settings.difficulty.name.lowercase())
