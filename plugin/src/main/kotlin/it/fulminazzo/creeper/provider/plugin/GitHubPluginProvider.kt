@@ -64,13 +64,13 @@ class GitHubPluginProvider internal constructor(
                 }
 
     override fun handleRequest(request: GitHubPluginRequest): CompletableFuture<Path> {
-        logger.info("Fetching release information for ${request.owner}/${request.repository}/${request.release} (name = ${request.name})")
+        logger.info("Fetching GitHub release information for ${request.owner}/${request.repository}/${request.release} (filename =${request.name})")
         return fetchReleaseMetadata(request).thenCompose { release ->
             release?.let {
                 logger.info("Downloading plugin from ${release.url}")
                 downloader.download(release.url, directory.resolve(release.name), release.digest)
             } ?: throw PluginNotFoundException(
-                "Could not find release for ${request.owner}/${request.repository}/${request.release} (name = ${request.name})"
+                "Could not find GitHub release for ${request.owner}/${request.repository}/${request.release} (filename =${request.name})"
             )
         }
     }
