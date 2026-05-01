@@ -1,7 +1,6 @@
 package it.fulminazzo.creeper.server
 
 import it.fulminazzo.creeper.download.CachedDownloader
-import it.fulminazzo.creeper.download.Downloader
 import it.fulminazzo.creeper.provider.ConfigProvider
 import it.fulminazzo.creeper.provider.JarProvider
 import it.fulminazzo.creeper.provider.plugin.RedirectPluginProvider
