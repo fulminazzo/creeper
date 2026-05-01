@@ -11,6 +11,7 @@ import kotlin.io.path.exists
 import kotlin.io.path.writeText
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertNotEquals
 
 class GlobalCachedDownloaderIntegrationTest {
     private val downloader = CachedDownloader.global(Downloader.http())
@@ -34,13 +35,16 @@ class GlobalCachedDownloaderIntegrationTest {
         val downloader = CachedDownloader.global(delegate)
 
         val resource = "https://www.google.com"
-        val path = Path.of("build/resources/test/download/global_cached_downloader_test.txt")
+        val path1 = Path.of("build/resources/test/download/global_cached_downloader_test1.txt")
+        val path2 = Path.of("build/resources/test/download/global_cached_downloader_test2.txt")
         val hash = "1234567890"
 
-        val first = downloader.download(resource, path, hash).join()
-        val second = downloader.download(resource, path, hash).join()
+        val first = downloader.download(resource, path1, hash).join()
+        val second = downloader.download(resource, path2, hash).join()
 
-        assertEquals(first, second, "downloads were not equal")
+        assertNotEquals(first, second, "Returned paths should not be equal")
+        assertEquals(first, path1, "First path should be $path1")
+        assertEquals(second, path2, "Second path should be $path2")
         verify(exactly = 1) { delegate.download(resource, any()) }
     }
 
