@@ -6,6 +6,7 @@ import java.io.Closeable
 import java.nio.file.Path
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.Executors
+import java.util.concurrent.Future
 import java.util.concurrent.TimeUnit
 import kotlin.io.path.absolutePathString
 import kotlin.io.path.createDirectories
@@ -38,6 +39,7 @@ class CacheManager<V> private constructor(
     private val executor = Executors.newSingleThreadExecutor {
         Thread(it, "${ProjectInfo.NAME}-cache-${file.absolutePathString()}")
     }
+    private var pendingWrite: Future<*>? = null
 
     /**
      * Gets the value associated with the specified key from the cache.
@@ -69,7 +71,8 @@ class CacheManager<V> private constructor(
      */
     fun set(key: String, value: V, duration: Duration? = null) {
         cache[key] = TimedValue(value, duration?.let { System.currentTimeMillis() + it.inWholeMilliseconds })
-        executor.submit {
+        pendingWrite?.cancel(false)
+        pendingWrite = executor.submit {
             file.parent.createDirectories()
             file.toFile().writeText(JSON_MAPPER.writeValueAsString(cache))
         }

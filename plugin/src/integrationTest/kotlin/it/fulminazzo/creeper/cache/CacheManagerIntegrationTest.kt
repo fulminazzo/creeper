@@ -21,19 +21,25 @@ class CacheManagerIntegrationTest {
         val sleepTime = 750L
 
         FILE.deleteIfExists()
-        val expected = Data("1", "one")
-        manager.set("1", expected, (sleepTime * 2).milliseconds)
+        val expectedFirst = Data("1", "one")
+        manager.set("1", expectedFirst, (sleepTime * 2).milliseconds)
+        val expectedSecond = Data("2", "two")
+        manager["2"] = expectedSecond
 
         Thread.sleep(sleepTime)
         assertTrue(FILE.exists(), "Cache file does not exist: $FILE")
         assertContains(FILE.toFile().readText(), """"value":{"id":"1","name":"one"}""")
 
-        val actual = manager["1"]
-        assertEquals(expected, actual, "Cached data does not match expected data")
+        val actualFirst = manager["1"]
+        assertEquals(expectedFirst, actualFirst, "Cached data does not match expected data")
+        val actualSecond = manager["2"]
+        assertEquals(expectedSecond, actualSecond, "Cached data does not match expected data")
 
         Thread.sleep(sleepTime)
-        val actual2 = manager["1"]
-        assertNull(actual2, "Cached data was not removed after being expired")
+        val actualFirst2 = manager["1"]
+        assertNull(actualFirst2, "Cached data was not removed after being expired")
+        val actualSecond2 = manager["2"]
+        assertEquals(expectedSecond, actualSecond2, "Cached data does not match expected data")
     }
 
     @Test
