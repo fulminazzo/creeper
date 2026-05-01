@@ -6,6 +6,7 @@ import it.fulminazzo.creeper.Hashable
 import it.fulminazzo.creeper.ProjectInfo
 import it.fulminazzo.creeper.download.CachedDownloader
 import it.fulminazzo.creeper.server.ServerType
+import it.fulminazzo.creeper.util.HttpUtils
 import org.slf4j.Logger
 import tools.jackson.module.kotlin.jacksonObjectMapper
 import tools.jackson.module.kotlin.readValue
@@ -41,12 +42,12 @@ class MCJarsApiProvider(
      * @param type the platform
      * @param version the version of the build
      * @return the build information (or `null` if the build was not found)
-     * @throws ApiException if the API returns an error
+     * @throws it.fulminazzo.creeper.util.HttpUtils.ApiException if the API returns an error
      */
     internal fun fetchBuild(type: ServerType.MinecraftType, version: String): CompletableFuture<BuildResponse?> =
         cache.computeIfAbsent(type to version) {
             logger.info("Fetching build information for Minecraft ${type.name} $version")
-            getApi(getBuildUrl(type, version)).thenApply { raw ->
+            HttpUtils.getApi("$API_URL${getBuildUrl(type, version)}").thenApply { raw ->
                 raw ?: return@thenApply null
                 val data = MAPPER.readValue<RawBuildResponse>(raw).builds.data.firstOrNull()
                     ?: return@thenApply null
@@ -63,7 +64,7 @@ class MCJarsApiProvider(
      * @param type the platform of the build containing the configuration
      * @param version the version of the build containing the configuration
      * @return the configuration information (or `null` if the configuration or build were not found)
-     * @throws ApiException if the API returns an error
+     * @throws it.fulminazzo.creeper.util.HttpUtils.ApiException if the API returns an error
      */
     internal fun fetchConfig(
         name: String,
@@ -73,34 +74,11 @@ class MCJarsApiProvider(
         fetchBuild(type, version).thenCompose { build ->
             logger.info("Fetching configuration '$name' for Minecraft ${type.name} $version")
             build ?: return@thenCompose CompletableFuture.completedFuture(null)
-            getApi(getBuildConfigUrl(build.uuid)).thenApply { raw ->
+            HttpUtils.getApi("$API_URL${getBuildConfigUrl(build.uuid)}").thenApply { raw ->
                 raw ?: return@thenApply null
                 MAPPER.readValue<ConfigResponse>(raw).configs.firstOrNull { it.name.endsWith(name) }
             }
         }
-
-    /**
-     * Executes a GET request to the given [url] and returns the response body.
-     *
-     * @param url the url
-     * @return the body (or `null` if the resource was not found)
-     * @throws ApiException if the API returns an error
-     */
-    internal fun getApi(url: String): CompletableFuture<String?> = CompletableFuture.supplyAsync {
-        val request = HttpRequest.newBuilder()
-            .header("User-Agent", ProjectInfo.USER_AGENT)
-            .uri(URI.create("$API_URL$url"))
-            .build()
-        val response = CLIENT.send(request, HttpResponse.BodyHandlers.ofString())
-        when (response.statusCode()) {
-            200 -> response.body()
-            404 -> null
-            else -> {
-                val error = MAPPER.readValue<ErrorResponse>(response.body())
-                throw ApiException(response.statusCode(), error)
-            }
-        }
-    }
 
     override fun get(platform: ServerType.MinecraftType, version: String, directory: Path): CompletableFuture<Path> =
         fetchBuild(platform, version).thenCompose { buildResponse ->
@@ -129,11 +107,6 @@ class MCJarsApiProvider(
     companion object {
         private const val API_URL = "https://mcjars.app/api/v3/"
 
-        private val CLIENT = HttpClient.newBuilder()
-            .version(HttpClient.Version.HTTP_2)
-            .connectTimeout(30.seconds.toJavaDuration())
-            .followRedirects(HttpClient.Redirect.NORMAL)
-            .build()
         private val MAPPER = jacksonObjectMapper()
 
         /**
@@ -155,26 +128,6 @@ class MCJarsApiProvider(
         private fun getBuildConfigUrl(buildId: UUID): String = "builds/$buildId/configs"
 
     }
-
-    /**
-     * Exception thrown on unknown response code while querying the API.
-     *
-     * @constructor Create an empty Api exception
-     *
-     * @param statusCode the status code
-     * @param response the response from the API
-     */
-    class ApiException internal constructor(statusCode: Int, response: ErrorResponse) : Exception(
-        "Unexpected response code: $statusCode. Errors: ${response.errors.joinToString(", ")}"
-    )
-
-    /**
-     * Identifies an error response from the API.
-     *
-     * @property errors the list of errors
-     * @constructor Create a new Error response
-     */
-    internal data class ErrorResponse(val errors: List<String>)
 
     /*
      * BUILD

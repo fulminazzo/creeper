@@ -1,11 +1,12 @@
 package it.fulminazzo.creeper.provider
 
-import io.mockk.spyk
+import io.mockk.mockkObject
+import io.mockk.unmockkObject
 import io.mockk.verify
 import it.fulminazzo.creeper.download.CachedDownloader
 import it.fulminazzo.creeper.download.Downloader
 import it.fulminazzo.creeper.server.ServerType
-import org.gradle.api.logging.Logging
+import it.fulminazzo.creeper.util.HttpUtils
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.assertThrows
 import org.slf4j.LoggerFactory
@@ -18,7 +19,6 @@ import kotlin.io.path.name
 import kotlin.io.path.readLines
 import kotlin.test.Test
 import kotlin.test.assertIs
-import kotlin.test.assertNull
 
 class MCJarsApiProviderIntegrationTest {
     private val downloader = CachedDownloader.global(Downloader.http())
@@ -73,15 +73,17 @@ class MCJarsApiProviderIntegrationTest {
 
     @Test
     fun `test fetchBuild internal cache`() {
-        val provider = spyk(provider)
+        mockkObject(HttpUtils)
 
         var actual = provider.fetchBuild(PLATFORM, VERSION).join()
         Assertions.assertEquals(EXPECTED_BUILD_RESPONSE, actual, "build data was not equal")
-        verify(exactly = 1) { provider.getApi(any()) }
+        verify(exactly = 1) { HttpUtils.getApi(any()) }
 
         actual = provider.fetchBuild(PLATFORM, VERSION).join()
         Assertions.assertEquals(EXPECTED_BUILD_RESPONSE, actual, "build data was not equal")
-        verify(exactly = 1) { provider.getApi(any()) }
+        verify(exactly = 1) { HttpUtils.getApi(any()) }
+
+        unmockkObject(HttpUtils)
     }
 
     @Test
@@ -95,11 +97,6 @@ class MCJarsApiProviderIntegrationTest {
         val expectedConfig = EXPECTED_CONFIG
         val actual = provider.fetchConfig(expectedConfig.name, PLATFORM, VERSION).join()
         Assertions.assertEquals(expectedConfig, actual, "config data was not equal")
-    }
-
-    @Test
-    fun `test that getApi of not found returns null`() {
-        assertNull(provider.getApi("not-found").join())
     }
 
     companion object {
