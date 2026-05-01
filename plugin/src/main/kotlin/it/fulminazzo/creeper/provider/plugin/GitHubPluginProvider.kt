@@ -1,9 +1,15 @@
 package it.fulminazzo.creeper.provider.plugin
 
+import it.fulminazzo.creeper.Hashable
 import it.fulminazzo.creeper.download.CachedDownloader
+import it.fulminazzo.creeper.util.sha256
 import org.slf4j.Logger
+import tools.jackson.module.kotlin.jacksonObjectMapper
+import tools.jackson.module.kotlin.readValue
 import java.nio.file.Path
 import java.util.concurrent.CompletableFuture
+import java.util.concurrent.ConcurrentHashMap
+import kotlin.io.path.exists
 
 /**
  * Implementation of [PluginProvider] that will download plugins from their GitHub repositories.
@@ -27,6 +33,37 @@ class GitHubPluginProvider(
         TODO("Not yet implemented")
     }
 
+    internal companion object {
+        internal val CACHE_FILE = CachedDownloader.CACHE_DIRECTORY.resolve("github.json")
+        private val CACHE: MutableMap<String, ReleaseCache> by lazy {
+            if (CACHE_FILE.exists())
+                JSON_MAPPER.readValue<ConcurrentHashMap<String, ReleaseCache>>(CACHE_FILE.toFile())
+            else ConcurrentHashMap()
+        }
+
+        private val JSON_MAPPER = jacksonObjectMapper()
+
+        /**
+         * Gets the cached release for the given request from the global cache.
+         *
+         * @param request the request
+         * @return the cached release (if found)
+         */
+        internal fun getCachedRelease(request: GitHubPluginRequest): Release? = CACHE[request.toHashString()]?.release
+
+        /**
+         * Updates the cache of the given request with the fetched release.
+         *
+         * @param request the request
+         * @param release the fetched release
+         */
+        internal fun updateCache(request: GitHubPluginRequest, release: Release) {
+            CACHE[request.toHashString()] = ReleaseCache(release, System.currentTimeMillis())
+            CACHE_FILE.toFile().writeText(JSON_MAPPER.writeValueAsString(CACHE))
+        }
+
+    }
+
 }
 
 /**
@@ -43,4 +80,26 @@ data class GitHubPluginRequest(
     val repository: String,
     val release: String,
     val name: String
-) : PluginRequest
+) : PluginRequest, Hashable {
+
+    override fun toHashString(): String = "$owner:$repository:$release:$name".sha256()
+
+}
+
+/**
+ * Identifies the GitHub API response for a certain release.
+ *
+ * @property url the URL to download the release from
+ * @property digest the SHA-256 digest of the release
+ * @constructor Creates a new Release
+ */
+internal data class Release(val url: String, val digest: String)
+
+/**
+ * Identifies a cache for the GitHub API response for a certain release.
+ *
+ * @property release the release
+ * @property updated the time the cache was updated
+ * @constructor Creates a new Release cache
+ */
+internal data class ReleaseCache(val release: Release, val updated: Long)
