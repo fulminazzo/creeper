@@ -76,11 +76,11 @@ interface CachedDownloader {
         override fun download(resource: String, destination: Path, hash: String): CompletableFuture<Path> {
             return operations.computeIfAbsent(hashUrl(resource)) { u ->
                 val cacheDestination = CACHE_DIRECTORY.resolve(u)
-                delegate.download(resource, cacheDestination, hash).thenApply { downloadedFile ->
-                    destination.parent.createDirectories()
-                    downloadedFile.copyTo(destination, overwrite = true)
-                    destination
-                }
+                delegate.download(resource, cacheDestination, hash)
+            }.thenApply { downloadedFile ->
+                destination.parent.createDirectories()
+                downloadedFile.copyTo(destination, overwrite = true)
+                destination
             }
         }
 
