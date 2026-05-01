@@ -1,6 +1,5 @@
 package it.fulminazzo.creeper.server
 
-import it.fulminazzo.creeper.PlayerProfile
 import it.fulminazzo.creeper.PlayerResolver
 import it.fulminazzo.creeper.download.CachedDownloader
 import it.fulminazzo.creeper.provider.ConfigProvider
@@ -16,7 +15,6 @@ import kotlin.io.path.createDirectories
 /**
  * Special implementation of [ServerInstaller] for Minecraft servers.
  *
- * @property playerResolver the resolver to use for obtaining player ids
  * @constructor Creates a new Minecraft server installer
  *
  * @param specification the specification of the server to install
@@ -30,8 +28,7 @@ class MinecraftServerInstaller(
     logger: Logger,
     jarProvider: JarProvider<ServerType.MinecraftType>,
     configProvider: ConfigProvider<ServerType.MinecraftType>,
-    downloader: CachedDownloader,
-    private val playerResolver: PlayerResolver
+    downloader: CachedDownloader
 ) : ServerInstaller<ServerType.MinecraftType, MinecraftServerSettings, MinecraftServerSpec>(
     specification,
     logger,
@@ -39,6 +36,7 @@ class MinecraftServerInstaller(
     configProvider,
     downloader
 ) {
+    private val playerResolver = PlayerResolver(logger)
 
     override fun install(directory: Path): CompletableFuture<Path> {
         return super.install(directory)

@@ -2,11 +2,9 @@ package it.fulminazzo.creeper.server
 
 import io.mockk.every
 import io.mockk.mockk
-import it.fulminazzo.creeper.PlayerResolver
 import it.fulminazzo.creeper.download.CachedDownloader
 import it.fulminazzo.creeper.download.Downloader
 import it.fulminazzo.creeper.provider.ConfigProvider
-import it.fulminazzo.creeper.provider.JarProvider
 import it.fulminazzo.creeper.provider.MinecraftJarProvider
 import it.fulminazzo.creeper.provider.plugin.LocalPluginRequest
 import it.fulminazzo.creeper.server.spec.MinecraftServerSpec
@@ -86,8 +84,7 @@ class MinecraftServerInstallerIntegrationTest {
             logger,
             jarProvider,
             configProvider,
-            CachedDownloader.simple(Downloader.http()),
-            PlayerResolver(logger)
+            CachedDownloader.simple(Downloader.http())
         )
 
         val executable = installer.install(DIRECTORY).join()
@@ -168,8 +165,7 @@ class MinecraftServerInstallerIntegrationTest {
             logger,
             mockk(),
             mockk(),
-            mockk(),
-            PlayerResolver(logger)
+            mockk()
         )
     }
 
