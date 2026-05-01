@@ -21,8 +21,10 @@ class LocalPluginProvider(directory: Path, logger: Logger) : PluginProvider<Loca
     override fun handleRequest(request: LocalPluginRequest): CompletableFuture<Path> = CompletableFuture.supplyAsync {
         val file = request.file
         val destination = directory.createDirectories().resolve(file.fileName)
-        if (!destination.exists() || request.overwrite)
+        if (!destination.exists() || request.overwrite) {
+            logger.info("Copying plugin from $file to $destination")
             file.copyTo(destination, overwrite = true)
+        }
         destination
     }
 
