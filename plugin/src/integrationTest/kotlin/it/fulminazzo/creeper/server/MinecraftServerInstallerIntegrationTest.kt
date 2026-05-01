@@ -2,6 +2,7 @@ package it.fulminazzo.creeper.server
 
 import io.mockk.every
 import io.mockk.mockk
+import it.fulminazzo.creeper.PlayerResolver
 import it.fulminazzo.creeper.download.CachedDownloader
 import it.fulminazzo.creeper.download.Downloader
 import it.fulminazzo.creeper.provider.ConfigProvider
@@ -69,7 +70,7 @@ class MinecraftServerInstallerIntegrationTest {
             ServerType.VANILLA,
             "1.21.1",
             settings.build(),
-            emptySet(),
+            setOf("Notch"),
             listOf(
                 LocalPluginRequest(
                     Path.of("build/resources/integrationTest/server/Test-1.0.jar"),
@@ -83,7 +84,8 @@ class MinecraftServerInstallerIntegrationTest {
             logger,
             jarProvider,
             configProvider,
-            CachedDownloader.simple(Downloader.http())
+            CachedDownloader.simple(Downloader.http()),
+            PlayerResolver(logger)
         )
 
         val executable = installer.install(DIRECTORY).join()
@@ -96,6 +98,10 @@ class MinecraftServerInstallerIntegrationTest {
         val eulaFile = serverDirectory.resolve("eula.txt")
         assertTrue(eulaFile.exists(), "eula file does not exist")
         assertContains(eulaFile.toFile().readText(), "eula=true")
+
+        val whitelistFile = serverDirectory.resolve("whitelist.json")
+        assertTrue(whitelistFile.exists(), "whitelist file does not exist")
+        assertContains(whitelistFile.toFile().readText(), "{\"id\":\"b50ad385-829d-3141-a216-7e7d7539ba7f\",\"name\":\"Notch\"}")
 
         val serverProperties = serverDirectory.resolve("server.properties")
         assertTrue(serverProperties.exists(), "server.properties file does not exist")
