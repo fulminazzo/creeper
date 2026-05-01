@@ -1,5 +1,6 @@
 package it.fulminazzo.creeper.cache
 
+import com.fasterxml.jackson.annotation.JsonIgnore
 import it.fulminazzo.creeper.ProjectInfo
 import tools.jackson.module.kotlin.jacksonObjectMapper
 import java.io.Closeable
@@ -138,6 +139,7 @@ class CacheManager<V> private constructor(
          *
          * @return true if the value has expired, false otherwise
          */
+        @JsonIgnore
         fun isExpired() = timestamp != null && System.currentTimeMillis() > timestamp
 
     }
