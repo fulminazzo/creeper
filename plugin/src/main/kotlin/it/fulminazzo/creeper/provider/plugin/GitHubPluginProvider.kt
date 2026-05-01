@@ -26,7 +26,7 @@ import kotlin.time.Duration.Companion.hours
  * @param directory the directory to download plugins to
  * @param logger the logger to use for logging
  */
-class GitHubPluginProvider(
+class GitHubPluginProvider internal constructor(
     directory: Path,
     logger: Logger,
     private val downloader: CachedDownloader

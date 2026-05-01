@@ -15,7 +15,13 @@ import kotlin.io.path.exists
  * @param directory the directory to download plugins to
  * @param logger the logger to use for logging
  */
-class LocalPluginProvider(directory: Path, logger: Logger) : PluginProvider<LocalPluginRequest>(directory, logger) {
+class LocalPluginProvider internal constructor(
+    directory: Path,
+    logger: Logger
+) : PluginProvider<LocalPluginRequest>(
+    directory,
+    logger
+) {
 
     override fun handleRequest(request: LocalPluginRequest): CompletableFuture<Path> = CompletableFuture.supplyAsync {
         val file = request.file

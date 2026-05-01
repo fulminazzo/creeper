@@ -14,7 +14,7 @@ import java.util.concurrent.CompletableFuture
  * @param directory the directory to download plugins to
  * @param logger the logger to use for logging
  */
-class HttpPluginProvider(
+class HttpPluginProvider internal constructor(
     directory: Path,
     logger: Logger,
     private val downloader: Downloader
