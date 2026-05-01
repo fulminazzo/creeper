@@ -34,17 +34,19 @@ class PlayerResolver(private val logger: Logger) {
         usernames.forEach { username -> cache[username]?.let { uuids += it } ?: missing.add(username) }
         if (missing.isNotEmpty()) {
             logger.info("Fetching the API for player ids of: ${missing.joinToString(", ")}")
-            val profiles = HttpUtils.postApi(API_URL, JSON_MAPPER.writeValueAsString(missing)).join()
-                ?.let { JSON_MAPPER.readValue<List<PlayerProfile>>(it) }
-            profiles?.let {
-                it.forEach { profile ->
-                    cache[profile.name] = UUID.fromString(profile.id)
-                    missing.remove(profile.name)
-                    if (missing.isNotEmpty())
-                        logger.warn("Could not find player ids for: ${missing.joinToString(", ")}")
+            missing.chunked(MAXIMUM_PLAYERS).forEach { chunk ->
+                val profiles = HttpUtils.postApi(API_URL, JSON_MAPPER.writeValueAsString(chunk)).join()
+                    ?.let { JSON_MAPPER.readValue<List<PlayerProfile>>(it) }
+                profiles?.let {
+                    it.forEach { profile ->
+                        cache[profile.name] = UUID.fromString(profile.id)
+                        missing.remove(profile.name)
+                    }
+                    if (it.isNotEmpty()) saveCache()
                 }
-                if (it.isNotEmpty()) saveCache()
             }
+            if (missing.isNotEmpty())
+                logger.warn("Could not find player ids for: ${missing.joinToString(", ")}")
         }
         return uuids
     }
@@ -58,6 +60,12 @@ class PlayerResolver(private val logger: Logger) {
 
         internal val CACHE_FILE = CreeperPlugin.CACHE_DIRECTORY.resolve("mojang.json")
         private val JSON_MAPPER = jacksonObjectMapper()
+
+        /**
+         * Maximum players per request allowed.
+         * See https://minecraft.wiki/w/Mojang_API#Query_player_UUIDs_in_batch for more information.
+         */
+        private const val MAXIMUM_PLAYERS = 10
 
     }
 
