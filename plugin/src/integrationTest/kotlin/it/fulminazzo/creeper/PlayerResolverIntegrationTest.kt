@@ -1,5 +1,7 @@
 package it.fulminazzo.creeper
 
+import it.fulminazzo.creeper.cache.CacheManager
+import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.BeforeAll
 import org.slf4j.LoggerFactory
 import java.util.*
@@ -83,7 +85,18 @@ class PlayerResolverIntegrationTest {
             val cacheFile = PlayerResolver.CACHE_FILE
             cacheFile.deleteIfExists()
             cacheFile.parent.createDirectories()
-            cacheFile.writeText("{\"${CACHED.name}\":\"${CACHED.id}\"}")
+            cacheFile.writeText("""{
+                |"${CACHED.name}": {
+                |   "value": "${CACHED.id}",
+                |   "timestamp": ${System.currentTimeMillis()}
+                |}
+                |}""".trimMargin())
+        }
+
+        @JvmStatic
+        @AfterAll
+        fun tearDown() {
+            CacheManager.closeAll()
         }
 
     }

@@ -1,14 +1,13 @@
 package it.fulminazzo.creeper
 
 import it.fulminazzo.creeper.PlayerResolver.Companion.CACHE_FILE
+import it.fulminazzo.creeper.cache.CacheManager
 import it.fulminazzo.creeper.util.HttpUtils
 import org.slf4j.Logger
 import tools.jackson.module.kotlin.jacksonObjectMapper
 import tools.jackson.module.kotlin.readValue
 import java.util.*
-import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.Executor
-import kotlin.io.path.exists
 import kotlin.uuid.Uuid
 import kotlin.uuid.toJavaUuid
 
@@ -23,11 +22,7 @@ class PlayerResolver(
     private val logger: Logger,
     private val executor: Executor
 ) {
-    private val cache: MutableMap<String, UUID> by lazy {
-        if (CACHE_FILE.exists())
-            JSON_MAPPER.readValue<ConcurrentHashMap<String, UUID>>(CACHE_FILE.toFile())
-        else ConcurrentHashMap()
-    }
+    private val cache = CacheManager.get(CACHE_FILE, UUID::class.java)
 
     /**
      * Gets the profiles of the requested players.
@@ -74,17 +69,12 @@ class PlayerResolver(
                         uuids += PlayerProfile(id, profile.name)
                         missing.remove(profile.name)
                     }
-                    if (it.isNotEmpty()) saveCache()
                 }
             }
             if (missing.isNotEmpty())
                 logger.warn("Could not find player ids for: ${missing.joinToString(", ")}")
         }
         return uuids
-    }
-
-    private fun saveCache() {
-        CACHE_FILE.toFile().writeText(JSON_MAPPER.writeValueAsString(cache))
     }
 
     internal companion object {
