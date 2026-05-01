@@ -22,7 +22,7 @@ class PlayerResolver(
     private val logger: Logger,
     private val executor: Executor
 ) {
-    private val cache = CacheManager.get(CACHE_FILE, UUID::class.java)
+    private val cache = CacheManager[CACHE_FILE, UUID::class.java]
 
     /**
      * Gets the profiles of the requested players.

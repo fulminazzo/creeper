@@ -101,7 +101,7 @@ class CacheManager<V> private constructor(
          * @return the cache manager
          */
         @Suppress("UNCHECKED_CAST")
-        fun <V> get(file: Path, valueClass: Class<V>): CacheManager<V> {
+        operator fun <V> get(file: Path, valueClass: Class<V>): CacheManager<V> {
             val key = file.absolutePathString()
             val cache = CACHES[key]
             if (cache == null || cache.valueClass != valueClass) {
