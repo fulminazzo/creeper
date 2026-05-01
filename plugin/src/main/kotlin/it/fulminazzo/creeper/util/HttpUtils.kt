@@ -12,35 +12,53 @@ import kotlin.time.toJavaDuration
 /**
  * A collection of utilities for HTTP requests.
  */
-class HttpUtils private constructor() {
+object HttpUtils {
+    private val CLIENT = HttpClient.newBuilder()
+        .version(HttpClient.Version.HTTP_2)
+        .connectTimeout(30.seconds.toJavaDuration())
+        .followRedirects(HttpClient.Redirect.NORMAL)
+        .build()
 
-    companion object {
-        private val CLIENT = HttpClient.newBuilder()
-            .version(HttpClient.Version.HTTP_2)
-            .connectTimeout(30.seconds.toJavaDuration())
-            .followRedirects(HttpClient.Redirect.NORMAL)
+    /**
+     * Executes an HTTP GET request to the REST API at the given [url] and returns the raw response body.
+     *
+     * @param url the url
+     * @return the body (or `null` if the resource was not found)
+     * @throws ApiException if the API returns an error
+     */
+    internal fun getApi(url: String): CompletableFuture<String?> = CompletableFuture.supplyAsync {
+        val request = HttpRequest.newBuilder()
+            .header("User-Agent", ProjectInfo.USER_AGENT)
+            .uri(URI.create(url))
             .build()
-
-        /**
-         * Executes an HTTP request to the REST API at the given [url] and returns the raw response body.
-         *
-         * @param url the url
-         * @return the body (or `null` if the resource was not found)
-         * @throws ApiException if the API returns an error
-         */
-        internal fun getApi(url: String): CompletableFuture<String?> = CompletableFuture.supplyAsync {
-            val request = HttpRequest.newBuilder()
-                .header("User-Agent", ProjectInfo.USER_AGENT)
-                .uri(URI.create(url))
-                .build()
-            val response = CLIENT.send(request, HttpResponse.BodyHandlers.ofString())
-            when (response.statusCode()) {
-                200 -> response.body()
-                404 -> null
-                else -> throw ApiException(response.statusCode())
-            }
+        val response = CLIENT.send(request, HttpResponse.BodyHandlers.ofString())
+        when (response.statusCode()) {
+            200 -> response.body()
+            404 -> null
+            else -> throw ApiException(response.statusCode())
         }
+    }
 
+    /**
+     * Executes an HTTP POST request to the REST API at the given [url] and returns the raw response body.
+     *
+     * @param url the url
+     * @param data the data to send
+     * @return the body (or `null` if the resource was not found)
+     * @throws ApiException if the API returns an error
+     */
+    internal fun postApi(url: String, data: String): CompletableFuture<String?> = CompletableFuture.supplyAsync {
+        val request = HttpRequest.newBuilder()
+            .header("User-Agent", ProjectInfo.USER_AGENT)
+            .uri(URI.create(url))
+            .POST(HttpRequest.BodyPublishers.ofString(data))
+            .build()
+        val response = CLIENT.send(request, HttpResponse.BodyHandlers.ofString())
+        when (response.statusCode()) {
+            200 -> response.body()
+            404 -> null
+            else -> throw ApiException(response.statusCode())
+        }
     }
 
     /**

@@ -1,6 +1,5 @@
 package it.fulminazzo.creeper.util
 
-import it.fulminazzo.creeper.util.HttpUtils.Companion.getApi
 import org.junit.jupiter.api.assertThrows
 import java.util.concurrent.CompletionException
 import kotlin.test.Test
@@ -23,7 +22,7 @@ class HttpUtilsTest {
                 |test""".trimMargin().toByteArray()
                 )
             }
-            val response = getApi("http://localhost:$port/test").join()
+            val response = HttpUtils.getApi("http://localhost:$port/test").join()
             assertEquals("test", response)
         } finally {
             requestCatcher.stop()
@@ -43,7 +42,7 @@ class HttpUtilsTest {
                 |test""".trimMargin().toByteArray()
                 )
             }
-            val response = getApi("http://localhost:$port/test").join()
+            val response = HttpUtils.getApi("http://localhost:$port/test").join()
             assertEquals(null, response)
         } finally {
             requestCatcher.stop()
@@ -63,7 +62,67 @@ class HttpUtilsTest {
                 |test""".trimMargin().toByteArray()
                 )
             }
-            val e = assertThrows<CompletionException> { getApi("http://localhost:$port/test").join() }
+            val e = assertThrows<CompletionException> { HttpUtils.getApi("http://localhost:$port/test").join() }
+            assertIs<HttpUtils.ApiException>(e.cause)
+        } finally {
+            requestCatcher.stop()
+        }
+    }
+
+    @Test
+    fun `test that postApi returns correct response on 200`() {
+        val port = getPort()
+        requestCatcher.start(port)
+        try {
+            requestCatcher.requestHandler = { client ->
+                client.outputStream.write(
+                    """HTTP/1.1 200 OK
+                |Content-Type: text/plain
+                |
+                |test""".trimMargin().toByteArray()
+                )
+            }
+            val response = HttpUtils.postApi("http://localhost:$port/test", "").join()
+            assertEquals("test", response)
+        } finally {
+            requestCatcher.stop()
+        }
+    }
+
+    @Test
+    fun `test that postApi returns null on 404`() {
+        val port = getPort()
+        requestCatcher.start(port)
+        try {
+            requestCatcher.requestHandler = { client ->
+                client.outputStream.write(
+                    """HTTP/1.1 404 Bad Request
+                |Content-Type: text/plain
+                |
+                |test""".trimMargin().toByteArray()
+                )
+            }
+            val response = HttpUtils.postApi("http://localhost:$port/test", "").join()
+            assertEquals(null, response)
+        } finally {
+            requestCatcher.stop()
+        }
+    }
+
+    @Test
+    fun `test that postApi throws on unexpected status code`() {
+        val port = getPort()
+        requestCatcher.start(port)
+        try {
+            requestCatcher.requestHandler = { client ->
+                client.outputStream.write(
+                    """HTTP/1.1 500 Internal Server Error
+                |Content-Type: text/plain
+                |
+                |test""".trimMargin().toByteArray()
+                )
+            }
+            val e = assertThrows<CompletionException> { HttpUtils.postApi("http://localhost:$port/test", "").join() }
             assertIs<HttpUtils.ApiException>(e.cause)
         } finally {
             requestCatcher.stop()
