@@ -2,8 +2,11 @@ package it.fulminazzo.creeper.server
 
 import io.mockk.every
 import io.mockk.mockk
+import it.fulminazzo.creeper.download.CachedDownloader
+import it.fulminazzo.creeper.download.Downloader
 import it.fulminazzo.creeper.provider.ConfigProvider
 import it.fulminazzo.creeper.provider.MinecraftJarProvider
+import it.fulminazzo.creeper.provider.plugin.LocalPluginRequest
 import it.fulminazzo.creeper.server.spec.MinecraftServerSpec
 import it.fulminazzo.creeper.server.spec.settings.Difficulty
 import it.fulminazzo.creeper.server.spec.settings.Gamemode
@@ -28,9 +31,15 @@ class MinecraftServerInstallerIntegrationTest {
 
     @Test
     fun `test that install correctly downloads executable and sets configuration`() {
+        DIRECTORY.toFile().deleteRecursively()
         val jarProvider = mockk<MinecraftJarProvider>()
+        val expectedExecutable = DIRECTORY.resolve("server.jar")
         every { jarProvider.get(any(), any(), any()) }.answers {
-            CompletableFuture.completedFuture(DIRECTORY.resolve("server.jar"))
+            val path = DIRECTORY.resolve(arg<String>(0))
+            path.deleteIfExists()
+            path.parent.createDirectories()
+            path.createFile()
+            CompletableFuture.completedFuture(path)
         }
 
         val configProvider = mockk<ConfigProvider<ServerType.MinecraftType>>()
@@ -58,12 +67,29 @@ class MinecraftServerInstallerIntegrationTest {
             ServerType.VANILLA,
             "1.21.1",
             settings.build(),
-            emptySet()
+            emptySet(),
+            listOf(
+                LocalPluginRequest(
+                    Path.of("build/resources/integrationTest/server/Test-1.0.jar"),
+                    true
+                )
+            )
         )
 
-        val installer = MinecraftServerInstaller(specification, logger, jarProvider, configProvider)
+        val installer = MinecraftServerInstaller(
+            specification,
+            logger,
+            jarProvider,
+            configProvider,
+            CachedDownloader.simple(Downloader.http())
+        )
 
-        installer.install(DIRECTORY).join()
+        val executable = installer.install(DIRECTORY).join()
+
+        assertTrue(expectedExecutable.exists(), "$expectedExecutable does not exist")
+        assertEquals(expectedExecutable, executable, "executable path was not set correctly")
+
+        assertTrue(DIRECTORY.resolve("plugins/Test-1.0.jar").exists(), "plugin file does not exist")
 
         val eulaFile = DIRECTORY.resolve("eula.txt")
         assertTrue(eulaFile.exists(), "eula file does not exist")
@@ -97,7 +123,7 @@ class MinecraftServerInstallerIntegrationTest {
         assertEquals(settings.whitelist.toString(), data["white-list"], "white-list was not set correctly")
     }
 
-    companion object {
+    private companion object {
         private val DIRECTORY = Path.of("build/resources/integrationTest/server/minecraft_server_installer_test")
 
         private val PROPERTIES_MAPPER = JavaPropsMapper.builder().addModule(kotlinModule()).build()
