@@ -11,6 +11,7 @@ import org.slf4j.Logger
 import tools.jackson.module.kotlin.jacksonObjectMapper
 import java.nio.file.Path
 import java.util.concurrent.CompletableFuture
+import kotlin.io.path.createDirectories
 
 /**
  * Special implementation of [ServerInstaller] for Minecraft servers.
@@ -81,13 +82,14 @@ class MinecraftServerInstaller(
      *
      * @param directory the directory where the whitelist file will be written
      */
-    private fun writeWhitelist(directory: Path) {
+    internal fun writeWhitelist(directory: Path) {
         val whitelist = specification.whitelist
         if (whitelist.isNotEmpty()) {
             logger.info("Adding players to whitelist: ${whitelist.joinToString()}")
             val whitelistFile = directory.resolve("whitelist.json")
             val profiles = playerResolver.getPlayerProfiles(whitelist, specification.settings.onlineMode)
             profiles.takeIf { it.isNotEmpty() }?.let {
+                whitelistFile.parent.createDirectories()
                 JSON_MAPPER.writeValue(whitelistFile.toFile(), it)
             }
         }

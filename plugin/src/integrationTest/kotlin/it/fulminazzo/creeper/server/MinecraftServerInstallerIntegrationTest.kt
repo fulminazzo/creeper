@@ -6,9 +6,11 @@ import it.fulminazzo.creeper.PlayerResolver
 import it.fulminazzo.creeper.download.CachedDownloader
 import it.fulminazzo.creeper.download.Downloader
 import it.fulminazzo.creeper.provider.ConfigProvider
+import it.fulminazzo.creeper.provider.JarProvider
 import it.fulminazzo.creeper.provider.MinecraftJarProvider
 import it.fulminazzo.creeper.provider.plugin.LocalPluginRequest
 import it.fulminazzo.creeper.server.spec.MinecraftServerSpec
+import it.fulminazzo.creeper.server.spec.MinecraftServerSpecBuilder
 import it.fulminazzo.creeper.server.spec.settings.Difficulty
 import it.fulminazzo.creeper.server.spec.settings.Gamemode
 import it.fulminazzo.creeper.server.spec.settings.MinecraftServerSettingsBuilder
@@ -101,7 +103,10 @@ class MinecraftServerInstallerIntegrationTest {
 
         val whitelistFile = serverDirectory.resolve("whitelist.json")
         assertTrue(whitelistFile.exists(), "whitelist file does not exist")
-        assertContains(whitelistFile.toFile().readText(), "{\"id\":\"b50ad385-829d-3141-a216-7e7d7539ba7f\",\"name\":\"Notch\"}")
+        assertContains(
+            whitelistFile.toFile().readText(),
+            "{\"id\":\"b50ad385-829d-3141-a216-7e7d7539ba7f\",\"name\":\"Notch\"}"
+        )
 
         val serverProperties = serverDirectory.resolve("server.properties")
         assertTrue(serverProperties.exists(), "server.properties file does not exist")
@@ -129,6 +134,43 @@ class MinecraftServerInstallerIntegrationTest {
             "simulation-distance was not set correctly"
         )
         assertEquals(settings.whitelist.toString(), data["white-list"], "white-list was not set correctly")
+    }
+
+    @Test
+    fun `test that writeWhitelist does not write whitelist if no player could be found`() {
+        val installer = createInstaller(listOf("InvalidNameGiven"))
+        val file = DIRECTORY.resolve("whitelist/whitelist.json")
+        file.deleteIfExists()
+        installer.writeWhitelist(file.parent)
+        assertTrue(!file.exists(), "whitelist file was written even if no player profile was present")
+    }
+
+    @Test
+    fun `test that writeWhitelist does not write whitelist if empty`() {
+        val installer = createInstaller()
+        val file = DIRECTORY.resolve("whitelist/whitelist.json")
+        file.deleteIfExists()
+        installer.writeWhitelist(file.parent)
+        assertTrue(!file.exists(), "whitelist file was written even if empty")
+    }
+
+    private fun createInstaller(whitelist: List<String> = emptyList()): MinecraftServerInstaller {
+        val specification = MinecraftServerSpecBuilder()
+        specification.type = ServerType.VANILLA
+        specification.version = "1.21.1"
+        whitelist.forEach { specification.whitelist(it) }
+        specification.serverConfig {
+            eula = true
+            onlineMode = true
+        }
+        return MinecraftServerInstaller(
+            specification.build() as MinecraftServerSpec,
+            logger,
+            mockk(),
+            mockk(),
+            mockk(),
+            PlayerResolver(logger)
+        )
     }
 
     private companion object {
