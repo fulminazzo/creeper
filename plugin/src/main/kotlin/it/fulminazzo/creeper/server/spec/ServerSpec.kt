@@ -3,6 +3,7 @@ package it.fulminazzo.creeper.server.spec
 import it.fulminazzo.creeper.provider.plugin.GitHubPluginRequest
 import it.fulminazzo.creeper.provider.plugin.HttpPluginRequest
 import it.fulminazzo.creeper.provider.plugin.LocalPluginRequest
+import it.fulminazzo.creeper.provider.plugin.ModrinthPluginRequest
 import it.fulminazzo.creeper.provider.plugin.PluginRequest
 import it.fulminazzo.creeper.server.ServerType
 import it.fulminazzo.creeper.server.spec.settings.ServerSettings
@@ -91,6 +92,17 @@ sealed class ServerSpecBuilder<T : ServerType, B : ServerSettingsBuilder, S : Se
  */
 class PluginRequestsBuilder {
     val requests: MutableList<PluginRequest> = mutableListOf()
+
+    /**
+     * The plugin will be downloaded from Modrinth API.
+     *
+     * @param projectName the name of the project in Modrinth
+     * @param version the name or number of the version
+     * @param name the name of the plugin file
+     */
+    fun modrinth(projectName: String, version: String, name: String) {
+        requests += ModrinthPluginRequest(projectName, version, name)
+    }
 
     /**
      * The plugin will be downloaded from GitHub API.
