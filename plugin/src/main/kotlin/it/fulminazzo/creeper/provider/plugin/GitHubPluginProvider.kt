@@ -9,6 +9,7 @@ import tools.jackson.module.kotlin.readValue
 import java.nio.file.Path
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.ConcurrentHashMap
+import kotlin.io.path.createDirectories
 import kotlin.io.path.exists
 import kotlin.time.Duration.Companion.hours
 
@@ -73,6 +74,7 @@ class GitHubPluginProvider(
          */
         internal fun updateCache(request: GitHubPluginRequest, release: Release) {
             CACHE[request.toHashString()] = ReleaseCache(release, System.currentTimeMillis())
+            CACHE_FILE.parent.createDirectories()
             CACHE_FILE.toFile().writeText(JSON_MAPPER.writeValueAsString(CACHE))
         }
 
