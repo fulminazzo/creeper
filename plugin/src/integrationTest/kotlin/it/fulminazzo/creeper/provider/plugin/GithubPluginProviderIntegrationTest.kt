@@ -25,6 +25,12 @@ class GithubPluginProviderIntegrationTest {
         CachedDownloader.simple(Downloader.http())
     )
 
+    @Test
+    fun `test that provider fetches correct metadata for release`() {
+        val response = provider.fetchReleaseMetadata(REQUEST).join()
+        assertEquals(RELEASE, response, "Response does not match expected release")
+    }
+
     @ParameterizedTest
     @ValueSource(booleans = [true, false])
     fun `test that updateCache creates and updates cache file regardless of existence`(exists: Boolean) {
@@ -58,6 +64,7 @@ class GithubPluginProviderIntegrationTest {
         )
         private val RELEASE = Release(
             "https://github.com/fulminazzo/YAGL/releases/download/5.2.2/YAGL-5.2.2.jar",
+            "YAGL-5.2.2.jar",
             "sha256:6e720c6f62f6fa4c0e6f45a3ed85aa368a95ca37f1d44a97bdd36da960bc3721"
         )
 
