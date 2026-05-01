@@ -1,0 +1,79 @@
+package it.fulminazzo.creeper.provider.plugin
+
+import it.fulminazzo.creeper.cache.CacheManager
+import it.fulminazzo.creeper.download.CachedDownloader
+import it.fulminazzo.creeper.download.Downloader
+import org.junit.jupiter.api.AfterAll
+import org.junit.jupiter.api.BeforeAll
+import org.junit.jupiter.api.assertThrows
+import org.slf4j.LoggerFactory
+import java.nio.file.Path
+import java.util.concurrent.CompletionException
+import kotlin.io.path.createDirectories
+import kotlin.io.path.exists
+import kotlin.test.Test
+import kotlin.test.assertEquals
+import kotlin.test.assertIs
+import kotlin.test.assertTrue
+
+class ModrinthPluginProviderIntegrationTest {
+    private val provider = ModrinthPluginProvider(
+        DIRECTORY,
+        LoggerFactory.getLogger(ModrinthPluginProviderIntegrationTest::class.java),
+        { it.run() },
+        CachedDownloader.simple(Downloader.http()) { it.run() }
+    )
+
+    @Test
+    fun `test that provider correctly downloads plugin`() {
+        val destination = DIRECTORY.resolve(VERSION.name)
+        DIRECTORY.toFile().deleteRecursively()
+        val path = provider.handleRequest(REQUEST).join()
+        assertTrue(destination.exists(), "Downloaded plugin does not exist: $destination")
+        assertEquals(destination, path, "Downloaded path does not match expected path")
+    }
+
+    @Test
+    fun `test that provider throws if the release could not be found`() {
+        val e = assertThrows<CompletionException> {
+            provider.handleRequest(ModrinthPluginRequest("teleporteffects", "1.0.l", "TeleportEffects-3.0.0.jar")).join()
+        }
+        assertIs<PluginNotFoundException>(e.cause)
+    }
+
+    @Test
+    fun `test that provider fetches correct metadata for version`() {
+        val response = provider.fetchVersionFileMetadata(REQUEST).join()
+        assertEquals(VERSION, response, "Response does not match expected version file")
+    }
+
+    companion object {
+        private val MAIN_DIRECTORY = Path.of("build/resources/integrationTest/provider/plugin")
+        private val DIRECTORY = MAIN_DIRECTORY.resolve("plugins")
+
+        private val REQUEST = ModrinthPluginRequest(
+            "teleporteffects",
+            "3.0",
+            "TeleportEffects-3.0.jar"
+        )
+        private val VERSION = VersionFile(
+            "dfaae7a3f470d46a4f1556e234cddc8e1b67b515945dc07b712a99288cef2fb5f9f474be28c972a0f57d0133eb04998f4b2c378bfd709d43ccd52c40c36c528e",
+            "TeleportEffects-3.0.jar",
+            "https://cdn.modrinth.com/data/oyCFkeGb/versions/FkSIn5Fs/TeleportEffects-3.0.jar"
+        )
+
+        @JvmStatic
+        @BeforeAll
+        fun setup() {
+            DIRECTORY.createDirectories()
+        }
+
+        @JvmStatic
+        @AfterAll
+        fun tearDown() {
+            CacheManager.closeAll()
+        }
+
+    }
+
+}

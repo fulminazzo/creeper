@@ -27,12 +27,14 @@ class RedirectPluginProvider(
     logger,
     executor
 ) {
+    private val modrinthPluginProvider = ModrinthPluginProvider(directory, logger, executor, downloader)
     private val gitHubPluginProvider = GitHubPluginProvider(directory, logger, executor, downloader)
     private val httpPluginProvider = HttpPluginProvider(directory, logger, executor, Downloader.http())
     private val localPluginProvider = LocalPluginProvider(directory, logger, executor)
 
     override fun handleRequest(request: PluginRequest): CompletableFuture<Path> =
         when (request) {
+            is ModrinthPluginRequest -> modrinthPluginProvider.handleRequest(request)
             is GitHubPluginRequest -> gitHubPluginProvider.handleRequest(request)
             is HttpPluginRequest -> httpPluginProvider.handleRequest(request)
             is LocalPluginRequest -> localPluginProvider.handleRequest(request)
