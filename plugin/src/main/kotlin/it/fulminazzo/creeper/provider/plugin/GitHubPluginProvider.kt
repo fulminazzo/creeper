@@ -69,7 +69,9 @@ class GitHubPluginProvider internal constructor(
             release?.let {
                 logger.info("Downloading plugin from ${release.url}")
                 downloader.download(release.url, directory.resolve(release.name), release.digest)
-            } ?: throw ReleaseNotFoundException(request)
+            } ?: throw PluginNotFoundException(
+                "Could not find release for ${request.owner}/${request.repository}/${request.release} (name = ${request.name})"
+            )
         }
     }
 
@@ -130,13 +132,3 @@ internal data class Release(
     val name: String,
     val digest: String
 )
-
-/**
- * Exception thrown when a release could not be found.
- *
- * @constructor Create a new Release not found exception
- *
- * @param request the request that was made
- */
-class ReleaseNotFoundException internal constructor(request: GitHubPluginRequest) :
-    Exception("Could not find release for ${request.owner}/${request.repository}/${request.release} (name = ${request.name})")

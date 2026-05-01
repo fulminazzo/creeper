@@ -42,11 +42,11 @@ class GithubPluginProviderIntegrationTest {
     }
 
     @Test
-    fun `test that provider throws ReleaseException if the release could not be found`() {
+    fun `test that provider throws if the release could not be found`() {
         val e = assertThrows<CompletionException> {
             provider.handleRequest(GitHubPluginRequest("fulminazzo", "YAGL", "1.0.l", "YAGL-1.0.0.jar")).join()
         }
-        assertIs<ReleaseNotFoundException>(e.cause)
+        assertIs<PluginNotFoundException>(e.cause)
     }
 
     @Test

@@ -1,11 +1,15 @@
 package it.fulminazzo.creeper.provider.plugin
 
+import it.fulminazzo.creeper.download.UnrecognizedStatusCodeException
 import org.junit.jupiter.api.BeforeAll
+import org.junit.jupiter.api.assertThrows
 import org.slf4j.LoggerFactory
 import java.nio.file.Path
+import java.util.concurrent.CompletionException
 import kotlin.io.path.*
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertIs
 import kotlin.test.assertTrue
 
 class LocalPluginProviderIntegrationTest {
@@ -45,6 +49,16 @@ class LocalPluginProviderIntegrationTest {
         provider.handleRequest(request).join()
         checkPluginFile()
         assertEquals("Goodbye, mars!", destination.readText(), "Plugin file was overwritten:")
+    }
+
+    @Test
+    fun `test that provider throws if plugin file does not exist`() {
+        val request = LocalPluginRequest(Path.of("not-found.jar"), true)
+
+        val e = assertThrows<CompletionException> {
+            provider.handleRequest(request).join()
+        }
+        assertIs<PluginNotFoundException>(e.cause)
     }
 
     private fun checkPluginFile() {

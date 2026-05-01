@@ -30,6 +30,7 @@ class HttpPluginProvider internal constructor(
     override fun handleRequest(request: HttpPluginRequest): CompletableFuture<Path> = CompletableFuture.supplyAsync({
         logger.info("Downloading plugin from ${request.url}")
         downloader.downloadIn(request.url, directory)
+            ?: throw PluginNotFoundException("Could not find plugin from url: ${request.url}")
     }, executor)
 
 }

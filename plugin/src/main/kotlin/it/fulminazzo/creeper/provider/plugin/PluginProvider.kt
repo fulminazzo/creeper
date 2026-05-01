@@ -25,6 +25,7 @@ sealed class PluginProvider<R : PluginRequest>(
      *
      * @param request the plugin request
      * @return the path of the downloaded plugin
+     * @throws PluginNotFoundException if the plugin was not found
      */
     abstract fun handleRequest(request: R): CompletableFuture<Path>
 
@@ -34,3 +35,12 @@ sealed class PluginProvider<R : PluginRequest>(
  * Marker interface for plugin requests.
  */
 sealed interface PluginRequest
+
+/**
+ * Exception thrown by a failed [PluginProvider.handleRequest].
+ *
+ * @constructor Creates a new Plugin not found exception
+ *
+ * @param message the exception message
+ */
+class PluginNotFoundException(message: String) : Exception(message)
