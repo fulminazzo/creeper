@@ -25,6 +25,21 @@ class PlayerResolver(private val logger: Logger) {
     }
 
     /**
+     * Gets the ids of the requested players.
+     * If [online] is true, the ids will be fetched from the API.
+     * Otherwise, they will be computed according to Bukkit rules.
+     *
+     * @param usernames the usernames of the players
+     * @param online if the ids should be fetched from the API
+     * @return the ids of the players
+     */
+    fun getPlayersIds(usernames: List<String>, online: Boolean): List<UUID> =
+        if (online) getOnlinePlayersIds(usernames)
+        else usernames
+            .map { "$OFFLINE_PLAYER_PREFIX$it" }
+            .map { UUID.nameUUIDFromBytes(it.toByteArray()) }
+
+    /**
      * Gets the ids of the requested players from the API.
      * They will be cached under [CACHE_FILE] for future use.
      *
@@ -71,6 +86,8 @@ class PlayerResolver(private val logger: Logger) {
          * See https://minecraft.wiki/w/Mojang_API#Query_player_UUIDs_in_batch for more information.
          */
         private const val MAXIMUM_PLAYERS = 10
+
+        private const val OFFLINE_PLAYER_PREFIX = "OfflinePlayer:"
 
     }
 

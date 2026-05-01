@@ -16,6 +16,27 @@ class PlayerResolverIntegrationTest {
     )
 
     @Test
+    fun `test that getPlayerIds of online returns correct value`() {
+        val ids = resolver.getPlayersIds(listOf(CACHED_NAME), true)
+        assertContains(
+            ids,
+            CACHED_ID,
+            "Expected player id not found in list: ${ids.joinToString(", ")}"
+        )
+    }
+
+    @Test
+    fun `test that getPlayerIds of offline returns correct value`() {
+        val expected = UUID.nameUUIDFromBytes("OfflinePlayer:$CACHED_NAME".toByteArray())
+        val ids = resolver.getPlayersIds(listOf(CACHED_NAME), false)
+        assertContains(
+            ids,
+            expected,
+            "Expected player id not found in list: ${ids.joinToString(", ")}"
+        )
+    }
+
+    @Test
     fun `test that getOnlinePlayersIds downloads from API`() {
         val ids = resolver.getOnlinePlayersIds(listOf(UNCACHED_NAME))
         assertContains(
