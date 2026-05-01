@@ -10,6 +10,7 @@ import org.slf4j.Logger
 import tools.jackson.module.kotlin.jacksonObjectMapper
 import java.nio.file.Path
 import java.util.concurrent.CompletableFuture
+import kotlin.collections.mapOf
 import kotlin.io.path.createDirectories
 
 /**
@@ -57,6 +58,7 @@ class MinecraftServerInstaller(
                 }.thenApply {
                     writeEula(executable.parent)
                     writeWhitelist(executable.parent)
+                    writeOperators(executable.parent)
                     executable
                 }
             }
@@ -89,6 +91,31 @@ class MinecraftServerInstaller(
             profiles.takeIf { it.isNotEmpty() }?.let {
                 whitelistFile.parent.createDirectories()
                 JSON_MAPPER.writeValue(whitelistFile.toFile(), it)
+            }
+        }
+    }
+
+    /**
+     * Writes the operators' file in the given directory.
+     *
+     * @param directory the directory where the operators' file will be written
+     */
+    internal fun writeOperators(directory: Path) {
+        val operators = specification.operators
+        if (operators.isNotEmpty()) {
+            logger.info("Adding players to operators: ${operators.joinToString()}")
+            val operatorsFile = directory.resolve("ops.json")
+            val profiles = playerResolver.getPlayerProfiles(operators, specification.settings.onlineMode)
+            profiles.takeIf { it.isNotEmpty() }?.let { operators ->
+                operatorsFile.parent.createDirectories()
+                JSON_MAPPER.writeValue(operatorsFile.toFile(), operators.map { operator ->
+                    mapOf(
+                        "uuid" to operator.id,
+                        "name" to operator.name,
+                        "level" to 4,
+                        "bypassesPlayerLimit" to false
+                    )
+                })
             }
         }
     }

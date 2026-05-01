@@ -71,6 +71,7 @@ class MinecraftServerInstallerIntegrationTest {
             "1.21.1",
             settings.build(),
             setOf("Notch"),
+            setOf("jeb_"),
             listOf(
                 LocalPluginRequest(
                     Path.of("build/resources/integrationTest/server/Test-1.0.jar"),
@@ -102,7 +103,14 @@ class MinecraftServerInstallerIntegrationTest {
         assertTrue(whitelistFile.exists(), "whitelist file does not exist")
         assertContains(
             whitelistFile.toFile().readText(),
-            "{\"id\":\"b50ad385-829d-3141-a216-7e7d7539ba7f\",\"name\":\"Notch\"}"
+            """{"id":"b50ad385-829d-3141-a216-7e7d7539ba7f","name":"Notch"}"""
+        )
+
+        val operatorsFile = serverDirectory.resolve("ops.json")
+        assertTrue(operatorsFile.exists(), "operators file does not exist")
+        assertContains(
+            operatorsFile.toFile().readText(),
+            """{"uuid":"a762f560-4fce-3236-812a-b80efff0b62b","name":"jeb_","level":4,"bypassesPlayerLimit":false}"""
         )
 
         val serverProperties = serverDirectory.resolve("server.properties")
@@ -149,6 +157,24 @@ class MinecraftServerInstallerIntegrationTest {
         file.deleteIfExists()
         installer.writeWhitelist(file.parent)
         assertTrue(!file.exists(), "whitelist file was written even if empty")
+    }
+
+    @Test
+    fun `test that writeOperators does not write operators if no player could be found`() {
+        val installer = createInstaller(listOf("InvalidNameGiven"))
+        val file = DIRECTORY.resolve("operators/ops.json")
+        file.deleteIfExists()
+        installer.writeOperators(file.parent)
+        assertTrue(!file.exists(), "operators file was written even if no player profile was present")
+    }
+
+    @Test
+    fun `test that writeOperators does not write operators if empty`() {
+        val installer = createInstaller()
+        val file = DIRECTORY.resolve("operators/ops.json")
+        file.deleteIfExists()
+        installer.writeOperators(file.parent)
+        assertTrue(!file.exists(), "operators file was written even if empty")
     }
 
     private fun createInstaller(whitelist: List<String> = emptyList()): MinecraftServerInstaller {
