@@ -1,11 +1,15 @@
 package it.fulminazzo.creeper.download
 
 import it.fulminazzo.creeper.ProjectInfo
+import org.jetbrains.annotations.VisibleForTesting
 import java.net.URI
 import java.net.http.HttpClient
 import java.net.http.HttpRequest
 import java.net.http.HttpResponse
+import java.nio.file.Files
 import java.nio.file.Path
+import java.nio.file.StandardCopyOption
+import kotlin.io.path.createDirectories
 import kotlin.io.path.createFile
 import kotlin.io.path.createParentDirectories
 import kotlin.io.path.deleteIfExists
@@ -16,6 +20,17 @@ import kotlin.time.toJavaDuration
  * Function to download resources from the web.
  */
 interface Downloader {
+
+    /**
+     * Downloads the requested resource in the specified directory.
+     * The name of the resource is derived from the `Content-Disposition` header.
+     * If that is not available, then it will be derived from the URL.
+     *
+     * @param resource the resource path on the web
+     * @param directory the directory where the resource will be stored
+     * @throws IllegalArgumentException if it could not derive the name of the resource
+     */
+    fun downloadIn(resource: String, directory: Path)
 
     /**
      * Downloads the requested resource.
@@ -42,23 +57,69 @@ interface Downloader {
      * @constructor Create an empty Http downloader
      */
     private class HttpDownloader : Downloader {
-        private val client = HttpClient.newBuilder()
-            .version(HttpClient.Version.HTTP_2)
-            .connectTimeout(30.seconds.toJavaDuration())
-            .followRedirects(HttpClient.Redirect.NORMAL)
-            .build()
+
+        override fun downloadIn(resource: String, directory: Path) {
+            directory.createDirectories()
+
+            val request = createRequest(resource)
+            val response = CLIENT.send(request, HttpResponse.BodyHandlers.ofInputStream())
+
+            val fileName = computeFileName(resource, response)
+            val destination = directory.resolve(fileName)
+
+            response.body().use { input ->
+                Files.copy(input, destination, StandardCopyOption.REPLACE_EXISTING)
+            }
+        }
 
         override fun download(resource: String, destination: Path) {
-            destination.createParentDirectories()
-            destination.deleteIfExists()
+            destination.createParentDirectories().deleteIfExists()
             destination.createFile()
 
+            val request = createRequest(resource)
+            CLIENT.send(request, HttpResponse.BodyHandlers.ofFile(destination))
+        }
+
+        private fun createRequest(resource: String): HttpRequest? {
             val request = HttpRequest.newBuilder()
                 .header("User-Agent", ProjectInfo.USER_AGENT)
                 .uri(URI.create(resource))
                 .build()
+            return request
+        }
 
-            client.send(request, HttpResponse.BodyHandlers.ofFile(destination))
+        companion object {
+            private val CLIENT = HttpClient.newBuilder()
+                .version(HttpClient.Version.HTTP_2)
+                .connectTimeout(30.seconds.toJavaDuration())
+                .followRedirects(HttpClient.Redirect.NORMAL)
+                .build()
+
+            private const val CONTENT_DISPOSITION = "Content-Disposition"
+            private val FILE_NAME_REGEX = "filename=\"(.+)\"".toRegex()
+
+            /**
+             * Computes the file name of a resource.
+             * First it attempts to extract it from the `Content-Disposition` header.
+             * If it fails, it falls back to the URL.
+             *
+             * @param url the url of the resource
+             * @param response the response after requesting the resource
+             * @return the name of the resource
+             * @throws IllegalArgumentException if it could not derive the name of the resource
+             */
+            fun computeFileName(url: String, response: HttpResponse<*>): String {
+                val contentDisposition = response.headers().firstValue(CONTENT_DISPOSITION)
+                if (contentDisposition.isPresent) {
+                    val header = contentDisposition.get()
+                    val fileName = FILE_NAME_REGEX.find(header)?.groupValues?.get(1)
+                    if (fileName != null) return fileName
+                }
+                return URI(url).path.substringAfterLast('/')
+                    .takeIf { it.isNotBlank() }
+                    ?: throw IllegalArgumentException("Could not derive file name from $url")
+            }
+
         }
 
     }
