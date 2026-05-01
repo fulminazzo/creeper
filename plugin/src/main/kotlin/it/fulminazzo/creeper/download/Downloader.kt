@@ -28,10 +28,10 @@ interface Downloader {
      *
      * @param resource the resource path on the web
      * @param directory the directory where the resource will be stored
-     * @return the path of the downloaded resource
+     * @return the path of the downloaded resource, or `null` if the resource could not be found
      * @throws IllegalArgumentException if it could not derive the name of the resource
      */
-    fun downloadIn(resource: String, directory: Path): Path
+    fun downloadIn(resource: String, directory: Path): Path?
 
     /**
      * Downloads the requested resource.
@@ -59,11 +59,13 @@ interface Downloader {
      */
     private class HttpDownloader : Downloader {
 
-        override fun downloadIn(resource: String, directory: Path): Path {
+        override fun downloadIn(resource: String, directory: Path): Path? {
             directory.createDirectories()
 
             val request = createRequest(resource)
             val response = CLIENT.send(request, HttpResponse.BodyHandlers.ofInputStream())
+            if (response.statusCode() == 404) return null
+            else if (response.statusCode() != 200) throw UnrecognizedStatusCodeException(response.statusCode(), resource)
 
             val fileName = computeFileName(resource, response)
             val destination = directory.resolve(fileName)
@@ -79,7 +81,8 @@ interface Downloader {
             destination.createFile()
 
             val request = createRequest(resource)
-            CLIENT.send(request, HttpResponse.BodyHandlers.ofFile(destination))
+            val response = CLIENT.send(request, HttpResponse.BodyHandlers.ofFile(destination))
+            if (response.statusCode() != 200) throw UnrecognizedStatusCodeException(response.statusCode(), resource)
         }
 
         private fun createRequest(resource: String): HttpRequest? {
@@ -127,3 +130,14 @@ interface Downloader {
     }
 
 }
+
+/**
+ * An exception thrown by [HttpDownloader] when the server returns an unexpected status code.
+ *
+ * @constructor Creates a new Unrecognized status code exception
+ *
+ * @param statusCode the status code returned by the server
+ * @param resource the resource that was requested
+ */
+class UnrecognizedStatusCodeException(statusCode: Int, resource: String) :
+    Exception("Unexpected response code while querying $resource: $statusCode")

@@ -21,6 +21,7 @@ import kotlin.io.path.exists
 import kotlin.io.path.readText
 import kotlin.test.Test
 import kotlin.test.assertContains
+import kotlin.test.assertNull
 import kotlin.test.assertTrue
 
 class DownloaderTest {
@@ -120,6 +121,47 @@ class DownloaderTest {
     }
 
     @Test
+    fun `test that HTTP downloader with directory path does not throw on 404`() {
+        val port = getPort()
+
+        requestCatcher.requestHandler = { client ->
+            client.outputStream.write(
+                """HTTP/1.1 404 Not Found
+                |
+                |""".trimMargin().toByteArray()
+            )
+        }
+        requestCatcher.start(port)
+        try {
+            val result = downloader.downloadIn("http://localhost:$port$PATH", DESTINATION_PATH.parent)
+            assertNull(result)
+        } finally {
+            requestCatcher.stop()
+        }
+    }
+
+    @Test
+    fun `test that HTTP downloader with directory path throws on unexpected status code`() {
+        val port = getPort()
+
+        requestCatcher.requestHandler = { client ->
+            client.outputStream.write(
+                """HTTP/1.1 500 Internal Server Error
+                |
+                |""".trimMargin().toByteArray()
+            )
+        }
+        requestCatcher.start(port)
+        try {
+            assertThrows<UnrecognizedStatusCodeException> {
+                downloader.downloadIn("http://localhost:$port$PATH", DESTINATION_PATH.parent)
+            }
+        } finally {
+            requestCatcher.stop()
+        }
+    }
+
+    @Test
     fun `test that HTTP downloader sends correct User-Agent header`() {
         val port = getPort()
 
@@ -133,6 +175,27 @@ class DownloaderTest {
             assertContains(lines, "GET $PATH HTTP/1.1")
             assertContains(lines, "User-Agent: ${ProjectInfo.USER_AGENT}")
 
+        } finally {
+            requestCatcher.stop()
+        }
+    }
+
+    @Test
+    fun `test that HTTP downloader throws on unexpected status code`() {
+        val port = getPort()
+
+        requestCatcher.requestHandler = { client ->
+            client.outputStream.write(
+                """HTTP/1.1 500 Internal Server Error
+                |
+                |""".trimMargin().toByteArray()
+            )
+        }
+        requestCatcher.start(port)
+        try {
+            assertThrows<UnrecognizedStatusCodeException> {
+                downloader.download("http://localhost:$port$PATH", DESTINATION_PATH)
+            }
         } finally {
             requestCatcher.stop()
         }
