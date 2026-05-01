@@ -2,6 +2,7 @@ package it.fulminazzo.creeper.provider.plugin
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.annotation.JsonProperty
+import it.fulminazzo.creeper.CreeperPlugin
 import it.fulminazzo.creeper.Hashable
 import it.fulminazzo.creeper.download.CachedDownloader
 import it.fulminazzo.creeper.util.HttpUtils
@@ -74,7 +75,7 @@ class GitHubPluginProvider internal constructor(
     }
 
     internal companion object {
-        internal val CACHE_FILE = CachedDownloader.CACHE_DIRECTORY.resolve("github.json")
+        internal val CACHE_FILE = CreeperPlugin.CACHE_DIRECTORY.resolve("github.json")
         private val CACHE: MutableMap<String, ReleaseCache> by lazy {
             if (CACHE_FILE.exists())
                 JSON_MAPPER.readValue<ConcurrentHashMap<String, ReleaseCache>>(CACHE_FILE.toFile())

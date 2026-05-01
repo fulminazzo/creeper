@@ -1,5 +1,6 @@
 package it.fulminazzo.creeper.download
 
+import it.fulminazzo.creeper.CreeperPlugin
 import it.fulminazzo.creeper.ProjectInfo
 import it.fulminazzo.creeper.download.CachedDownloader.Companion.HASH_EXTENSION
 import it.fulminazzo.creeper.download.CachedDownloader.GlobalCachedDownloader.Companion.hashUrl
@@ -29,12 +30,6 @@ interface CachedDownloader {
     fun download(resource: String, destination: Path, hash: String): CompletableFuture<Path>
 
     companion object {
-        /**
-         * The global cache directory.
-         */
-        internal val CACHE_DIRECTORY
-            get() = Path.of(System.getProperty("user.home"), ".gradle", "caches", ProjectInfo.NAME)
-
         private const val HASH_EXTENSION = "hash"
 
         /**
@@ -75,7 +70,7 @@ interface CachedDownloader {
 
         override fun download(resource: String, destination: Path, hash: String): CompletableFuture<Path> {
             return operations.computeIfAbsent(hashUrl(resource)) { u ->
-                val cacheDestination = CACHE_DIRECTORY.resolve(u)
+                val cacheDestination = CreeperPlugin.CACHE_DIRECTORY.resolve(u)
                 delegate.download(resource, cacheDestination, hash)
             }.thenApply { downloadedFile ->
                 destination.parent.createDirectories()
@@ -84,7 +79,7 @@ interface CachedDownloader {
             }
         }
 
-        companion object {
+        internal companion object {
 
             /**
              * Extracts a hash digest of the given URL.
