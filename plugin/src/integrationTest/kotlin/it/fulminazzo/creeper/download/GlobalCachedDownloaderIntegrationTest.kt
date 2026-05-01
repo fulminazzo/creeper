@@ -3,6 +3,7 @@ package it.fulminazzo.creeper.download
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
+import it.fulminazzo.creeper.CreeperPlugin
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.BeforeEach
 import java.nio.file.Path
@@ -15,7 +16,7 @@ import kotlin.test.assertNotEquals
 
 class GlobalCachedDownloaderIntegrationTest {
     private val downloader = CachedDownloader.global(Downloader.http())
-    private val cacheDirectory = CachedDownloader.CACHE_DIRECTORY
+    private val cacheDirectory = CreeperPlugin.CACHE_DIRECTORY
 
     @BeforeEach
     fun setup() {
