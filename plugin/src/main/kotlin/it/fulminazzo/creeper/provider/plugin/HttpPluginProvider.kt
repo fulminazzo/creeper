@@ -6,7 +6,7 @@ import java.nio.file.Path
 import java.util.concurrent.CompletableFuture
 
 /**
- * Implementation of [PluginProvider] that will download the plugin from a url using the HTTP protocol.
+ * Implementation of [PluginProvider] that will download plugins from the web.
  *
  * @property downloader the downloader to use for downloading the plugins
  * @constructor Creates a new Http plugin provider

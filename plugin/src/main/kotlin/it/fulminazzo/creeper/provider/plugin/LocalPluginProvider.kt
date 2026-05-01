@@ -8,8 +8,7 @@ import kotlin.io.path.createDirectories
 import kotlin.io.path.exists
 
 /**
- * Implementation of [PluginProvider] that will get the plugin
- * from the file system and copy it to the desired directory.
+ * Implementation of [PluginProvider] that will get plugins from the file system and copy them to the desired directory.
  *
  * @constructor Creates a new Local plugin provider
  *
