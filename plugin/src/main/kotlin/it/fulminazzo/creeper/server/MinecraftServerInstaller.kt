@@ -4,7 +4,7 @@ import it.fulminazzo.creeper.provider.ConfigProvider
 import it.fulminazzo.creeper.provider.JarProvider
 import it.fulminazzo.creeper.server.spec.MinecraftServerSpec
 import it.fulminazzo.creeper.server.spec.settings.MinecraftServerSettings
-import org.gradle.api.logging.Logger
+import org.slf4j.Logger
 import java.nio.file.Path
 import java.util.concurrent.CompletableFuture
 

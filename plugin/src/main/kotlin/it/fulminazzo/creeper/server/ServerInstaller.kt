@@ -4,7 +4,7 @@ import it.fulminazzo.creeper.provider.ConfigProvider
 import it.fulminazzo.creeper.provider.JarProvider
 import it.fulminazzo.creeper.server.spec.ServerSpec
 import it.fulminazzo.creeper.server.spec.settings.ServerSettings
-import org.gradle.api.logging.Logger
+import org.slf4j.Logger
 import tools.jackson.databind.ObjectMapper
 import tools.jackson.dataformat.javaprop.JavaPropsMapper
 import tools.jackson.dataformat.yaml.YAMLMapper

@@ -47,9 +47,6 @@ testConfiguration {
 tasks.withType<Test>().configureEach {
     useJUnitPlatform()
     jvmArgs = listOf("-XX:+EnableDynamicAgentLoading")
-
-    systemProperty("slf4j.provider", "org.slf4j.simple.SimpleServiceProvider")
-    testLogging.showStandardStreams = true
 }
 
 tasks.jacocoTestReport {
@@ -77,4 +74,10 @@ configure<com.github.gmazzo.buildconfig.BuildConfigExtension> {
     buildConfigField("String", "NAME", "\"${name}\"")
     buildConfigField("String", "VERSION", "\"${rootProject.version}\"")
     buildConfigField("String", "USER_AGENT", $$"\"$NAME/$VERSION\"")
+}
+
+afterEvaluate {
+    tasks.named<Test>("integrationTest") {
+        systemProperty("slf4j.provider", "org.slf4j.simple.SimpleServiceProvider")
+    }
 }

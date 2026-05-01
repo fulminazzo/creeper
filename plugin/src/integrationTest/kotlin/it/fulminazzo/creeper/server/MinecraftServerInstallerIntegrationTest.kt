@@ -8,7 +8,7 @@ import it.fulminazzo.creeper.server.spec.MinecraftServerSpec
 import it.fulminazzo.creeper.server.spec.settings.Difficulty
 import it.fulminazzo.creeper.server.spec.settings.Gamemode
 import it.fulminazzo.creeper.server.spec.settings.MinecraftServerSettingsBuilder
-import org.gradle.api.logging.Logging
+import org.slf4j.LoggerFactory
 import tools.jackson.dataformat.javaprop.JavaPropsMapper
 import tools.jackson.module.kotlin.kotlinModule
 import tools.jackson.module.kotlin.readValue
@@ -24,7 +24,7 @@ import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
 class MinecraftServerInstallerIntegrationTest {
-    private val logger = Logging.getLogger(MinecraftServerInstallerIntegrationTest::class.java)
+    private val logger = LoggerFactory.getLogger(MinecraftServerInstallerIntegrationTest::class.java)
 
     @Test
     fun `test that install correctly downloads executable and sets configuration`() {
