@@ -34,16 +34,16 @@ class MinecraftServerInstaller(
         return super.install(directory)
             .thenCompose { executable ->
                 installAndEditConfig(SERVER_PROPERTIES, directory) {
-                    val config = specification.config
-                    put("server-port", config.port)
-                    put("max-players", config.players)
-                    put("difficulty", config.difficulty.name.lowercase())
-                    put("gamemode", config.gamemode.name.lowercase())
-                    put("generate-structures", config.generateStructures)
-                    put("online-mode", config.onlineMode)
-                    put("spawn-protection", config.spawnProtection)
-                    put("view-distance", config.viewDistance)
-                    put("simulation-distance", config.simulationDistance)
+                    val settings = specification.settings
+                    put("server-port", settings.port)
+                    put("max-players", settings.players)
+                    put("difficulty", settings.difficulty.name.lowercase())
+                    put("gamemode", settings.gamemode.name.lowercase())
+                    put("generate-structures", settings.generateStructures)
+                    put("online-mode", settings.onlineMode)
+                    put("spawn-protection", settings.spawnProtection)
+                    put("view-distance", settings.viewDistance)
+                    put("simulation-distance", settings.simulationDistance)
                 }.thenApply {
                     writeEula(directory)
                     executable
