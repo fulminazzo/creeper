@@ -1,5 +1,6 @@
 package it.fulminazzo.creeper
 
+import it.fulminazzo.creeper.PlayerResolver.Companion.CACHE_FILE
 import it.fulminazzo.creeper.util.HttpUtils
 import org.slf4j.Logger
 import tools.jackson.module.kotlin.jacksonObjectMapper
@@ -7,6 +8,8 @@ import tools.jackson.module.kotlin.readValue
 import java.util.*
 import java.util.concurrent.ConcurrentHashMap
 import kotlin.io.path.exists
+import kotlin.uuid.Uuid
+import kotlin.uuid.toJavaUuid
 
 /**
  * A resolver for Minecraft players profiles.
@@ -39,7 +42,9 @@ class PlayerResolver(private val logger: Logger) {
                     ?.let { JSON_MAPPER.readValue<List<PlayerProfile>>(it) }
                 profiles?.let {
                     it.forEach { profile ->
-                        cache[profile.name] = UUID.fromString(profile.id)
+                        val id = Uuid.parse(profile.id).toJavaUuid()
+                        cache[profile.name] = id
+                        uuids += id
                         missing.remove(profile.name)
                     }
                     if (it.isNotEmpty()) saveCache()
