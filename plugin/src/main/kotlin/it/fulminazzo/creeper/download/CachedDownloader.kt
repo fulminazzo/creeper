@@ -2,13 +2,12 @@ package it.fulminazzo.creeper.download
 
 import it.fulminazzo.creeper.ProjectInfo
 import it.fulminazzo.creeper.download.CachedDownloader.Companion.HASH_EXTENSION
+import it.fulminazzo.creeper.download.CachedDownloader.GlobalCachedDownloader.Companion.hashUrl
 import it.fulminazzo.creeper.util.sha256
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Deferred
-import kotlinx.coroutines.async
 import java.io.File
 import java.net.URI
 import java.nio.file.Path
+import java.util.concurrent.CompletableFuture
 import java.util.concurrent.ConcurrentHashMap
 import kotlin.io.path.*
 
@@ -27,7 +26,7 @@ interface CachedDownloader {
      * @param hash the hash of the resource (to compare with the local one)
      * @return the path of the newly downloaded file
      */
-    fun download(resource: String, destination: Path, hash: String): Deferred<Path>
+    fun download(resource: String, destination: Path, hash: String): CompletableFuture<Path>
 
     companion object {
         /**
@@ -43,21 +42,17 @@ interface CachedDownloader {
          * Then, it copies the cached file to the requested destination.
          *
          * @param delegate the downloader used to download the files
-         * @param scope the scope of the coroutine
          * @return the cached downloader
          */
-        fun global(delegate: Downloader, scope: CoroutineScope): CachedDownloader =
-            GlobalCachedDownloader(delegate, scope)
+        fun global(delegate: Downloader): CachedDownloader = GlobalCachedDownloader(delegate)
 
         /**
          * Creates a new [CachedDownloader] that delegates the download part to a [Downloader].
          *
          * @param delegate the downloader used to download the files
-         * @param scope the scope of the coroutine
          * @return the cached downloader
          */
-        fun simple(delegate: Downloader, scope: CoroutineScope): CachedDownloader =
-            SimpleCachedDownloader(delegate, scope)
+        fun simple(delegate: Downloader): CachedDownloader = SimpleCachedDownloader(delegate)
 
     }
 
@@ -73,17 +68,15 @@ interface CachedDownloader {
      * @constructor Creates a new Global Cached downloader
      *
      * @param downloader the downloader used to download the files
-     * @property scope the scope of the coroutine
      */
-    class GlobalCachedDownloader internal constructor(downloader: Downloader, private val scope: CoroutineScope) : CachedDownloader {
-        private val delegate = SimpleCachedDownloader(downloader, scope)
-        private val operations = ConcurrentHashMap<String, Deferred<Path>>()
+    class GlobalCachedDownloader internal constructor(downloader: Downloader) : CachedDownloader {
+        private val delegate = SimpleCachedDownloader(downloader)
+        private val operations = ConcurrentHashMap<String, CompletableFuture<Path>>()
 
-        override fun download(resource: String, destination: Path, hash: String): Deferred<Path> {
+        override fun download(resource: String, destination: Path, hash: String): CompletableFuture<Path> {
             return operations.computeIfAbsent(hashUrl(resource)) { u ->
-                scope.async {
-                    val cacheDestination = CACHE_DIRECTORY.resolve(u)
-                    val downloadedFile = delegate.download(resource, cacheDestination, hash).await()
+                val cacheDestination = CACHE_DIRECTORY.resolve(u)
+                delegate.download(resource, cacheDestination, hash).thenApply { downloadedFile ->
                     destination.parent.createDirectories()
                     downloadedFile.copyTo(destination, overwrite = true)
                     destination
@@ -121,23 +114,17 @@ interface CachedDownloader {
      * Base implementation of [CachedDownloader] that delegates the download part to a [Downloader].
      *
      * @property delegate the downloader used to download the files
-     * @property scope the scope of the coroutine
      * @constructor Creates a new Cached downloader
      */
-    private class SimpleCachedDownloader(
-        private val delegate: Downloader,
-        private val scope: CoroutineScope
-    ) : CachedDownloader {
+    private class SimpleCachedDownloader(private val delegate: Downloader) : CachedDownloader {
 
-        override fun download(resource: String, destination: Path, hash: String): Deferred<Path> {
-            return scope.async {
+        override fun download(resource: String, destination: Path, hash: String): CompletableFuture<Path> {
+            return CompletableFuture.supplyAsync {
                 val checksum = destination.resolveSibling("${destination.name}.$HASH_EXTENSION")
-                if (checksum.exists()) {
-                    val expectedChecksum = checksum.readText()
-                    if (hash == expectedChecksum) return@async destination
+                if (!checksum.exists() || hash != checksum.readText()) {
+                    delegate.download(resource, destination)
+                    checksum.writeText(hash)
                 }
-                delegate.download(resource, destination)
-                checksum.writeText(hash)
                 destination
             }
         }

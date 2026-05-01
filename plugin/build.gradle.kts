@@ -13,14 +13,13 @@ repositories {
 }
 
 dependencies {
-    implementation(libs.coroutines)
-
     implementation(libs.bundles.jackson)
 
     testImplementation("org.jetbrains.kotlin:kotlin-test")
     testImplementation("org.junit.jupiter:junit-jupiter-params")
 
     testImplementation(libs.mockk)
+    testImplementation(libs.slf4j)
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 }
 
@@ -35,7 +34,6 @@ kotlin {
     compilerOptions {
         freeCompilerArgs.addAll(
             "-opt-in=kotlin.uuid.ExperimentalUuidApi",
-            "-opt-in=kotlinx.serialization.ExperimentalSerializationApi",
             "-Xannotation-default-target=param-property"
         )
     }
@@ -76,4 +74,10 @@ configure<com.github.gmazzo.buildconfig.BuildConfigExtension> {
     buildConfigField("String", "NAME", "\"${name}\"")
     buildConfigField("String", "VERSION", "\"${rootProject.version}\"")
     buildConfigField("String", "USER_AGENT", $$"\"$NAME/$VERSION\"")
+}
+
+afterEvaluate {
+    tasks.named<Test>("integrationTest") {
+        systemProperty("slf4j.provider", "org.slf4j.simple.SimpleServiceProvider")
+    }
 }
