@@ -1,7 +1,10 @@
 package it.fulminazzo.creeper.provider.plugin
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties
+import com.fasterxml.jackson.annotation.JsonProperty
 import it.fulminazzo.creeper.Hashable
 import it.fulminazzo.creeper.download.CachedDownloader
+import it.fulminazzo.creeper.util.HttpUtils
 import it.fulminazzo.creeper.util.sha256
 import org.slf4j.Logger
 import tools.jackson.module.kotlin.jacksonObjectMapper
@@ -32,9 +35,20 @@ class GitHubPluginProvider(
 ) {
     val cacheDuration = 6.hours
 
-    override fun handleRequest(request: GitHubPluginRequest): CompletableFuture<Path> {
-        TODO("Not yet implemented")
-    }
+    /**
+     * Attempts to get the requested release information from the API.
+     *
+     * @param request the request
+     * @return the release information (or `null` if the release was not found)
+     * @throws it.fulminazzo.creeper.util.HttpUtils.ApiException if the API returns an error
+     */
+    internal fun fetchReleaseMetadata(request: GitHubPluginRequest): CompletableFuture<Release?> =
+        getTimedCachedRelease(request)?.let { CompletableFuture.completedFuture(it) }
+            ?: HttpUtils.getApi(getReleaseUrl(request.owner, request.repository, request.release)).thenApply { r ->
+                r?.let { raw -> JSON_MAPPER.readValue<ReleaseResponse>(raw) }
+                    ?.assets
+                    ?.firstOrNull { it.name == request.name }
+            }
 
     /**
      * Gets the cached release for the given request from the global cache.
@@ -47,6 +61,10 @@ class GitHubPluginProvider(
         getCachedRelease(request)
             ?.takeIf { it.updated + cacheDuration.inWholeMilliseconds >= System.currentTimeMillis() }
             ?.release
+
+    override fun handleRequest(request: GitHubPluginRequest): CompletableFuture<Path> {
+        TODO("Not yet implemented")
+    }
 
     internal companion object {
         internal val CACHE_FILE = CachedDownloader.CACHE_DIRECTORY.resolve("github.json")
@@ -78,7 +96,21 @@ class GitHubPluginProvider(
             CACHE_FILE.toFile().writeText(JSON_MAPPER.writeValueAsString(CACHE))
         }
 
+        /**
+         * Gets the URL to get release information from the GitHub API.
+         *
+         * @param owner the owner of the repository
+         * @param repository the name of the repository
+         * @param release the tag of the release
+         * @return the URL
+         */
+        private fun getReleaseUrl(owner: String, repository: String, release: String): String =
+            "https://api.github.com/repos/$owner/$repository/releases/tags/$release"
+
     }
+
+    @JsonIgnoreProperties(ignoreUnknown = true)
+    private data class ReleaseResponse(val assets: List<Release>)
 
 }
 
@@ -106,10 +138,16 @@ data class GitHubPluginRequest(
  * Identifies the GitHub API response for a certain release.
  *
  * @property url the URL to download the release from
+ * @property name the name of the file
  * @property digest the SHA-256 digest of the release
  * @constructor Creates a new Release
  */
-internal data class Release(val url: String, val digest: String)
+internal data class Release(
+    @JsonProperty("browser_download_url")
+    val url: String,
+    val name: String,
+    val digest: String
+)
 
 /**
  * Identifies a cache for the GitHub API response for a certain release.
