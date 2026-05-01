@@ -20,13 +20,12 @@ class MinecraftServerSpec(
     type: ServerType.MinecraftType,
     version: String,
     config: MinecraftServerSettings,
-    whitelist: Set<String>,
+    val whitelist: Set<String>,
     plugins: List<PluginRequest>
 ) : ServerSpec<ServerType.MinecraftType, MinecraftServerSettings>(
     type,
     version,
     config,
-    whitelist,
     plugins
 )
 
@@ -38,6 +37,17 @@ class MinecraftServerSpec(
 class MinecraftServerSpecBuilder :
     ServerSpecBuilder<ServerType.MinecraftType, MinecraftServerSettingsBuilder, MinecraftServerSettings>() {
     override val serverConfigBuilder: MinecraftServerSettingsBuilder = MinecraftServerSettingsBuilder()
+
+    private val whitelist: MutableSet<String> = mutableSetOf()
+
+    /**
+     * Adds a player to the whitelist.
+     *
+     * @param name the name of the player
+     */
+    fun whitelist(name: String) {
+        whitelist += name
+    }
 
     override fun build(): ServerSpec<ServerType.MinecraftType, MinecraftServerSettings> {
         return MinecraftServerSpec(

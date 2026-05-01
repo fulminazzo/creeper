@@ -28,7 +28,7 @@ class MinecraftServerSpecBuilderTest {
             url(URI.create("https://github.com/fulminazzo/YAGL/releases/download/5.2.2/YAGL-5.2.2.jar"))
             local("build/libs/YAGL-5.2.2.jar", false)
         }
-        val data = builder.build()
+        val data = builder.build() as MinecraftServerSpec
 
         assertEquals(ServerType.VANILLA, data.type)
         assertEquals("1.16.5", data.version)

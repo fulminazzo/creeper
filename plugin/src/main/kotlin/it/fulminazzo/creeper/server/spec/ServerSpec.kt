@@ -18,7 +18,6 @@ import java.nio.file.Path
  * @property type the type of server
  * @property version the version of the server
  * @property settings the server settings
- * @property whitelist the whitelist of the server
  * @property plugins the plugins to install
  * @constructor Creates a new Server spec
  */
@@ -26,7 +25,6 @@ sealed class ServerSpec<T : ServerType, S : ServerSettings>(
     val type: T,
     val version: String,
     val settings: S,
-    val whitelist: Set<String>,
     val plugins: List<PluginRequest>
 )
 
@@ -53,7 +51,6 @@ sealed class ServerSpecBuilder<T : ServerType, B : ServerSettingsBuilder, S : Se
             _version = value
         }
 
-    protected val whitelist: MutableSet<String> = mutableSetOf()
     protected val plugins: PluginRequestsBuilder = PluginRequestsBuilder()
 
     protected abstract val serverConfigBuilder: B
@@ -73,15 +70,6 @@ sealed class ServerSpecBuilder<T : ServerType, B : ServerSettingsBuilder, S : Se
      */
     fun serverConfig(function: B.() -> Unit) {
         serverConfigBuilder.apply(function)
-    }
-
-    /**
-     * Adds a player to the whitelist.
-     *
-     * @param name the name of the player
-     */
-    fun whitelist(name: String) {
-        whitelist += name
     }
 
     /**
