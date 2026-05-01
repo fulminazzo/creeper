@@ -14,6 +14,7 @@ import java.util.concurrent.CompletableFuture
 import java.util.concurrent.ConcurrentHashMap
 import kotlin.io.path.createDirectories
 import kotlin.io.path.exists
+import kotlin.math.log
 import kotlin.time.Duration.Companion.hours
 
 /**
@@ -63,7 +64,13 @@ class GitHubPluginProvider(
             ?.release
 
     override fun handleRequest(request: GitHubPluginRequest): CompletableFuture<Path> {
-        TODO("Not yet implemented")
+        logger.info("Fetching release information for ${request.owner}/${request.repository}/${request.release} (name = ${request.name})")
+        return fetchReleaseMetadata(request).thenCompose { release ->
+            release?.let {
+                logger.info("Downloading plugin from ${release.url}")
+                downloader.download(release.url, directory.resolve(release.name), release.digest)
+            } ?: throw ReleaseNotFoundException(request)
+        }
     }
 
     internal companion object {
@@ -157,3 +164,13 @@ internal data class Release(
  * @constructor Creates a new Release cache
  */
 internal data class ReleaseCache(val release: Release, val updated: Long)
+
+/**
+ * Exception thrown when a release could not be found.
+ *
+ * @constructor Create a new Release not found exception
+ *
+ * @param request the request that was made
+ */
+class ReleaseNotFoundException internal constructor(request: GitHubPluginRequest) :
+    Exception("Could not find release for ${request.owner}/${request.repository}/${request.release} (name = ${request.name})")
