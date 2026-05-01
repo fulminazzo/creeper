@@ -32,10 +32,12 @@ class MinecraftServerInstallerIntegrationTest {
     @Test
     fun `test that install correctly downloads executable and sets configuration`() {
         DIRECTORY.toFile().deleteRecursively()
+        val serverDirectory = DIRECTORY.resolve("vanilla-1.21.1")
+
         val jarProvider = mockk<MinecraftJarProvider>()
-        val expectedExecutable = DIRECTORY.resolve("server.jar")
+        val expectedExecutable = serverDirectory.resolve("vanilla-1.21.1.jar")
         every { jarProvider.get(any(), any(), any()) }.answers {
-            val path = DIRECTORY.resolve(arg<String>(0))
+            val path = serverDirectory.resolve("${arg<ServerType>(0).name.lowercase()}-${arg<String>(1)}.jar")
             path.deleteIfExists()
             path.parent.createDirectories()
             path.createFile()
@@ -44,7 +46,7 @@ class MinecraftServerInstallerIntegrationTest {
 
         val configProvider = mockk<ConfigProvider<ServerType.MinecraftType>>()
         every { configProvider.get(any(), any(), any(), any()) }.answers {
-            val path = DIRECTORY.resolve(arg<String>(0))
+            val path = serverDirectory.resolve(arg<String>(0))
             path.deleteIfExists()
             path.parent.createDirectories()
             path.createFile()
@@ -89,13 +91,13 @@ class MinecraftServerInstallerIntegrationTest {
         assertTrue(expectedExecutable.exists(), "$expectedExecutable does not exist")
         assertEquals(expectedExecutable, executable, "executable path was not set correctly")
 
-        assertTrue(DIRECTORY.resolve("plugins/Test-1.0.jar").exists(), "plugin file does not exist")
+        assertTrue(serverDirectory.resolve("plugins/Test-1.0.jar").exists(), "plugin file does not exist")
 
-        val eulaFile = DIRECTORY.resolve("eula.txt")
+        val eulaFile = serverDirectory.resolve("eula.txt")
         assertTrue(eulaFile.exists(), "eula file does not exist")
         assertContains(eulaFile.toFile().readText(), "eula=true")
 
-        val serverProperties = DIRECTORY.resolve("server.properties")
+        val serverProperties = serverDirectory.resolve("server.properties")
         assertTrue(serverProperties.exists(), "server.properties file does not exist")
 
         val data = PROPERTIES_MAPPER.readValue<Map<String, Any>>(serverProperties.toFile())
