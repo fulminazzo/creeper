@@ -19,6 +19,7 @@ dependencies {
     testImplementation("org.junit.jupiter:junit-jupiter-params")
 
     testImplementation(libs.mockk)
+    testImplementation(libs.slf4j)
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 }
 
@@ -46,6 +47,9 @@ testConfiguration {
 tasks.withType<Test>().configureEach {
     useJUnitPlatform()
     jvmArgs = listOf("-XX:+EnableDynamicAgentLoading")
+
+    systemProperty("slf4j.provider", "org.slf4j.simple.SimpleServiceProvider")
+    testLogging.showStandardStreams = true
 }
 
 tasks.jacocoTestReport {
