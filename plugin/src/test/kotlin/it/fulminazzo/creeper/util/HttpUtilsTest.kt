@@ -64,7 +64,7 @@ class HttpUtilsTest {
                 )
             }
             val e = assertThrows<CompletionException> { getApi("http://localhost:$port/test").join() }
-            assertIs<ApiException>(e.cause)
+            assertIs<HttpUtils.ApiException>(e.cause)
         } finally {
             requestCatcher.stop()
         }

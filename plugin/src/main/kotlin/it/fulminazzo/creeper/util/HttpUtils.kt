@@ -43,13 +43,13 @@ class HttpUtils private constructor() {
 
     }
 
-}
+    /**
+     * Exception thrown on unknown response code while querying the API.
+     *
+     * @constructor Create an empty Api exception
+     *
+     * @param statusCode the status code
+     */
+    class ApiException internal constructor(statusCode: Int) : Exception("Unexpected response code: $statusCode")
 
-/**
- * Exception thrown on unknown response code while querying the API.
- *
- * @constructor Create an empty Api exception
- *
- * @param statusCode the status code
- */
-class ApiException internal constructor(statusCode: Int) : Exception("Unexpected response code: $statusCode")
+}
