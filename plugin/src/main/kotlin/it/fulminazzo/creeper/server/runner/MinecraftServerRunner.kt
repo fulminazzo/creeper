@@ -16,17 +16,20 @@ import java.util.concurrent.Executor
  * @param logger the logger to use for logging
  * @param executor the executor to use for asynchronous operations
  * @param directory the directory where the server files are stored
+ * @param javaExecutable the path to the Java executable
  */
 class MinecraftServerRunner(
     specification: MinecraftServerSpec,
     logger: Logger,
     executor: Executor,
-    directory: Path
+    directory: Path,
+    javaExecutable: String
 ) : ServerRunner<ServerType.MinecraftType, MinecraftServerSettings, MinecraftServerSpec>(
     specification,
     logger,
     executor,
-    directory
+    directory,
+    javaExecutable
 ) {
 
     override fun isBootCompleteLine(line: String): Boolean = COMPLETE_LINE_PATTERN.matches(line)

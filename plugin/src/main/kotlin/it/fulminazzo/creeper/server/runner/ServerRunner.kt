@@ -4,6 +4,9 @@ import it.fulminazzo.creeper.server.ServerType
 import it.fulminazzo.creeper.server.spec.ServerSpec
 import it.fulminazzo.creeper.server.spec.settings.ServerSettings
 import it.fulminazzo.creeper.util.VersionUtils
+import org.gradle.jvm.toolchain.JavaLanguageVersion
+import org.gradle.jvm.toolchain.JavaToolchainService
+import org.gradle.jvm.toolchain.internal.JavaToolchain
 import org.slf4j.Logger
 import java.nio.file.Path
 import java.util.Collections
@@ -25,13 +28,15 @@ import kotlin.time.Duration
  * @property logger the logger to use for logging
  * @property executor the executor to use for asynchronous operations
  * @property directory the directory where the server files are stored
+ * @property javaExecutable the path to the Java executable
  * @constructor Creates a new Server runner
  */
 sealed class ServerRunner<T : ServerType, C : ServerSettings, S : ServerSpec<T, C>>(
-    protected val specification: S,
-    protected val logger: Logger,
-    protected val executor: Executor,
-    protected val directory: Path
+    private val specification: S,
+    private val logger: Logger,
+    private val executor: Executor,
+    private val directory: Path,
+    private val javaExecutable: String
 ) {
     private val executableName: String
         get() {
@@ -98,9 +103,7 @@ sealed class ServerRunner<T : ServerType, C : ServerSettings, S : ServerSpec<T, 
     fun start(): Long {
         check(!isRunning()) { "Server is already running" }
 
-        checkJavaVersion()
-
-        val command = mutableListOf(JAVA_EXECUTABLE)
+        val command = mutableListOf(javaExecutable)
         specification.settings.flags.takeIf { it.isNotEmpty() }?.let { command += it.split(" ") }
         command += "-jar"
         command += executableName
@@ -150,20 +153,6 @@ sealed class ServerRunner<T : ServerType, C : ServerSettings, S : ServerSpec<T, 
         reader?.join()
     }
 
-    /**
-     * Checks if the current Java version is compatible with the required one to run the server.
-     *
-     * @throws IllegalStateException if the current Java version is not compatible
-     */
-    internal fun checkJavaVersion() {
-        val version = specification.version
-        val requiredVersion = VersionUtils.getJavaVersion(version)
-        check(CURRENT_VERSION >= requiredVersion) {
-            "Minecraft ${specification.type.name} $version requires Java $requiredVersion or higher. " +
-                    "Current Java version: $CURRENT_VERSION"
-        }
-    }
-
     private fun handleAwaitCompleteBootNonZeroStatus(exitValue: Int?) {
         completeBoot.completeExceptionally(
             IllegalStateException("Server exited with non-zero status code: $exitValue")
@@ -188,9 +177,6 @@ sealed class ServerRunner<T : ServerType, C : ServerSettings, S : ServerSpec<T, 
         private const val SUCCESS = 0
         private const val SIG_KILL = 137
         private const val SIG_TERM = 143
-
-        private val JAVA_EXECUTABLE = "${System.getProperty("java.home")}/bin/java"
-        private val CURRENT_VERSION = Runtime.version()
 
         private fun isExitValueInvalid(exitValue: Int?): Boolean =
             exitValue != SUCCESS && exitValue != SIG_KILL && exitValue != SIG_TERM
