@@ -135,7 +135,7 @@ class MinecraftServerInstallerIntegrationTest {
     @ParameterizedTest
     @MethodSource("provideBukkitTestTypes")
     fun `test that install on bukkit server disables end`(type: ServerType.MinecraftType) {
-        val serverDirectory = DIRECTORY.resolve("${type.name.lowercase()}-1.21.1")
+        val serverDirectory = DIRECTORY.resolve("${type.id}-1.21.1")
         serverDirectory.toFile().deleteRecursively()
 
         val jarProvider = createJarProvider(serverDirectory)
@@ -219,7 +219,7 @@ class MinecraftServerInstallerIntegrationTest {
     private fun createJarProvider(serverDirectory: Path): MinecraftJarProvider {
         val jarProvider = mockk<MinecraftJarProvider>()
         every { jarProvider.get(any(), any(), any()) }.answers {
-            val path = serverDirectory.resolve("${arg<ServerType>(0).name.lowercase()}-${arg<String>(1)}.jar")
+            val path = serverDirectory.resolve("${arg<ServerType>(0).id}-${arg<String>(1)}.jar")
             path.deleteIfExists()
             path.parent.createDirectories()
             path.createFile()

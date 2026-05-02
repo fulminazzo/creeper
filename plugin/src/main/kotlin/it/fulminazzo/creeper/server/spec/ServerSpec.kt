@@ -27,7 +27,11 @@ sealed class ServerSpec<T : ServerType, S : ServerSettings>(
     val version: String,
     val settings: S,
     val plugins: List<PluginRequest>
-)
+) {
+    val id: String
+        get() = "${type.id}-$version"
+
+}
 
 /**
  * Builder for [ServerSpec].
@@ -44,7 +48,7 @@ sealed class ServerSpecBuilder<T : ServerType, B : ServerSettingsBuilder, S : Se
         set(value) {
             _type = value
         }
-    
+
     private var _version: String? = null
     var version: String
         get() = _version ?: throw BuildException("Server version is required but was not set")

@@ -117,7 +117,7 @@ sealed class ServerInstaller<T : ServerType, C : ServerSettings, S : ServerSpec<
     }
 
     private fun getServerDirectory(parent: Path) =
-        parent.resolve("${specification.type.name.lowercase()}-${specification.version}")
+        parent.resolve(specification.id)
 
     private companion object {
         private val JSON_MAPPER = jacksonObjectMapper()

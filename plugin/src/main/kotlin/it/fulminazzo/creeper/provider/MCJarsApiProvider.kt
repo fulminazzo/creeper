@@ -82,7 +82,7 @@ class MCJarsApiProvider(
             logger.info("Downloading Minecraft ${platform.name} $version")
             downloader.download(
                 build.url,
-                directory.resolve("${platform.name.lowercase()}-$version.jar"),
+                directory.resolve("${platform.id}-$version.jar"),
                 build.toHashString()
             )
         }

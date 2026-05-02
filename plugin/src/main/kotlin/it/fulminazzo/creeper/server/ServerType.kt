@@ -11,6 +11,7 @@ sealed class ServerType(
     val name: String,
     private val parent: ServerType?
 ) {
+    val id: String = name.lowercase()
 
     /**
      * Checks if the server type is a fork of the specified server type.

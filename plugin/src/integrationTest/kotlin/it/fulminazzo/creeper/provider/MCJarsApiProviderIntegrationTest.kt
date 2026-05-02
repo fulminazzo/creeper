@@ -30,7 +30,7 @@ class MCJarsApiProviderIntegrationTest {
 
     @Test
     fun `test that MinecraftJarProvider#get works`() {
-        val destination = WORK_DIR.resolve("${PLATFORM.name.lowercase()}-$VERSION.jar")
+        val destination = WORK_DIR.resolve("${PLATFORM.id}-$VERSION.jar")
         destination.deleteIfExists()
 
         provider.get(PLATFORM, VERSION, destination.parent).join()
@@ -40,7 +40,7 @@ class MCJarsApiProviderIntegrationTest {
     @Test
     fun `test that MinecraftJarProvider#get throws if jar is not found`() {
         val version = "1.8.8-not-found"
-        val destination = WORK_DIR.resolve("${PLATFORM.name.lowercase()}-$version.jar")
+        val destination = WORK_DIR.resolve("${PLATFORM.id}-$version.jar")
 
         val e = assertThrows<CompletionException> {
             provider.get(PLATFORM, version, destination.parent).join()
