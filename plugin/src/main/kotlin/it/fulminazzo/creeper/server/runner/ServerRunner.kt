@@ -147,7 +147,8 @@ sealed class ServerRunner<T : ServerType, C : ServerSettings, S : ServerSpec<T, 
         val version = specification.version
         val requiredVersion = VersionUtils.getJavaVersion(version)
         check(CURRENT_VERSION >= requiredVersion) {
-            "Minecraft ${specification.type.name} $version requires Java $requiredVersion or higher. Current Java version: $CURRENT_VERSION"
+            "Minecraft ${specification.type.name} $version requires Java $requiredVersion or higher. " +
+                    "Current Java version: $CURRENT_VERSION"
         }
     }
 
@@ -164,7 +165,7 @@ sealed class ServerRunner<T : ServerType, C : ServerSettings, S : ServerSpec<T, 
         private const val SIG_TERM = 143
 
         private val JAVA_EXECUTABLE = "${System.getProperty("java.home")}/bin/java"
-        private val CURRENT_VERSION = VersionUtils.getJavaVersion(System.getProperty("java.version"))
+        private val CURRENT_VERSION = Runtime.version()
 
     }
 
