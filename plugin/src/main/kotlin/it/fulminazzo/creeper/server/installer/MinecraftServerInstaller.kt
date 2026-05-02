@@ -47,7 +47,7 @@ class MinecraftServerInstaller(
     override fun install(directory: Path): CompletableFuture<Path> {
         return super.install(directory)
             .thenCompose { executableDir ->
-                installAndEditConfig(SERVER_PROPERTIES, executableDir) {
+                installAndEditConfig(SERVER_PROPERTIES, executableDir.parent) {
                     val settings = specification.settings
                     put("hardcore", settings.hardcore)
                     put("server-port", settings.port)
@@ -70,7 +70,7 @@ class MinecraftServerInstaller(
                 }
             }.thenCompose { executableDir ->
                 if (specification.type.isForkOf(ServerType.BUKKIT))
-                    installAndEditConfig(BUKKIT_CONFIG, executableDir) {
+                    installAndEditConfig(BUKKIT_CONFIG, executableDir.parent) {
                         put("settings.allow-end", false)
                     }.thenApply { executableDir }
                 else CompletableFuture.completedFuture(executableDir)
