@@ -71,7 +71,7 @@ class GitHubPluginProvider internal constructor(
                 logger.info("Downloading plugin from ${release.url}")
                 downloader.download(release.url, directory.resolve(release.name), release.digest)
             } ?: throw PluginNotFoundException(
-                "Could not find GitHub release for ${request.owner}/${request.repository}/${request.release} (filename =${request.name})"
+                "Could not find GitHub release for ${request.owner}/${request.repository}/${request.release} (filename = ${request.name})"
             )
         }
     }
