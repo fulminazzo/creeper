@@ -1,24 +1,42 @@
 package it.fulminazzo.creeper.server
 
 /**
- * Identifies the type of server to run.
+ * Identifies the type of server platform.
+ *
+ * @property name the name of the platform
+ * @property parent the platform it was forked from (`null` if vanilla)
+ * @constructor Creates a new Server type
  */
-sealed interface ServerType {
-    val name: String
+sealed class ServerType(
+    val name: String,
+    private val parent: ServerType?
+) {
+
+    /**
+     * Checks if the server type is a fork of the specified server type.
+     *
+     * @param other the server type to check against
+     * @return `true` if the server was created from the other server type
+     */
+    fun isForkOf(other: ServerType): Boolean = other == this || parent?.isForkOf(other) ?: false
 
     /**
      * [ServerType] only for Minecraft server platforms.
      *
      * @property name the name of the platform
+     * @property parent the platform it was forked from (`null` if vanilla)
      * @constructor Create an empty Minecraft type
      */
-    sealed class MinecraftType(override val name: String) : ServerType
+    sealed class MinecraftType(
+        name: String,
+        parent: ServerType?
+    ) : ServerType(name, parent)
 
-    data object VANILLA : MinecraftType("Vanilla")
-    data object SPIGOT : MinecraftType("Spigot")
-    data object BUKKIT : MinecraftType("Bukkit")
-    data object PAPER : MinecraftType("Paper")
-    data object PURPUR : MinecraftType("Purpur")
-    data object FOLIA : MinecraftType("Folia")
+    data object VANILLA : MinecraftType("Vanilla", null)
+    data object BUKKIT : MinecraftType("Bukkit", VANILLA)
+    data object SPIGOT : MinecraftType("Spigot", BUKKIT)
+    data object PAPER : MinecraftType("Paper", SPIGOT)
+    data object PURPUR : MinecraftType("Purpur", PAPER)
+    data object FOLIA : MinecraftType("Folia", PAPER)
 
 }
