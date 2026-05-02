@@ -98,10 +98,10 @@ class PluginRequestsBuilder {
      *
      * @param projectName the name of the project in Modrinth
      * @param version the name or number of the version
-     * @param name the name of the plugin file
+     * @param filename the name of the plugin file
      */
-    fun modrinth(projectName: String, version: String, name: String) {
-        requests += ModrinthPluginRequest(projectName, version, name)
+    fun modrinth(projectName: String, version: String, filename: String) {
+        requests += ModrinthPluginRequest(projectName, version, filename)
     }
 
     /**
@@ -110,10 +110,10 @@ class PluginRequestsBuilder {
      * @param owner the owner of the repository
      * @param repository the name of the repository
      * @param release the tag of the release
-     * @param name the name of the plugin file
+     * @param filename the name of the plugin file
      */
-    fun github(owner: String, repository: String, release: String, name: String) {
-        requests += GitHubPluginRequest(owner, repository, release, name)
+    fun github(owner: String, repository: String, release: String, filename: String) {
+        requests += GitHubPluginRequest(owner, repository, release, filename)
     }
 
     /**
@@ -137,21 +137,21 @@ class PluginRequestsBuilder {
     /**
      * The plugin will be copied from the specified file.
      *
-     * @param file the path of the file
+     * @param filepath the path of the file
      * @param overwrite if the file should be overwritten if it already exists
      */
-    fun local(file: String, overwrite: Boolean = true) {
-        local(Path.of(file), overwrite)
+    fun local(filepath: String, overwrite: Boolean = true) {
+        local(Path.of(filepath), overwrite)
     }
 
     /**
      * The plugin will be copied from the specified file.
      *
-     * @param file the path of the file
+     * @param filepath the path of the file
      * @param overwrite if the file should be overwritten if it already exists
      */
-    fun local(file: Path, overwrite: Boolean = true) {
-        requests += LocalPluginRequest(file, overwrite)
+    fun local(filepath: Path, overwrite: Boolean = true) {
+        requests += LocalPluginRequest(filepath, overwrite)
     }
 
 }
