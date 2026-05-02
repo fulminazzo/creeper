@@ -87,43 +87,28 @@ sealed class ServerRunner<T : ServerType, C : ServerSettings, S : ServerSpec<T, 
         shutdownHook = Thread { if (isRunning()) forceStop() }
         Runtime.getRuntime().addShutdownHook(shutdownHook)
 
-        val proc = ProcessBuilder(command)
+        process = ProcessBuilder(command)
             .directory(directory.toFile())
             .redirectErrorStream(true)
             .start()
-        process = proc
 
         completeBoot = CompletableFuture<Unit>()
         reader = CompletableFuture.runAsync({
-            if (proc.isAlive) {
-                proc.inputStream?.bufferedReader()?.forEachLine {
-                    lines.add(it)
-                    if (!completeBoot.isDone && isBootCompleteLine(it)) completeBoot.complete(Unit)
-                }
-            } else {
-                val value = proc.exitValue()
-                println(value)
-                if (value != 0) {
-                    logger.error("Server ${specification.id} failed: execution terminated with exit code $value")
-                    printErrorLogs()
-                    forceStop()
-                }
+            process?.inputStream?.bufferedReader()?.forEachLine {
+                lines.add(it)
+                if (!completeBoot.isDone && isBootCompleteLine(it)) completeBoot.complete(Unit)
             }
-        }, executor).exceptionally { e ->
-            logger.error("Exception while reading output of server ${specification.id}: ${e.message}")
-            printErrorLogs()
-            forceStop()
-            null
-        }
+        }, executor)
 
-        return proc.pid()
+        return process!!.pid()
     }
 
     /**
      * Forcefully stops the server.
      */
     fun forceStop() {
-        if (isRunning()) logger.info("Forcefully stopping ${specification.id}...")
+        check(isRunning()) { "Server is not running" }
+        logger.info("Forcefully stopping ${specification.id}...")
         shutdownHook?.let {
             try {
                 Runtime.getRuntime().removeShutdownHook(it)
@@ -138,20 +123,6 @@ sealed class ServerRunner<T : ServerType, C : ServerSettings, S : ServerSpec<T, 
     }
 
     /**
-     * Checks if the latest execution was successful
-     *
-     * @return `true` if it was
-     */
-    fun wasExecutionSuccessful(): Boolean = process?.exitValue() == 0
-
-    /**
-     * Checks if the server is currently running.
-     *
-     * @return `true` if the server is running, `false` otherwise
-     */
-    fun isRunning() = process?.isAlive ?: false
-
-    /**
      * Checks if the current Java version is compatible with the required one to run the server.
      *
      * @throws IllegalStateException if the current Java version is not compatible
@@ -164,10 +135,12 @@ sealed class ServerRunner<T : ServerType, C : ServerSettings, S : ServerSpec<T, 
         }
     }
 
-    private fun printErrorLogs() {
-        logger.error("Logs to debug the problem:")
-        lines.forEach { line -> logger.error("$line") }
-    }
+    /**
+     * Checks if the server is currently running.
+     *
+     * @return `true` if the server is running, `false` otherwise
+     */
+    fun isRunning() = process?.isAlive ?: false
 
     private companion object {
         val javaExecutable = "${System.getProperty("java.home")}/bin/java"
