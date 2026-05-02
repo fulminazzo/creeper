@@ -87,20 +87,35 @@ sealed class ServerRunner<T : ServerType, C : ServerSettings, S : ServerSpec<T, 
         shutdownHook = Thread { if (isRunning()) forceStop() }
         Runtime.getRuntime().addShutdownHook(shutdownHook)
 
-        process = ProcessBuilder(command)
+        val proc = ProcessBuilder(command)
             .directory(directory.toFile())
             .redirectErrorStream(true)
             .start()
+        process = proc
 
         completeBoot = CompletableFuture<Unit>()
         reader = CompletableFuture.runAsync({
-            process?.inputStream?.bufferedReader()?.forEachLine {
-                lines.add(it)
-                if (!completeBoot.isDone && isBootCompleteLine(it)) completeBoot.complete(Unit)
+            if (proc.isAlive) {
+                proc.inputStream?.bufferedReader()?.forEachLine {
+                    lines.add(it)
+                    if (!completeBoot.isDone && isBootCompleteLine(it)) completeBoot.complete(Unit)
+                }
+            } else {
+                val value = proc.exitValue()
+                if (value != 0) {
+                    logger.error("Server ${specification.id} failed: execution terminated with exit code $value")
+                    printErrorLogs()
+                    forceStop()
+                }
             }
-        }, executor)
+        }, executor).exceptionally { e ->
+            logger.error("Exception while reading output of server ${specification.id}: ${e.message}")
+            printErrorLogs()
+            forceStop()
+            null
+        }
 
-        return process!!.pid()
+        return proc.pid()
     }
 
     /**
@@ -123,6 +138,20 @@ sealed class ServerRunner<T : ServerType, C : ServerSettings, S : ServerSpec<T, 
     }
 
     /**
+     * Checks if the latest execution was successful
+     *
+     * @return `true` if it was
+     */
+    fun wasExecutionSuccessful(): Boolean = process?.exitValue() == 0
+
+    /**
+     * Checks if the server is currently running.
+     *
+     * @return `true` if the server is running, `false` otherwise
+     */
+    fun isRunning() = process?.isAlive ?: false
+
+    /**
      * Checks if the current Java version is compatible with the required one to run the server.
      *
      * @throws IllegalStateException if the current Java version is not compatible
@@ -135,12 +164,10 @@ sealed class ServerRunner<T : ServerType, C : ServerSettings, S : ServerSpec<T, 
         }
     }
 
-    /**
-     * Checks if the server is currently running.
-     *
-     * @return `true` if the server is running, `false` otherwise
-     */
-    fun isRunning() = process?.isAlive ?: false
+    private fun printErrorLogs() {
+        logger.error("Logs to debug the problem:")
+        lines.forEach { line -> logger.error("$line") }
+    }
 
     private companion object {
         val javaExecutable = "${System.getProperty("java.home")}/bin/java"
