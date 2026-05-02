@@ -149,9 +149,9 @@ class JvmFlagsBuilder {
         private const val PROPERTY_FLAG_PREFIX = "-D"
 
         /**
-         * Akair's flags
+         * Aikar's flags
          */
-        val AKAIR_FLAGS = JvmFlagsBuilder().apply {
+        val AIKAR_FLAGS = JvmFlagsBuilder().apply {
             xx("UseG1GC", true)
             xx("ParallelRefProcEnabled", true)
             xx("MaxGCPauseMillis", 200)

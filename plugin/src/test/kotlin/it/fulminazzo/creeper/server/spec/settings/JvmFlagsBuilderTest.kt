@@ -14,8 +14,8 @@ class JvmFlagsBuilderTest {
 
     @Test
     fun `test that from and build return equal flags`() {
-        builder.from(JvmFlagsBuilder.AKAIR_FLAGS)
-        assertEquals(JvmFlagsBuilder.AKAIR_FLAGS.build(), builder.build())
+        builder.from(JvmFlagsBuilder.AIKAR_FLAGS)
+        assertEquals(JvmFlagsBuilder.AIKAR_FLAGS.build(), builder.build())
     }
 
     @Test

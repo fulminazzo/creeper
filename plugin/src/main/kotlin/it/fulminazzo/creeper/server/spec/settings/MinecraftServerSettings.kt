@@ -69,7 +69,7 @@ class MinecraftServerSettingsBuilder : ServerSettingsBuilder() {
         }
 
     init {
-        flags.from(JvmFlagsBuilder.AKAIR_FLAGS)
+        flags.from(JvmFlagsBuilder.AIKAR_FLAGS)
     }
 
     override fun build(): MinecraftServerSettings {
