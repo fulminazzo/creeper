@@ -10,6 +10,7 @@ import java.util.Collections
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.Executor
 import java.util.concurrent.TimeUnit
+import java.util.concurrent.TimeoutException
 import kotlin.io.path.exists
 import kotlin.io.path.name
 import kotlin.time.Duration
@@ -63,10 +64,11 @@ sealed class ServerRunner<T : ServerType, C : ServerSettings, S : ServerSpec<T, 
         reader?.join()
         val exitValue = process?.waitFor()
         if (exitValue != SUCCESS && exitValue != SIG_KILL && exitValue != SIG_TERM) {
-            logger.error("Server ${specification.id} exited with non-zero status code: $exitValue")
-            printErrorLogs()
+            val errorMessage = "Server exited with non-zero status code: $exitValue"
+            logger.error(formatLog(errorMessage))
+            printLogsInError()
             completeBoot.completeExceptionally(
-                IllegalStateException("Server exited with non-zero status code: $exitValue")
+                IllegalStateException(errorMessage)
             )
             forceStop()
         }
@@ -81,8 +83,10 @@ sealed class ServerRunner<T : ServerType, C : ServerSettings, S : ServerSpec<T, 
     fun awaitCompleteBoot(timeout: Duration): CompletableFuture<*> =
         completeBoot.orTimeout(timeout.inWholeMilliseconds, TimeUnit.MILLISECONDS)
             .exceptionally { t ->
-                logger.error("Server ${specification.id} boot process timed out", t)
-                printErrorLogs()
+                if (t is TimeoutException) {
+                    logger.error(formatLog("Server boot process timed out after ${timeout.inWholeSeconds} seconds"))
+                    printLogsInError()
+                }
                 throw t
             }
 
@@ -102,7 +106,7 @@ sealed class ServerRunner<T : ServerType, C : ServerSettings, S : ServerSpec<T, 
         command += executableName
         command += "nogui"
 
-        logger.info("Starting server ${specification.id} on port ${specification.settings.port}...")
+        logger.info(formatLog("Starting server on port ${specification.settings.port}..."))
         lines.clear()
 
         shutdownHook = Thread { if (isRunning()) forceStop() }
@@ -128,7 +132,7 @@ sealed class ServerRunner<T : ServerType, C : ServerSettings, S : ServerSpec<T, 
      * Forcefully stops the server.
      */
     fun forceStop() {
-        if (isRunning()) logger.info("Forcefully stopping ${specification.id}...")
+        if (isRunning()) logger.info(formatLog("Forcefully stopping server..."))
         shutdownHook?.let {
             try {
                 Runtime.getRuntime().removeShutdownHook(it)
@@ -156,10 +160,12 @@ sealed class ServerRunner<T : ServerType, C : ServerSettings, S : ServerSpec<T, 
         }
     }
 
-    private fun printErrorLogs() {
-        logger.error("Server logs:")
+    private fun printLogsInError() {
+        logger.error(formatLog("Server logs:"))
         lines.forEach { logger.error(it) }
     }
+
+    private fun formatLog(message: String): String = "(${specification.id}) $message"
 
     /**
      * Checks if the server is currently running.
