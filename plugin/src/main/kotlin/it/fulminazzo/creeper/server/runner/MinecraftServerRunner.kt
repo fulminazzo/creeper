@@ -33,8 +33,7 @@ class MinecraftServerRunner(
 
     private companion object {
         val COMPLETE_LINE_PATTERN =
-            "^\\[[0-9]{2}:[0-9]{2}:[0-9]{2} INFO]: Done \\([0-9]+.[0-9]+s\\)! For help, type \"help\"$".toRegex()
-
+            ".*\\[[0-9]{2}:[0-9]{2}:[0-9]{2}[^]]*INFO[^]]*]:.*Done \\([0-9]+\\.[0-9]+s\\)!.*".toRegex()
     }
 
 }
