@@ -64,8 +64,7 @@ sealed class ServerRunner<T : ServerType, C : ServerSettings, S : ServerSpec<T, 
         val exitValue = process?.waitFor()
         if (exitValue != SUCCESS && exitValue != SIG_KILL && exitValue != SIG_TERM) {
             logger.error("Server ${specification.id} exited with non-zero status code: $exitValue")
-            logger.error("Server logs:")
-            lines.forEach { logger.error(it) }
+            printErrorLogs()
             completeBoot.completeExceptionally(
                 IllegalStateException("Server exited with non-zero status code: $exitValue")
             )
@@ -81,6 +80,11 @@ sealed class ServerRunner<T : ServerType, C : ServerSettings, S : ServerSpec<T, 
      */
     fun awaitCompleteBoot(timeout: Duration): CompletableFuture<*> =
         completeBoot.orTimeout(timeout.inWholeMilliseconds, TimeUnit.MILLISECONDS)
+            .exceptionally { t ->
+                logger.error("Server ${specification.id} boot process timed out", t)
+                printErrorLogs()
+                throw t
+            }
 
     /**
      * Starts the server using the specified settings.
@@ -150,6 +154,11 @@ sealed class ServerRunner<T : ServerType, C : ServerSettings, S : ServerSpec<T, 
             "Minecraft ${specification.type.name} $version requires Java $requiredVersion or higher. " +
                     "Current Java version: $CURRENT_VERSION"
         }
+    }
+
+    private fun printErrorLogs() {
+        logger.error("Server logs:")
+        lines.forEach { logger.error(it) }
     }
 
     /**
