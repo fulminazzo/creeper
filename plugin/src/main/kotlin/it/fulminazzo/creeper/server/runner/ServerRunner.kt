@@ -65,13 +65,10 @@ sealed class ServerRunner<T : ServerType, C : ServerSettings, S : ServerSpec<T, 
     fun await(): Int {
         reader?.join()
         val exitValue = process?.waitFor()
-        if (exitValue != SUCCESS && exitValue != SIG_KILL && exitValue != SIG_TERM) {
-            val errorMessage = "Server exited with non-zero status code: $exitValue"
-            logger.error(formatLog(errorMessage))
+        if (isExitValueInvalid(exitValue)) {
+            logger.error(formatLog("Server exited with non-zero status code: $exitValue"))
             printLogsInError()
-            completeBoot.completeExceptionally(
-                IllegalStateException(errorMessage)
-            )
+            handleAwaitCompleteBootNonZeroStatus(exitValue)
             forceStop()
         }
         return exitValue ?: SUCCESS
@@ -126,6 +123,10 @@ sealed class ServerRunner<T : ServerType, C : ServerSettings, S : ServerSpec<T, 
                 lines.add(it)
                 if (!completeBoot.isDone && isBootCompleteLine(it)) completeBoot.complete(Unit)
             }
+            process?.waitFor()?.let {
+                if (isExitValueInvalid(it))
+                    handleAwaitCompleteBootNonZeroStatus(it)
+            }
         }, executor)
 
         return process!!.pid()
@@ -146,7 +147,7 @@ sealed class ServerRunner<T : ServerType, C : ServerSettings, S : ServerSpec<T, 
         }
         process?.destroyForcibly()?.waitFor(5, TimeUnit.SECONDS)
         completeBoot.cancel(true)
-        reader?.cancel(true)
+        reader?.join()
     }
 
     /**
@@ -161,6 +162,12 @@ sealed class ServerRunner<T : ServerType, C : ServerSettings, S : ServerSpec<T, 
             "Minecraft ${specification.type.name} $version requires Java $requiredVersion or higher. " +
                     "Current Java version: $CURRENT_VERSION"
         }
+    }
+
+    private fun handleAwaitCompleteBootNonZeroStatus(exitValue: Int?) {
+        completeBoot.completeExceptionally(
+            IllegalStateException("Server exited with non-zero status code: $exitValue")
+        )
     }
 
     private fun printLogsInError() {
@@ -184,6 +191,9 @@ sealed class ServerRunner<T : ServerType, C : ServerSettings, S : ServerSpec<T, 
 
         private val JAVA_EXECUTABLE = "${System.getProperty("java.home")}/bin/java"
         private val CURRENT_VERSION = Runtime.version()
+
+        private fun isExitValueInvalid(exitValue: Int?): Boolean =
+            exitValue != SUCCESS && exitValue != SIG_KILL && exitValue != SIG_TERM
 
     }
 
