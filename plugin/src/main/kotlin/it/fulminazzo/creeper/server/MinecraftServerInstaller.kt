@@ -59,12 +59,20 @@ class MinecraftServerInstaller(
                     put("view-distance", settings.viewDistance)
                     put("simulation-distance", settings.simulationDistance)
                     put("white-list", settings.whitelist)
+
+                    put("allow-nether", false)
                 }.thenApply {
                     writeEula(executable.parent)
                     writeWhitelist(executable.parent)
                     writeOperators(executable.parent)
                     executable
                 }
+            }.thenCompose { executable ->
+                if (specification.type.isForkOf(ServerType.BUKKIT))
+                    installAndEditConfig(BUKKIT_CONFIG, executable.parent) {
+                        put("settings.allow-end", false)
+                    }.thenApply { executable }
+                else CompletableFuture.completedFuture(executable)
             }
     }
 
@@ -73,7 +81,7 @@ class MinecraftServerInstaller(
      *
      * @param directory the directory where the EULA file will be written
      */
-    private fun writeEula(directory: Path) {
+    internal fun writeEula(directory: Path) {
         val eulaFile = directory.resolve("eula.txt")
         eulaFile.toFile().writeText(
             """#By changing the setting below to TRUE you are indicating your agreement to our EULA (https://aka.ms/MinecraftEULA).
@@ -126,6 +134,7 @@ class MinecraftServerInstaller(
 
     private companion object {
         private const val SERVER_PROPERTIES = "server.properties"
+        private const val BUKKIT_CONFIG = "bukkit.yml"
 
         private val JSON_MAPPER = jacksonObjectMapper()
 
