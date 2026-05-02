@@ -17,6 +17,7 @@ import java.nio.file.Path
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.Executor
 import kotlin.io.path.extension
+import kotlin.io.path.fileSize
 
 /**
  * Generic installer for a server.
@@ -67,7 +68,9 @@ sealed class ServerInstaller<T : ServerType, C : ServerSettings, S : ServerSpec<
     ): CompletableFuture<Path> =
         installConfig(name, directory).thenApply { path ->
             val mapper = getMapper(path.extension)
-            val currentConfig = mapper.readValue<MutableMap<String, Any>>(path.toFile())
+            val currentConfig =
+                if (path.fileSize() > 0) mapper.readValue<MutableMap<String, Any>>(path.toFile())
+                else mutableMapOf()
             configuration(currentConfig)
             mapper.writeValue(path, currentConfig)
             path
