@@ -67,8 +67,10 @@ sealed class ServerRunner<T : ServerType, C : ServerSettings, S : ServerSpec<T, 
 
     /**
      * Starts the server using the specified settings.
+     *
+     * @return the PID of the process
      */
-    fun start() {
+    fun start(): Long {
         check(!isRunning()) { "Server is already running" }
 
         checkJavaVersion()
@@ -97,6 +99,8 @@ sealed class ServerRunner<T : ServerType, C : ServerSettings, S : ServerSpec<T, 
                 if (!completeBoot.isDone && isBootCompleteLine(it)) completeBoot.complete(Unit)
             }
         }, executor)
+
+        return process!!.pid()
     }
 
     /**
