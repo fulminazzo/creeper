@@ -8,6 +8,7 @@ import it.fulminazzo.creeper.cache.CacheManager
 import it.fulminazzo.creeper.download.CachedDownloader
 import it.fulminazzo.creeper.util.HttpUtils
 import it.fulminazzo.creeper.util.sha256
+import it.fulminazzo.creeper.util.urlEncode
 import org.slf4j.Logger
 import tools.jackson.module.kotlin.jacksonObjectMapper
 import tools.jackson.module.kotlin.readValue
@@ -89,7 +90,7 @@ class GitHubPluginProvider internal constructor(
          * @return the URL
          */
         private fun getReleaseUrl(owner: String, repository: String, release: String): String =
-            "https://api.github.com/repos/$owner/$repository/releases/tags/$release"
+            "https://api.github.com/repos/${owner.urlEncode()}/${repository.urlEncode()}/releases/tags/${release.urlEncode()}"
 
     }
 
@@ -101,7 +102,7 @@ class GitHubPluginProvider internal constructor(
 /**
  * Plugin request for [GitHubPluginProvider].
  *
- * @property owner the owner of the repository
+ * @property owner the owner of the repositoryhttps://modrinth.com/plugin/veinminer-enchantment
  * @property repository the name of the repository
  * @property release the tag of the release in the repository
  * @property name the name of the plugin file

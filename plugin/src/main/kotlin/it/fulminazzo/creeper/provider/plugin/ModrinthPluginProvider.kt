@@ -10,6 +10,7 @@ import it.fulminazzo.creeper.cache.CacheManager
 import it.fulminazzo.creeper.download.CachedDownloader
 import it.fulminazzo.creeper.util.HttpUtils
 import it.fulminazzo.creeper.util.sha256
+import it.fulminazzo.creeper.util.urlEncode
 import org.slf4j.Logger
 import tools.jackson.module.kotlin.jacksonObjectMapper
 import tools.jackson.module.kotlin.readValue
@@ -87,7 +88,7 @@ class ModrinthPluginProvider internal constructor(
          * @return the URL
          */
         private fun getVersionsUrl(projectName: String): String =
-            "https://api.modrinth.com/v2/project/$projectName/version"
+            "https://api.modrinth.com/v2/project/${projectName.urlEncode()}/version"
 
     }
 
