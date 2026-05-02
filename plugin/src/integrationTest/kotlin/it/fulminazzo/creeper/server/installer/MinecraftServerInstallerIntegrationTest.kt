@@ -62,7 +62,7 @@ class MinecraftServerInstallerIntegrationTest {
             setOf("jeb_"),
             listOf(
                 LocalPluginRequest(
-                    Path.of("build/resources/integrationTest/server/Test-1.0.jar"),
+                    Path.of("build/resources/integrationTest/server/installer/Test-1.0.jar"),
                     true
                 )
             )
@@ -248,7 +248,7 @@ class MinecraftServerInstallerIntegrationTest {
     }
 
     private companion object {
-        private val DIRECTORY = Path.of("build/resources/integrationTest/server/minecraft_server_installer_test")
+        private val DIRECTORY = Path.of("build/resources/integrationTest/server/installer/minecraft_server_installer_test")
 
         private val PROPERTIES_MAPPER = JavaPropsMapper.builder().addModule(kotlinModule()).build()
 
