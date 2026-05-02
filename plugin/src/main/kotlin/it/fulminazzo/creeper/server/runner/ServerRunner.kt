@@ -107,8 +107,7 @@ sealed class ServerRunner<T : ServerType, C : ServerSettings, S : ServerSpec<T, 
      * Forcefully stops the server.
      */
     fun forceStop() {
-        check(isRunning()) { "Server is not running" }
-        logger.info("Forcefully stopping ${specification.id}...")
+        if (isRunning()) logger.info("Forcefully stopping ${specification.id}...")
         shutdownHook?.let {
             try {
                 Runtime.getRuntime().removeShutdownHook(it)
