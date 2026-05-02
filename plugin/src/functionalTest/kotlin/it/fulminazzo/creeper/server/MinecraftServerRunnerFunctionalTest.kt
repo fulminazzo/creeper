@@ -5,6 +5,7 @@ import it.fulminazzo.creeper.download.Downloader
 import it.fulminazzo.creeper.provider.MCJarsApiProvider
 import it.fulminazzo.creeper.server.installer.MinecraftServerInstaller
 import it.fulminazzo.creeper.server.runner.MinecraftServerRunner
+import it.fulminazzo.creeper.server.spec.MinecraftServerSpec
 import it.fulminazzo.creeper.server.spec.MinecraftServerSpecBuilder
 import it.fulminazzo.creeper.server.spec.settings.Difficulty
 import it.fulminazzo.creeper.util.VersionUtils
@@ -70,8 +71,11 @@ class MinecraftServerRunnerFunctionalTest {
 
         val runner = MinecraftServerRunner(specification, LOGGER, EXECUTOR, executableDir, javaExecutable)
         val pid = runner.start()
-        runner.awaitCompleteBoot(30.seconds).join()
-        runner.forceStop()
+        try {
+            runner.awaitCompleteBoot(30.seconds).join()
+        } finally {
+            runner.forceStop()
+        }
         assertEquals(137, runner.await(), "Server should have exited with SIG_KILL")
 
         assertFalse(ProcessHandle.of(pid).isPresent, "Process $pid should have been stopped after forceStop")
