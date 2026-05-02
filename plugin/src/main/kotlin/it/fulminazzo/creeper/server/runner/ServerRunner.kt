@@ -40,6 +40,7 @@ sealed class ServerRunner<T : ServerType, C : ServerSettings, S : ServerSpec<T, 
 
     private val lines = Collections.synchronizedList(mutableListOf<String>())
 
+    private var shutdownHook: Thread? = null
     private var process: Process? = null
     private var reader: CompletableFuture<*>? = null
 
@@ -59,6 +60,8 @@ sealed class ServerRunner<T : ServerType, C : ServerSettings, S : ServerSpec<T, 
 
         logger.info("Starting server ${specification.id} on port ${specification.settings.port}...")
         lines.clear()
+        shutdownHook = Thread { if (isRunning()) forceStop() }
+        Runtime.getRuntime().addShutdownHook(shutdownHook)
         process = ProcessBuilder(command)
             .directory(directory.toFile())
             .redirectErrorStream(true)
@@ -74,6 +77,14 @@ sealed class ServerRunner<T : ServerType, C : ServerSettings, S : ServerSpec<T, 
     fun forceStop() {
         check(isRunning()) { "Server is not running" }
         logger.info("Forcefully stopping ${specification.id}...")
+        shutdownHook?.let {
+            try {
+                Runtime.getRuntime().removeShutdownHook(it)
+                shutdownHook = null
+            } catch (_: IllegalStateException) {
+                // JVM already removing it
+            }
+        }
         process?.destroy()
         reader?.cancel(true)
     }
