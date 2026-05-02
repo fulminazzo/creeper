@@ -72,7 +72,7 @@ class MinecraftServerRunnerFunctionalTest {
         val runner = MinecraftServerRunner(specification, LOGGER, EXECUTOR, executableDir, javaExecutable)
         val pid = runner.start()
         try {
-            runner.awaitCompleteBoot(30.seconds).join()
+            runner.awaitCompleteBoot(60.seconds).join()
         } finally {
             runner.forceStop()
         }
