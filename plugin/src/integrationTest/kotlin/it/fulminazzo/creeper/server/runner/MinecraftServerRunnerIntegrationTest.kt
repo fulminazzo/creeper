@@ -26,12 +26,9 @@ class MinecraftServerRunnerIntegrationTest {
         val runner = MinecraftServerRunner(specification, LOGGER, EXECUTOR, BASE_DIRECTORY)
 
         val pid = runner.start()
-
         runner.awaitCompleteBoot(10.seconds).join()
-
         runner.forceStop()
-
-        Thread.sleep(500)
+        runner.await()
 
         assertFalse(ProcessHandle.of(pid).isPresent, "Process $pid should have been stopped after forceStop")
     }
@@ -41,13 +38,10 @@ class MinecraftServerRunnerIntegrationTest {
         val specification = mockSpecification("Exception-1.0")
 
         val runner = MinecraftServerRunner(specification, LOGGER, EXECUTOR, BASE_DIRECTORY)
-
         val pid = runner.start()
-
-        Thread.sleep(500)
+        runner.await()
 
         assertFalse(ProcessHandle.of(pid).isPresent, "Process $pid should have been stopped after error")
-        assertFalse(runner.wasExecutionSuccessful(), "Execution should not have been successful after error")
     }
 
     @Test

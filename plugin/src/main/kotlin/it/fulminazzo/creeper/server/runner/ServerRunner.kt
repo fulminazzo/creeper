@@ -57,6 +57,23 @@ sealed class ServerRunner<T : ServerType, C : ServerSettings, S : ServerSpec<T, 
     protected abstract fun isBootCompleteLine(line: String): Boolean
 
     /**
+     * Awaits termination of the server process.
+     */
+    fun await() {
+        reader?.join()
+        val exitValue = process?.waitFor()
+        if (exitValue != SUCCESS && exitValue != SIG_KILL && exitValue != SIG_TERM) {
+            logger.error("Server ${specification.id} exited with non-zero status code: $exitValue")
+            logger.error("Server logs:")
+            lines.forEach { logger.error(it) }
+            completeBoot.completeExceptionally(
+                IllegalStateException("Server exited with non-zero status code: $exitValue")
+            )
+            forceStop()
+        }
+    }
+
+    /**
      * Assuming the server has been started, awaits that the boot process has been completed.
      *
      * @param timeout the maximum time to wait for the boot process to complete
@@ -75,7 +92,7 @@ sealed class ServerRunner<T : ServerType, C : ServerSettings, S : ServerSpec<T, 
 
         checkJavaVersion()
 
-        val command = mutableListOf(javaExecutable)
+        val command = mutableListOf(JAVA_EXECUTABLE)
         specification.settings.flags.takeIf { it.isNotEmpty() }?.let { command += it.split(" ") }
         command += "-jar"
         command += executableName
@@ -116,7 +133,7 @@ sealed class ServerRunner<T : ServerType, C : ServerSettings, S : ServerSpec<T, 
                 // JVM already removing it
             }
         }
-        process?.destroy()
+        process?.destroyForcibly()?.waitFor(5, TimeUnit.SECONDS)
         completeBoot.cancel(true)
         reader?.cancel(true)
     }
@@ -129,8 +146,8 @@ sealed class ServerRunner<T : ServerType, C : ServerSettings, S : ServerSpec<T, 
     internal fun checkJavaVersion() {
         val version = specification.version
         val requiredVersion = VersionUtils.getJavaVersion(version)
-        check(currentVersion >= requiredVersion) {
-            "Minecraft ${specification.type.name} $version requires Java $requiredVersion or higher. Current Java version: $currentVersion"
+        check(CURRENT_VERSION >= requiredVersion) {
+            "Minecraft ${specification.type.name} $version requires Java $requiredVersion or higher. Current Java version: $CURRENT_VERSION"
         }
     }
 
@@ -142,8 +159,12 @@ sealed class ServerRunner<T : ServerType, C : ServerSettings, S : ServerSpec<T, 
     fun isRunning() = process?.isAlive ?: false
 
     private companion object {
-        val javaExecutable = "${System.getProperty("java.home")}/bin/java"
-        val currentVersion = VersionUtils.getJavaVersion(System.getProperty("java.version"))
+        private const val SUCCESS = 0
+        private const val SIG_KILL = 137
+        private const val SIG_TERM = 143
+
+        private val JAVA_EXECUTABLE = "${System.getProperty("java.home")}/bin/java"
+        private val CURRENT_VERSION = VersionUtils.getJavaVersion(System.getProperty("java.version"))
 
     }
 
