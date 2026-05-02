@@ -68,7 +68,7 @@ class MinecraftServerSpecBuilder :
         operators += name
     }
 
-    override fun build(): ServerSpec<ServerType.MinecraftType, MinecraftServerSettings> {
+    override fun build(): MinecraftServerSpec {
         return MinecraftServerSpec(
             type,
             version,
