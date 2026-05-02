@@ -1,4 +1,4 @@
-package it.fulminazzo.creeper.server
+package it.fulminazzo.creeper.server.installer
 
 import io.mockk.every
 import io.mockk.mockk
@@ -7,6 +7,7 @@ import it.fulminazzo.creeper.download.Downloader
 import it.fulminazzo.creeper.provider.ConfigProvider
 import it.fulminazzo.creeper.provider.MinecraftJarProvider
 import it.fulminazzo.creeper.provider.plugin.LocalPluginRequest
+import it.fulminazzo.creeper.server.ServerType
 import it.fulminazzo.creeper.server.spec.MinecraftServerSpec
 import it.fulminazzo.creeper.server.spec.MinecraftServerSpecBuilder
 import it.fulminazzo.creeper.server.spec.settings.Difficulty
@@ -24,7 +25,10 @@ import kotlin.io.path.createDirectories
 import kotlin.io.path.createFile
 import kotlin.io.path.deleteIfExists
 import kotlin.io.path.exists
-import kotlin.test.*
+import kotlin.test.Test
+import kotlin.test.assertContains
+import kotlin.test.assertEquals
+import kotlin.test.assertTrue
 
 class MinecraftServerInstallerIntegrationTest {
     private val logger = LoggerFactory.getLogger(MinecraftServerInstallerIntegrationTest::class.java)

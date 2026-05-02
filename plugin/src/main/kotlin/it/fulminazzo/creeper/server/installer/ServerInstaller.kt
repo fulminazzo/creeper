@@ -1,9 +1,10 @@
-package it.fulminazzo.creeper.server
+package it.fulminazzo.creeper.server.installer
 
 import it.fulminazzo.creeper.download.CachedDownloader
 import it.fulminazzo.creeper.provider.ConfigProvider
 import it.fulminazzo.creeper.provider.JarProvider
 import it.fulminazzo.creeper.provider.plugin.RedirectPluginProvider
+import it.fulminazzo.creeper.server.ServerType
 import it.fulminazzo.creeper.server.spec.ServerSpec
 import it.fulminazzo.creeper.server.spec.settings.ServerSettings
 import org.slf4j.Logger

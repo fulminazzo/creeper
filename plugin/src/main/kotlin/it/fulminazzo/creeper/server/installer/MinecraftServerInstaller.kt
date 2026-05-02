@@ -1,9 +1,10 @@
-package it.fulminazzo.creeper.server
+package it.fulminazzo.creeper.server.installer
 
 import it.fulminazzo.creeper.PlayerResolver
 import it.fulminazzo.creeper.download.CachedDownloader
 import it.fulminazzo.creeper.provider.ConfigProvider
 import it.fulminazzo.creeper.provider.JarProvider
+import it.fulminazzo.creeper.server.ServerType
 import it.fulminazzo.creeper.server.spec.MinecraftServerSpec
 import it.fulminazzo.creeper.server.spec.settings.MinecraftServerSettings
 import org.slf4j.Logger
