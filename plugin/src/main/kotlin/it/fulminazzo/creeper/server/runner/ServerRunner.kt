@@ -6,6 +6,8 @@ import it.fulminazzo.creeper.server.spec.settings.ServerSettings
 import it.fulminazzo.creeper.util.VersionUtils
 import org.slf4j.Logger
 import java.nio.file.Path
+import java.util.Collections
+import java.util.concurrent.CompletableFuture
 import java.util.concurrent.Executor
 import kotlin.io.path.exists
 import kotlin.io.path.name
@@ -36,7 +38,10 @@ sealed class ServerRunner<T : ServerType, C : ServerSettings, S : ServerSpec<T, 
             return executable.name
         }
 
+    private val lines = Collections.synchronizedList(mutableListOf<String>())
+
     private var process: Process? = null
+    private var reader: CompletableFuture<*>? = null
 
     /**
      * Starts the server using the specified settings.
@@ -51,11 +56,16 @@ sealed class ServerRunner<T : ServerType, C : ServerSettings, S : ServerSpec<T, 
         command += "-jar"
         command += executableName
         command += "nogui"
+
         logger.info("Starting server ${specification.id} on port ${specification.settings.port}...")
+        lines.clear()
         process = ProcessBuilder(command)
             .directory(directory.toFile())
             .redirectErrorStream(true)
             .start()
+        reader = CompletableFuture.runAsync({
+            process?.inputStream?.bufferedReader()?.forEachLine { lines.add(it) }
+        }, executor)
     }
 
     /**
@@ -65,6 +75,7 @@ sealed class ServerRunner<T : ServerType, C : ServerSettings, S : ServerSpec<T, 
         check(isRunning()) { "Server is not running" }
         logger.info("Forcefully stopping ${specification.id}...")
         process?.destroy()
+        reader?.cancel(true)
     }
 
     /**
