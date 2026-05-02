@@ -9,8 +9,10 @@ import java.nio.file.Path
 import java.util.Collections
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.Executor
+import java.util.concurrent.TimeUnit
 import kotlin.io.path.exists
 import kotlin.io.path.name
+import kotlin.time.Duration
 
 /**
  * Generic runner for a server.
@@ -44,6 +46,25 @@ sealed class ServerRunner<T : ServerType, C : ServerSettings, S : ServerSpec<T, 
     private var process: Process? = null
     private var reader: CompletableFuture<*>? = null
 
+    private var completeBoot: CompletableFuture<Unit> = CompletableFuture()
+
+    /**
+     * Checks if the specified line is the line indicating the end of the boot process.
+     *
+     * @param line the line to check
+     * @return `true` if the server has completed the boot process, `false` otherwise
+     */
+    protected abstract fun isBootCompleteLine(line: String): Boolean
+
+    /**
+     * Assuming the server has been started, awaits that the boot process has been completed.
+     *
+     * @param timeout the maximum time to wait for the boot process to complete
+     * @return a [CompletableFuture] that completes when the boot process is complete
+     */
+    fun awaitCompleteBoot(timeout: Duration): CompletableFuture<*> =
+        completeBoot.orTimeout(timeout.inWholeMilliseconds, TimeUnit.MILLISECONDS)
+
     /**
      * Starts the server using the specified settings.
      */
@@ -60,14 +81,21 @@ sealed class ServerRunner<T : ServerType, C : ServerSettings, S : ServerSpec<T, 
 
         logger.info("Starting server ${specification.id} on port ${specification.settings.port}...")
         lines.clear()
+
         shutdownHook = Thread { if (isRunning()) forceStop() }
         Runtime.getRuntime().addShutdownHook(shutdownHook)
+
         process = ProcessBuilder(command)
             .directory(directory.toFile())
             .redirectErrorStream(true)
             .start()
+
+        completeBoot = CompletableFuture<Unit>()
         reader = CompletableFuture.runAsync({
-            process?.inputStream?.bufferedReader()?.forEachLine { lines.add(it) }
+            process?.inputStream?.bufferedReader()?.forEachLine {
+                lines.add(it)
+                if (!completeBoot.isDone && isBootCompleteLine(it)) completeBoot.complete(Unit)
+            }
         }, executor)
     }
 
@@ -86,6 +114,7 @@ sealed class ServerRunner<T : ServerType, C : ServerSettings, S : ServerSpec<T, 
             }
         }
         process?.destroy()
+        completeBoot.cancel(true)
         reader?.cancel(true)
     }
 
