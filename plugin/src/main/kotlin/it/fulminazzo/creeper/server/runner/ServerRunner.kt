@@ -59,8 +59,10 @@ sealed class ServerRunner<T : ServerType, C : ServerSettings, S : ServerSpec<T, 
 
     /**
      * Awaits termination of the server process.
+     *
+     * @return the exit value
      */
-    fun await() {
+    fun await(): Int {
         reader?.join()
         val exitValue = process?.waitFor()
         if (exitValue != SUCCESS && exitValue != SIG_KILL && exitValue != SIG_TERM) {
@@ -72,6 +74,7 @@ sealed class ServerRunner<T : ServerType, C : ServerSettings, S : ServerSpec<T, 
             )
             forceStop()
         }
+        return exitValue ?: SUCCESS
     }
 
     /**
