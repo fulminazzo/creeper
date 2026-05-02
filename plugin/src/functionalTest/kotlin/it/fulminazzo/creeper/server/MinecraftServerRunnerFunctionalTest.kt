@@ -7,10 +7,16 @@ import it.fulminazzo.creeper.server.installer.MinecraftServerInstaller
 import it.fulminazzo.creeper.server.runner.MinecraftServerRunner
 import it.fulminazzo.creeper.server.spec.MinecraftServerSpecBuilder
 import it.fulminazzo.creeper.server.spec.settings.Difficulty
+import it.fulminazzo.creeper.util.VersionUtils
+import org.gradle.jvm.toolchain.JavaLanguageVersion
+import org.gradle.jvm.toolchain.JavaToolchainService
+import org.gradle.testfixtures.ProjectBuilder
+import org.gradle.testkit.runner.GradleRunner
 import org.junit.jupiter.api.AfterAll
 import org.slf4j.LoggerFactory
 import java.nio.file.Path
 import java.util.concurrent.Executors
+import javax.inject.Inject
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
@@ -20,6 +26,10 @@ class MinecraftServerRunnerFunctionalTest {
 
     @Test
     fun `test that server configuration correctly installs and runs server`() {
+        val project = ProjectBuilder.builder().build()
+        project.plugins.apply("java")
+        val toolchainService = project.extensions.getByType(JavaToolchainService::class.java)
+
         // Specification
         val specificationBuilder = MinecraftServerSpecBuilder()
         specificationBuilder.type = ServerType.PAPER
@@ -52,7 +62,13 @@ class MinecraftServerRunnerFunctionalTest {
         val executableDir = installer.install(BASE_DIRECTORY).join()
 
         // Runner
-        val runner = MinecraftServerRunner(specification, LOGGER, EXECUTOR, executableDir)
+        val launcher = toolchainService.launcherFor {
+            val version = VersionUtils.getJavaVersion(specification.version).toString()
+            it.languageVersion.set(JavaLanguageVersion.of(version))
+        }
+        val javaExecutable = launcher.get().executablePath.toString()
+
+        val runner = MinecraftServerRunner(specification, LOGGER, EXECUTOR, executableDir, javaExecutable)
         val pid = runner.start()
         runner.awaitCompleteBoot(30.seconds).join()
         runner.forceStop()
