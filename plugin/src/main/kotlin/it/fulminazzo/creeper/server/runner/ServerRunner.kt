@@ -102,6 +102,7 @@ sealed class ServerRunner<T : ServerType, C : ServerSettings, S : ServerSpec<T, 
                 }
             } else {
                 val value = proc.exitValue()
+                println(value)
                 if (value != 0) {
                     logger.error("Server ${specification.id} failed: execution terminated with exit code $value")
                     printErrorLogs()
@@ -122,8 +123,7 @@ sealed class ServerRunner<T : ServerType, C : ServerSettings, S : ServerSpec<T, 
      * Forcefully stops the server.
      */
     fun forceStop() {
-        check(isRunning()) { "Server is not running" }
-        logger.info("Forcefully stopping ${specification.id}...")
+        if (isRunning()) logger.info("Forcefully stopping ${specification.id}...")
         shutdownHook?.let {
             try {
                 Runtime.getRuntime().removeShutdownHook(it)
