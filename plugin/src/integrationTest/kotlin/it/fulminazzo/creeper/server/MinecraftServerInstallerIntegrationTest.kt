@@ -12,6 +12,8 @@ import it.fulminazzo.creeper.server.spec.MinecraftServerSpecBuilder
 import it.fulminazzo.creeper.server.spec.settings.Difficulty
 import it.fulminazzo.creeper.server.spec.settings.Gamemode
 import it.fulminazzo.creeper.server.spec.settings.MinecraftServerSettingsBuilder
+import org.junit.jupiter.params.ParameterizedTest
+import org.junit.jupiter.params.provider.MethodSource
 import org.slf4j.LoggerFactory
 import tools.jackson.dataformat.javaprop.JavaPropsMapper
 import tools.jackson.module.kotlin.kotlinModule
@@ -22,37 +24,19 @@ import kotlin.io.path.createDirectories
 import kotlin.io.path.createFile
 import kotlin.io.path.deleteIfExists
 import kotlin.io.path.exists
-import kotlin.test.Test
-import kotlin.test.assertContains
-import kotlin.test.assertEquals
-import kotlin.test.assertTrue
+import kotlin.test.*
 
 class MinecraftServerInstallerIntegrationTest {
     private val logger = LoggerFactory.getLogger(MinecraftServerInstallerIntegrationTest::class.java)
 
     @Test
     fun `test that install correctly downloads executable and sets configuration`() {
-        DIRECTORY.toFile().deleteRecursively()
         val serverDirectory = DIRECTORY.resolve("vanilla-1.21.1")
-
-        val jarProvider = mockk<MinecraftJarProvider>()
+        serverDirectory.toFile().deleteRecursively()
         val expectedExecutable = serverDirectory.resolve("vanilla-1.21.1.jar")
-        every { jarProvider.get(any(), any(), any()) }.answers {
-            val path = serverDirectory.resolve("${arg<ServerType>(0).name.lowercase()}-${arg<String>(1)}.jar")
-            path.deleteIfExists()
-            path.parent.createDirectories()
-            path.createFile()
-            CompletableFuture.completedFuture(path)
-        }
 
-        val configProvider = mockk<ConfigProvider<ServerType.MinecraftType>>()
-        every { configProvider.get(any(), any(), any(), any()) }.answers {
-            val path = serverDirectory.resolve(arg<String>(0))
-            path.deleteIfExists()
-            path.parent.createDirectories()
-            path.createFile()
-            CompletableFuture.completedFuture(path)
-        }
+        val jarProvider = createJarProvider(serverDirectory)
+        val configProvider = createConfigProvider(serverDirectory)
 
         val settings = MinecraftServerSettingsBuilder()
         settings.eula = true
@@ -140,6 +124,44 @@ class MinecraftServerInstallerIntegrationTest {
             "simulation-distance was not set correctly"
         )
         assertEquals(settings.whitelist.toString(), data["white-list"], "white-list was not set correctly")
+
+        assertEquals(false.toString(), data["allow-nether"], "allow-nether was not set correctly")
+    }
+
+    @ParameterizedTest
+    @MethodSource("provideBukkitTestTypes")
+    fun `test that install on bukkit server disables end`(type: ServerType.MinecraftType) {
+        val serverDirectory = DIRECTORY.resolve("${type.name.lowercase()}-1.21.1")
+        serverDirectory.toFile().deleteRecursively()
+
+        val jarProvider = createJarProvider(serverDirectory)
+        val configProvider = createConfigProvider(serverDirectory)
+
+        val settings = MinecraftServerSettingsBuilder()
+        settings.eula = true
+
+        val specification = MinecraftServerSpec(
+            type,
+            "1.21.1",
+            settings.build(),
+            emptySet(), emptySet(),
+            emptyList()
+        )
+
+        val installer = MinecraftServerInstaller(
+            specification,
+            logger,
+            { it.run() },
+            CachedDownloader.simple(Downloader.http()) { it.run() },
+            jarProvider,
+            configProvider
+        )
+
+        installer.install(DIRECTORY).join()
+
+        val bukkitConfig = serverDirectory.resolve("bukkit.yml")
+        assertTrue(bukkitConfig.exists(), "bukkit.yml file does not exist")
+        assertContains(bukkitConfig.toFile().readText(), "settings.allow-end: false")
     }
 
     @Test
@@ -178,6 +200,30 @@ class MinecraftServerInstallerIntegrationTest {
         assertTrue(!file.exists(), "operators file was written even if empty")
     }
 
+    private fun createConfigProvider(serverDirectory: Path): ConfigProvider<ServerType.MinecraftType> {
+        val configProvider = mockk<ConfigProvider<ServerType.MinecraftType>>()
+        every { configProvider.get(any(), any(), any(), any()) }.answers {
+            val path = serverDirectory.resolve(arg<String>(0))
+            path.deleteIfExists()
+            path.parent.createDirectories()
+            path.createFile()
+            CompletableFuture.completedFuture(path)
+        }
+        return configProvider
+    }
+
+    private fun createJarProvider(serverDirectory: Path): MinecraftJarProvider {
+        val jarProvider = mockk<MinecraftJarProvider>()
+        every { jarProvider.get(any(), any(), any()) }.answers {
+            val path = serverDirectory.resolve("${arg<ServerType>(0).name.lowercase()}-${arg<String>(1)}.jar")
+            path.deleteIfExists()
+            path.parent.createDirectories()
+            path.createFile()
+            CompletableFuture.completedFuture(path)
+        }
+        return jarProvider
+    }
+
     private fun createInstaller(whitelist: List<String> = emptyList()): MinecraftServerInstaller {
         val specification = MinecraftServerSpecBuilder()
         specification.type = ServerType.VANILLA
@@ -201,6 +247,15 @@ class MinecraftServerInstallerIntegrationTest {
         private val DIRECTORY = Path.of("build/resources/integrationTest/server/minecraft_server_installer_test")
 
         private val PROPERTIES_MAPPER = JavaPropsMapper.builder().addModule(kotlinModule()).build()
+
+        @JvmStatic
+        fun provideBukkitTestTypes(): List<ServerType.MinecraftType> = listOf(
+            ServerType.BUKKIT,
+            ServerType.SPIGOT,
+            ServerType.PAPER,
+            ServerType.PURPUR,
+            ServerType.FOLIA
+        )
 
     }
 
