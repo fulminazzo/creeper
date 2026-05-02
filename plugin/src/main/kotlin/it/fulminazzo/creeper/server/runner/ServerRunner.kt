@@ -76,7 +76,7 @@ sealed class ServerRunner<T : ServerType, C : ServerSettings, S : ServerSpec<T, 
         checkJavaVersion()
 
         val command = mutableListOf(javaExecutable)
-        command += specification.settings.flags.split(" ")
+        specification.settings.flags.takeIf { it.isNotEmpty() }?.let { command += it.split(" ") }
         command += "-jar"
         command += executableName
         command += "nogui"
