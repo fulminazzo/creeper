@@ -80,7 +80,7 @@ class MinecraftServerInstallerIntegrationTest {
         val executable = installer.install(DIRECTORY).join()
 
         assertTrue(expectedExecutable.exists(), "$expectedExecutable does not exist")
-        assertEquals(expectedExecutable, executable, "executable path was not set correctly")
+        assertEquals(expectedExecutable.parent, executable, "executable path was not set correctly")
 
         assertTrue(serverDirectory.resolve("plugins/Test-1.0.jar").exists(), "plugin file does not exist")
 
