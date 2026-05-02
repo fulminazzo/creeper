@@ -47,6 +47,22 @@ class ModrinthPluginProviderIntegrationTest {
         assertEquals(VERSION, response, "Response does not match expected version file")
     }
 
+    @Test
+    fun `test that provider supports name of project along with slug`() {
+        val request = ModrinthPluginRequest(
+            "Simple Voice Chat",
+            "bukkit-2.6.16",
+            "voicechat-bukkit-2.6.16.jar"
+        )
+        val version = VersionFile(
+            "5373ca217ab94ab0b54d2707a51eca46ddfad6f376d83361747086600362e46d3844d0288016f237c31c2666d2048b3d272117236e706d524a743a2e9047694c",
+            "voicechat-bukkit-2.6.16.jar",
+            "https://cdn.modrinth.com/data/9eGKb6K1/versions/ZQfVgh62/voicechat-bukkit-2.6.16.jar"
+        )
+        val response = provider.fetchVersionFileMetadata(request).join()
+        assertEquals(version, response, "Response does not match expected version file")
+    }
+
     companion object {
         private val MAIN_DIRECTORY = Path.of("build/resources/integrationTest/provider/plugin")
         private val DIRECTORY = MAIN_DIRECTORY.resolve("plugins")
