@@ -77,7 +77,13 @@ configure<com.github.gmazzo.buildconfig.BuildConfigExtension> {
 }
 
 afterEvaluate {
+
     tasks.named<Test>("integrationTest") {
         systemProperty("slf4j.provider", "org.slf4j.simple.SimpleServiceProvider")
     }
+
+    tasks.named<Test>("functionalTest") {
+        mustRunAfter("test", "integrationTest")
+    }
+
 }
