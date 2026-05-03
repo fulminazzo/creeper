@@ -1,6 +1,7 @@
 package it.fulminazzo.creeper.tester;
 
 import com.google.gson.Gson;
+import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,12 +18,12 @@ public class TestsRunnerIntegrationTest {
      */
     private static final int EXPECTED_TOTAL_TESTS = 1;
 
-    private static final ClassLoader CLASS_LOADER = TestsRunnerIntegrationTest.class.getClassLoader();
+    private static final @NotNull ClassLoader CLASS_LOADER = TestsRunnerIntegrationTest.class.getClassLoader();
 
-    private static final File WORKING_DIR = new File("build/resources/test/integration_test");
-    private static final Logger LOGGER = LoggerFactory.getLogger(TestsRunnerIntegrationTest.class);
+    private static final @NotNull File WORKING_DIR = new File("build/resources/test/integration_test");
+    private static final @NotNull Logger LOGGER = LoggerFactory.getLogger(TestsRunnerIntegrationTest.class);
 
-    private static final Gson GSON = new Gson();
+    private static final @NotNull Gson GSON = new Gson();
 
     @Test
     void testThatTestRunnerLoadsTestsFromDifferentPlatforms() throws IOException {
