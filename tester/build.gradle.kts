@@ -70,3 +70,29 @@ tasks.processResources {
         )
     }
 }
+
+/**
+ * INTEGRATION TESTS CONFIGURATION
+ */
+val integrationTestSourceSet = sourceSets.create("integrationTest") {
+}
+
+val mainSourceSet = sourceSets.getByName("main")
+
+integrationTestSourceSet.compileClasspath += mainSourceSet.output
+integrationTestSourceSet.runtimeClasspath += mainSourceSet.output
+
+configurations["integrationTestImplementation"].extendsFrom(configurations["testImplementation"])
+configurations["integrationTestRuntimeOnly"].extendsFrom(configurations["testRuntimeOnly"])
+
+val integrationTest by tasks.registering(Test::class) {
+    description = "Runs the integration test suite."
+    testClassesDirs = integrationTestSourceSet.output.classesDirs
+    classpath = integrationTestSourceSet.runtimeClasspath
+    useJUnitPlatform()
+}
+
+tasks.check {
+    // Run the integration tests as part of `check`
+    dependsOn(integrationTest)
+}
