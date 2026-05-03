@@ -1,6 +1,5 @@
 package it.fulminazzo.creeper.provider.plugin
 
-import it.fulminazzo.creeper.download.UnrecognizedStatusCodeException
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.assertThrows
 import org.slf4j.LoggerFactory
@@ -16,7 +15,6 @@ class LocalPluginProviderIntegrationTest {
     private val destination = DIRECTORY.resolve(PLUGIN_NAME)
 
     private val provider = LocalPluginProvider(
-        DIRECTORY,
         LoggerFactory.getLogger(LocalPluginProviderIntegrationTest::class.java)
     ) { it.run() }
 
@@ -26,7 +24,7 @@ class LocalPluginProviderIntegrationTest {
 
         val request = LocalPluginRequest(PLUGIN_FILE, true)
 
-        provider.handleRequest(request).join()
+        provider.handleRequest(DIRECTORY, request).join()
         checkPluginFile()
     }
 
@@ -36,7 +34,7 @@ class LocalPluginProviderIntegrationTest {
 
         val request = LocalPluginRequest(PLUGIN_FILE, true)
 
-        provider.handleRequest(request).join()
+        provider.handleRequest(DIRECTORY, request).join()
         checkPluginFile()
     }
 
@@ -46,7 +44,7 @@ class LocalPluginProviderIntegrationTest {
 
         val request = LocalPluginRequest(PLUGIN_FILE, false)
 
-        provider.handleRequest(request).join()
+        provider.handleRequest(DIRECTORY, request).join()
         checkPluginFile()
         assertEquals("Goodbye, mars!", destination.readText(), "Plugin file was overwritten:")
     }
@@ -56,7 +54,7 @@ class LocalPluginProviderIntegrationTest {
         val request = LocalPluginRequest(Path.of("not-found.jar"), true)
 
         val e = assertThrows<CompletionException> {
-            provider.handleRequest(request).join()
+            provider.handleRequest(DIRECTORY, request).join()
         }
         assertIs<PluginNotFoundException>(e.cause)
     }

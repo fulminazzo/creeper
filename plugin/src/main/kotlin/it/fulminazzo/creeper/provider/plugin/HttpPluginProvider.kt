@@ -12,22 +12,19 @@ import java.util.concurrent.Executor
  * @property downloader the downloader to use for downloading the plugins
  * @constructor Creates a new Http plugin provider
  *
- * @param directory the directory to download plugins to
  * @param logger the logger to use for logging
  * @param executor the executor to use for asynchronous operations
  */
 class HttpPluginProvider internal constructor(
-    directory: Path,
     logger: Logger,
     executor: Executor,
     private val downloader: Downloader
 ) : PluginProvider<HttpPluginRequest>(
-    directory,
     logger,
     executor
 ) {
 
-    override fun handleRequest(request: HttpPluginRequest): CompletableFuture<Path> = CompletableFuture.supplyAsync({
+    override fun handleRequest(directory: Path, request: HttpPluginRequest): CompletableFuture<Path> = CompletableFuture.supplyAsync({
         logger.info("Downloading plugin from ${request.url}")
         downloader.downloadIn(request.url, directory)
             ?: throw PluginNotFoundException("Could not find plugin from url: ${request.url}")

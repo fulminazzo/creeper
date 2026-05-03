@@ -26,7 +26,6 @@ import kotlin.test.assertTrue
 
 class GithubPluginProviderIntegrationTest {
     private val provider = GitHubPluginProvider(
-        DIRECTORY,
         LoggerFactory.getLogger(GithubPluginProviderIntegrationTest::class.java),
         { it.run() },
         CachedDownloader.simple(Downloader.http()) { it.run() }
@@ -36,7 +35,7 @@ class GithubPluginProviderIntegrationTest {
     fun `test that provider correctly downloads plugin`() {
         val destination = DIRECTORY.resolve(RELEASE.name)
         DIRECTORY.toFile().deleteRecursively()
-        val path = provider.handleRequest(REQUEST).join()
+        val path = provider.handleRequest(DIRECTORY, REQUEST).join()
         assertTrue(destination.exists(), "Downloaded plugin does not exist: $destination")
         assertEquals(destination, path, "Downloaded path does not match expected path")
     }
@@ -44,7 +43,10 @@ class GithubPluginProviderIntegrationTest {
     @Test
     fun `test that provider throws if the release could not be found`() {
         val e = assertThrows<CompletionException> {
-            provider.handleRequest(GitHubPluginRequest("fulminazzo", "YAGL", "1.0.l", "YAGL-1.0.0.jar")).join()
+            provider.handleRequest(
+                DIRECTORY,
+                GitHubPluginRequest("fulminazzo", "YAGL", "1.0.l", "YAGL-1.0.0.jar")
+            ).join()
         }
         assertIs<PluginNotFoundException>(e.cause)
     }

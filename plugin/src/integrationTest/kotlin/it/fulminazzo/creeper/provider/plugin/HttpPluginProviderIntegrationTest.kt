@@ -15,7 +15,6 @@ import kotlin.test.assertTrue
 
 class HttpPluginProviderIntegrationTest {
     private val provider = HttpPluginProvider(
-        DIRECTORY,
         LoggerFactory.getLogger(HttpPluginProviderIntegrationTest::class.java),
         { it.run() },
         Downloader.http()
@@ -26,7 +25,7 @@ class HttpPluginProviderIntegrationTest {
         val destination = DIRECTORY.resolve(PLUGIN_NAME)
         destination.deleteIfExists()
         val request = HttpPluginRequest(RESOURCE_URL)
-        provider.handleRequest(request).join()
+        provider.handleRequest(DIRECTORY, request).join()
         assertTrue(destination.exists(), "Downloaded plugin does not exist: $destination")
     }
 
@@ -34,7 +33,7 @@ class HttpPluginProviderIntegrationTest {
     fun `test that provider throws if plugin file could not be found`() {
         val request = HttpPluginRequest("https://github.com/fulminazzo/not-found")
         val e = assertThrows<CompletionException> {
-            provider.handleRequest(request).join()
+            provider.handleRequest(DIRECTORY, request).join()
         }
         assertIs<PluginNotFoundException>(e.cause)
     }

@@ -24,17 +24,14 @@ import kotlin.time.Duration.Companion.hours
  * @property downloader the downloader to use for downloading the plugins
  * @constructor Creates a new Modrinth plugin provider
  *
- * @param directory the directory to download plugins to
  * @param logger the logger to use for logging
  * @param executor the executor to use for asynchronous operations
  */
 class ModrinthPluginProvider internal constructor(
-    directory: Path,
     logger: Logger,
     executor: Executor,
     private val downloader: CachedDownloader
 ) : PluginProvider<ModrinthPluginRequest>(
-    directory,
     logger,
     executor
 ) {
@@ -82,7 +79,7 @@ class ModrinthPluginProvider internal constructor(
         }
     }
 
-    override fun handleRequest(request: ModrinthPluginRequest): CompletableFuture<Path> {
+    override fun handleRequest(directory: Path, request: ModrinthPluginRequest): CompletableFuture<Path> {
         logger.info("Fetching Modrinth release information for ${request.projectName} (version = ${request.version}, filename = ${request.name})")
         return fetchVersionFileMetadata(request).thenCompose { versionFile ->
             versionFile?.let {

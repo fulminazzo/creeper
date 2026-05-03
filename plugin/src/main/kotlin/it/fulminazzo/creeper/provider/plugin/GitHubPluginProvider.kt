@@ -26,17 +26,14 @@ import kotlin.time.Duration.Companion.hours
  * @property downloader the downloader to use for downloading the plugins
  * @constructor Creates a new GitHub plugin provider
  *
- * @param directory the directory to download plugins to
  * @param logger the logger to use for logging
  * @param executor the executor to use for asynchronous operations
  */
 class GitHubPluginProvider internal constructor(
-    directory: Path,
     logger: Logger,
     executor: Executor,
     private val downloader: CachedDownloader
 ) : PluginProvider<GitHubPluginRequest>(
-    directory,
     logger,
     executor
 ) {
@@ -64,7 +61,7 @@ class GitHubPluginProvider internal constructor(
                         }
                 }
 
-    override fun handleRequest(request: GitHubPluginRequest): CompletableFuture<Path> {
+    override fun handleRequest(directory: Path, request: GitHubPluginRequest): CompletableFuture<Path> {
         logger.info("Fetching GitHub release information for ${request.owner}/${request.repository}/${request.release} (filename =${request.name})")
         return fetchReleaseMetadata(request).thenCompose { release ->
             release?.let {

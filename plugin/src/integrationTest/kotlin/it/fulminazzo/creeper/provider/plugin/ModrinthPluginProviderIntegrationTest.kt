@@ -18,7 +18,6 @@ import kotlin.test.assertTrue
 
 class ModrinthPluginProviderIntegrationTest {
     private val provider = ModrinthPluginProvider(
-        DIRECTORY,
         LoggerFactory.getLogger(ModrinthPluginProviderIntegrationTest::class.java),
         { it.run() },
         CachedDownloader.simple(Downloader.http()) { it.run() }
@@ -28,7 +27,7 @@ class ModrinthPluginProviderIntegrationTest {
     fun `test that provider correctly downloads plugin`() {
         val destination = DIRECTORY.resolve(VERSION.name)
         DIRECTORY.toFile().deleteRecursively()
-        val path = provider.handleRequest(REQUEST).join()
+        val path = provider.handleRequest(DIRECTORY, REQUEST).join()
         assertTrue(destination.exists(), "Downloaded plugin does not exist: $destination")
         assertEquals(destination, path, "Downloaded path does not match expected path")
     }
@@ -36,7 +35,10 @@ class ModrinthPluginProviderIntegrationTest {
     @Test
     fun `test that provider throws if the release could not be found`() {
         val e = assertThrows<CompletionException> {
-            provider.handleRequest(ModrinthPluginRequest("teleporteffects", "1.0.l", "TeleportEffects-3.0.0.jar")).join()
+            provider.handleRequest(
+                DIRECTORY,
+                ModrinthPluginRequest("teleporteffects", "1.0.l", "TeleportEffects-3.0.0.jar")
+            ).join()
         }
         assertIs<PluginNotFoundException>(e.cause)
     }

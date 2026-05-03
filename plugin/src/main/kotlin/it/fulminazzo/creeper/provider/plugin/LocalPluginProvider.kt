@@ -13,21 +13,18 @@ import kotlin.io.path.exists
  *
  * @constructor Creates a new Local plugin provider
  *
- * @param directory the directory to download plugins to
  * @param logger the logger to use for logging
  * @param executor the executor to use for asynchronous operations
  */
 class LocalPluginProvider internal constructor(
-    directory: Path,
     logger: Logger,
     executor: Executor
 ) : PluginProvider<LocalPluginRequest>(
-    directory,
     logger,
     executor
 ) {
 
-    override fun handleRequest(request: LocalPluginRequest): CompletableFuture<Path> = CompletableFuture.supplyAsync({
+    override fun handleRequest(directory: Path, request: LocalPluginRequest): CompletableFuture<Path> = CompletableFuture.supplyAsync({
         val file = request.file
         if (!file.exists()) throw PluginNotFoundException("Could not find plugin from local file: $file")
         val destination = directory.createDirectories().resolve(file.fileName)
