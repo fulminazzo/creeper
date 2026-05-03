@@ -8,7 +8,7 @@ class TesterRunnerTest {
 
     @Test
     void testThatTestingEnvironmentWorks() {
-        assertTrue(true);
+        assertTrue(false);
     }
 
 }
