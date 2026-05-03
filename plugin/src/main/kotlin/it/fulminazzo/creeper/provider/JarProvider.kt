@@ -6,10 +6,8 @@ import java.util.concurrent.CompletableFuture
 
 /**
  * A provider for the executable of the specified server platform and version.
- *
- * @param T the type of the server platform
  */
-sealed interface JarProvider<T : ServerType> {
+sealed interface JarProvider {
 
     /**
      * Downloads the executable of the specified server platform and version to the given directory.
@@ -20,11 +18,6 @@ sealed interface JarProvider<T : ServerType> {
      * @return the path of the downloaded executable
      * @throws JarNotFoundException if the executable was not found
      */
-    fun get(platform: T, version: String, directory: Path): CompletableFuture<Path>
+    fun get(platform: ServerType, version: String, directory: Path): CompletableFuture<Path>
 
 }
-
-/**
- * A provider for the executable of the specified Minecraft platform and version.
- */
-interface MinecraftJarProvider : JarProvider<ServerType.MinecraftType>

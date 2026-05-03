@@ -15,16 +15,15 @@ import java.nio.file.Path
 /**
  * Task to install a server executable.
  *
- * @param T the type of the server platform
  * @constructor Creates a new Install executable task
  */
-abstract class InstallExecutableTask<T : ServerType> : DefaultTask() {
+abstract class InstallExecutableTask : DefaultTask() {
 
     @get:ServiceReference("jarProvider")
-    abstract val jarProvider: JarProvider<T>
+    abstract val jarProvider: JarProvider
 
     @get:Input
-    abstract val specification: Property<ServerSpec<T, *>>
+    abstract val specification: Property<ServerSpec<*, *>>
 
     @get:Input
     abstract val serverDirectory: Property<String>

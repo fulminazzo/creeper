@@ -18,7 +18,7 @@ import kotlin.io.path.createDirectories
 import kotlin.io.path.writeText
 
 /**
- * A [MinecraftJarProvider] and [MinecraftConfigProvider] that uses the [MCJars API](https://mcjars.app).
+ * A [JarProvider] and [MinecraftConfigProvider] that uses the [MCJars API](https://mcjars.app).
  *
  * @property downloader the internal downloader
  * @property logger the logger to display errors
@@ -29,7 +29,7 @@ class MCJarsApiProvider(
     private val downloader: CachedDownloader,
     private val logger: Logger,
     private val executor: Executor
-) : MinecraftJarProvider, MinecraftConfigProvider {
+) : JarProvider, MinecraftConfigProvider {
     private val cache = ConcurrentHashMap<Pair<ServerType, String>, CompletableFuture<BuildResponse?>>()
 
     /**
@@ -40,7 +40,7 @@ class MCJarsApiProvider(
      * @return the build information (or `null` if the build was not found)
      * @throws it.fulminazzo.creeper.util.HttpUtils.ApiException if the API returns an error
      */
-    internal fun fetchBuild(type: ServerType.MinecraftType, version: String): CompletableFuture<BuildResponse?> =
+    internal fun fetchBuild(type: ServerType, version: String): CompletableFuture<BuildResponse?> =
         cache.computeIfAbsent(type to version) {
             logger.info("Fetching build information for Minecraft ${type.name} $version")
             HttpUtils.getApi("$API_URL${getBuildUrl(type, version)}", executor).thenApply { raw ->
@@ -76,7 +76,7 @@ class MCJarsApiProvider(
             }
         }
 
-    override fun get(platform: ServerType.MinecraftType, version: String, directory: Path): CompletableFuture<Path> =
+    override fun get(platform: ServerType, version: String, directory: Path): CompletableFuture<Path> =
         fetchBuild(platform, version).thenCompose { buildResponse ->
             val build = buildResponse ?: throw JarNotFoundException(platform, version)
             logger.info("Downloading Minecraft ${platform.name} $version")
@@ -112,7 +112,7 @@ class MCJarsApiProvider(
          * @param version the version of the build
          * @return the URL
          */
-        private fun getBuildUrl(type: ServerType.MinecraftType, version: String): String =
+        private fun getBuildUrl(type: ServerType, version: String): String =
             "builds/types/${type.name.uppercase()}/versions/$version"
 
         /**
