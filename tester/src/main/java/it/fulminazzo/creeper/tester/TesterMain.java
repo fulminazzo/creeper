@@ -5,6 +5,7 @@ import lombok.*;
 import lombok.experimental.FieldDefaults;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.slf4j.Logger;
 
 import java.io.File;
 import java.io.FileWriter;
@@ -27,6 +28,7 @@ public final class TesterMain {
     private static final @NotNull Gson GSON = new Gson();
 
     @NotNull File workDir;
+    @NotNull Logger logger;
 
     /**
      * Executes the tests inside the {@link #TEST_CLASSES_PACKAGE} package.
@@ -37,19 +39,23 @@ public final class TesterMain {
         final TestsResult testsResult;
         final Path resultsFile = Paths.get(workDir.getAbsolutePath(), TEST_RESULTS_FILENAME);
         try {
+            logger.info("Running tests...");
             Files.deleteIfExists(resultsFile);
             Files.createDirectories(resultsFile.getParent());
             throw new UnsupportedOperationException("Not yet implemented");
         } catch (Exception e) {
+            logger.error("Error while running tests: {}", e.getMessage(), e);
             testsResult = new ExceptionResult(e);
         }
         try {
             String json = GSON.toJson(testsResult);
+            logger.info("Writing results to {}", resultsFile);
             try (FileWriter writer = new FileWriter(resultsFile.toFile())) {
                 writer.write(json);
             }
         } catch (Exception e) {
             // Yet another exception, we cannot recover from this one
+            logger.error("Error while writing results file in {}: {}", resultsFile, e.getMessage(), e);
         }
     }
 
