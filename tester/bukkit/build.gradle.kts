@@ -6,5 +6,7 @@ dependencies {
     implementation(libs.slf4j.jdk)
 
     testImplementation(libs.spigot)
+    testImplementation(libs.mockbukkit)
     integrationTestImplementation(libs.spigot)
+    integrationTestImplementation(libs.mockbukkit)
 }

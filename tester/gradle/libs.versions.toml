@@ -23,6 +23,8 @@ junit-launcher = "1.14.4"
 # MINECRAFT
 spigot = "1.16.5-R0.1-SNAPSHOT"
 
+mockbukkit = "1.5.2"
+
 # TESTS
 junit = "5.14.4"
 mockito = "4.11.0"
@@ -58,6 +60,8 @@ junit-launcher = { module = "org.junit.platform:junit-platform-launcher", versio
 
 # MINECRAFT
 spigot = { module = "org.spigotmc:spigot-api", version.ref = "spigot" }
+
+mockbukkit = { module = "com.github.seeseemelk:MockBukkit-v1.16", version.ref = "mockbukkit" }
 
 # TESTS
 junit = { module = "org.junit.jupiter:junit-jupiter-api", version.ref = "junit" }
