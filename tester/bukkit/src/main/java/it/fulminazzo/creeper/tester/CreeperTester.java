@@ -1,5 +1,6 @@
 package it.fulminazzo.creeper.tester;
 
+import lombok.NoArgsConstructor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.plugin.PluginDescriptionFile;
@@ -21,6 +22,7 @@ import java.util.logging.Level;
 /**
  * Main class of the plugin.
  */
+@NoArgsConstructor
 public final class CreeperTester extends JavaPlugin implements TesterApplication {
     private @Nullable Logger logger;
 
