@@ -2,12 +2,12 @@ package it.fulminazzo.creeper.provider
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.annotation.JsonProperty
+import it.fulminazzo.creeper.CreeperPlugin.Companion.JSON_MAPPER
 import it.fulminazzo.creeper.Hashable
 import it.fulminazzo.creeper.download.CachedDownloader
 import it.fulminazzo.creeper.server.ServerType
 import it.fulminazzo.creeper.util.HttpUtils
 import org.slf4j.Logger
-import tools.jackson.module.kotlin.jacksonObjectMapper
 import tools.jackson.module.kotlin.readValue
 import java.nio.file.Path
 import java.util.*
@@ -45,7 +45,7 @@ class MCJarsApiProvider(
             logger.info("Fetching build information for Minecraft ${type.name} $version")
             HttpUtils.getApi("$API_URL${getBuildUrl(type, version)}", executor).thenApply { raw ->
                 raw ?: return@thenApply null
-                val data = MAPPER.readValue<RawBuildResponse>(raw).builds.data.firstOrNull()
+                val data = JSON_MAPPER.readValue<RawBuildResponse>(raw).builds.data.firstOrNull()
                     ?: return@thenApply null
                 val installation = data.installation.firstOrNull()?.firstOrNull()
                     ?: return@thenApply null
@@ -72,7 +72,7 @@ class MCJarsApiProvider(
             build ?: return@thenCompose CompletableFuture.completedFuture(null)
             HttpUtils.getApi("$API_URL${getBuildConfigUrl(build.uuid)}", executor).thenApply { raw ->
                 raw ?: return@thenApply null
-                MAPPER.readValue<ConfigResponse>(raw).configs.firstOrNull { it.name.endsWith(name) }
+                JSON_MAPPER.readValue<ConfigResponse>(raw).configs.firstOrNull { it.name.endsWith(name) }
             }
         }
 
@@ -102,8 +102,6 @@ class MCJarsApiProvider(
 
     companion object {
         private const val API_URL = "https://mcjars.app/api/v3/"
-
-        private val MAPPER = jacksonObjectMapper()
 
         /**
          * Gets the URL to get the build information for the given [type] and [version].

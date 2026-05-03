@@ -3,6 +3,7 @@ package it.fulminazzo.creeper.provider.plugin
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.annotation.JsonProperty
 import it.fulminazzo.creeper.CreeperPlugin
+import it.fulminazzo.creeper.CreeperPlugin.Companion.JSON_MAPPER
 import it.fulminazzo.creeper.Hashable
 import it.fulminazzo.creeper.cache.CacheManager
 import it.fulminazzo.creeper.download.CachedDownloader
@@ -92,8 +93,6 @@ class ModrinthPluginProvider internal constructor(
 
     internal companion object {
         internal val CACHE_FILE = CreeperPlugin.CACHE_DIRECTORY.resolve("modrinth.json")
-
-        private val JSON_MAPPER = jacksonObjectMapper()
 
         /**
          * Gets the URL to get all the version information for a given project from the Modrinth API.

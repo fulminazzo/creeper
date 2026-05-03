@@ -1,6 +1,8 @@
 package it.fulminazzo.creeper.cache
 
 import com.fasterxml.jackson.annotation.JsonIgnore
+import it.fulminazzo.creeper.CreeperPlugin
+import it.fulminazzo.creeper.CreeperPlugin.Companion.JSON_MAPPER
 import it.fulminazzo.creeper.ProjectInfo
 import tools.jackson.module.kotlin.jacksonObjectMapper
 import java.io.Closeable
@@ -86,7 +88,6 @@ class CacheManager<V> private constructor(
     }
 
     companion object {
-        private val JSON_MAPPER = jacksonObjectMapper()
         private val CACHES = ConcurrentHashMap<String, CacheManager<*>>()
 
         /**

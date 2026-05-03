@@ -1,9 +1,9 @@
 package it.fulminazzo.creeper.task.server.install
 
+import it.fulminazzo.creeper.CreeperPlugin.Companion.JSON_MAPPER
 import it.fulminazzo.creeper.PlayerResolver
 import it.fulminazzo.creeper.server.spec.MinecraftServerSpec
 import it.fulminazzo.creeper.server.spec.ServerSpec
-import tools.jackson.module.kotlin.jacksonObjectMapper
 import java.nio.file.Path
 import kotlin.io.path.createDirectories
 
@@ -82,11 +82,6 @@ sealed class FileAction {
                 }
             }
         }
-
-    }
-
-    private companion object {
-        private val JSON_MAPPER = jacksonObjectMapper()
 
     }
 

@@ -1,10 +1,10 @@
 package it.fulminazzo.creeper
 
+import it.fulminazzo.creeper.CreeperPlugin.Companion.JSON_MAPPER
 import it.fulminazzo.creeper.PlayerResolver.Companion.CACHE_FILE
 import it.fulminazzo.creeper.cache.CacheManager
 import it.fulminazzo.creeper.util.HttpUtils
 import org.slf4j.Logger
-import tools.jackson.module.kotlin.jacksonObjectMapper
 import tools.jackson.module.kotlin.readValue
 import java.util.*
 import java.util.concurrent.Executor
@@ -60,8 +60,9 @@ class PlayerResolver(
         if (missing.isNotEmpty()) {
             logger.info("Fetching the API for player ids of: ${missing.joinToString(", ")}")
             missing.chunked(MAXIMUM_PLAYERS).forEach { chunk ->
-                val profiles = HttpUtils.postApi(API_URL, JSON_MAPPER.writeValueAsString(chunk), executor).join()
-                    ?.let { JSON_MAPPER.readValue<List<PlayerProfileResponse>>(it) }
+                val profiles =
+                    HttpUtils.postApi(API_URL, JSON_MAPPER.writeValueAsString(chunk), executor).join()
+                        ?.let { JSON_MAPPER.readValue<List<PlayerProfileResponse>>(it) }
                 profiles?.let {
                     it.forEach { profile ->
                         val id = Uuid.parse(profile.id).toJavaUuid()
@@ -81,7 +82,6 @@ class PlayerResolver(
         private const val API_URL = "https://api.mojang.com/profiles/minecraft"
 
         internal val CACHE_FILE = CreeperPlugin.CACHE_DIRECTORY.resolve("mojang.json")
-        private val JSON_MAPPER = jacksonObjectMapper()
 
         /**
          * Maximum players per request allowed.

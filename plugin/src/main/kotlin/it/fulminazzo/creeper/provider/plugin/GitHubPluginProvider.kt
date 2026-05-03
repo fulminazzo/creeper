@@ -3,6 +3,7 @@ package it.fulminazzo.creeper.provider.plugin
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.annotation.JsonProperty
 import it.fulminazzo.creeper.CreeperPlugin
+import it.fulminazzo.creeper.CreeperPlugin.Companion.JSON_MAPPER
 import it.fulminazzo.creeper.Hashable
 import it.fulminazzo.creeper.cache.CacheManager
 import it.fulminazzo.creeper.download.CachedDownloader
@@ -10,7 +11,6 @@ import it.fulminazzo.creeper.util.HttpUtils
 import it.fulminazzo.creeper.util.sha256
 import it.fulminazzo.creeper.util.urlEncode
 import org.slf4j.Logger
-import tools.jackson.module.kotlin.jacksonObjectMapper
 import tools.jackson.module.kotlin.readValue
 import java.nio.file.Path
 import java.util.concurrent.CompletableFuture
@@ -72,8 +72,6 @@ class GitHubPluginProvider internal constructor(
 
     internal companion object {
         internal val CACHE_FILE = CreeperPlugin.CACHE_DIRECTORY.resolve("github.json")
-
-        private val JSON_MAPPER = jacksonObjectMapper()
 
         /**
          * Gets the URL to get release information from the GitHub API.
