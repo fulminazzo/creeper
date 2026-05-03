@@ -4,8 +4,8 @@ import munit.FunSuite
 
 class ScalaMUnitTest extends FunSuite {
     
-    test("test") {
-        assert(true, "Should have been true")
+    test("test that 2 + 2 is 4") {
+        assertEquals(2 + 2, 4, "2 + 2 should be 4")
     }
 
 }

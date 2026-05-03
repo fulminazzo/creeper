@@ -5,8 +5,8 @@ import io.kotest.matchers.shouldBe
 
 class KotlinKotestTest : StringSpec({
 
-    "test" {
-        true shouldBe true
+    "test that 2 + 2 is 4" {
+        2 + 2 shouldBe 4
     }
 
 })

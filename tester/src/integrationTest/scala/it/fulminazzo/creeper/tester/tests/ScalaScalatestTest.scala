@@ -1,11 +1,12 @@
 package it.fulminazzo.creeper.tester.tests
 
 import org.scalatest.flatspec.AnyFlatSpec
+import org.scalatest.matchers.should.Matchers
 
-class ScalaScalatestTest extends AnyFlatSpec {
+class ScalaScalatestTest extends AnyFlatSpec with Matchers {
 
-    "test" should "be true" in {
-        assert(true, "Should have been true")
+    "2 + 2" should "be 4" in {
+        (2 + 2) shouldBe 4
     }
 
 }
