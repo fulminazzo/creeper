@@ -3,6 +3,9 @@
 lombok = "1.18.46"
 jetbrains = "26.1.0"
 
+# LOGGING
+slf4j = "2.0.17"
+
 # DATA FORMAT
 gson = "2.14.0"
 
@@ -15,6 +18,10 @@ junit = "5.14.4"
 # ANNOTATIONS
 lombok = { module = "org.projectlombok:lombok", version.ref = "lombok" }
 jetbrains = { module = "org.jetbrains:annotations", version.ref = "jetbrains" }
+
+# LOGGING
+slf4j = { module = "org.slf4j:slf4j-api", version.ref = "slf4j" }
+slf4j-simple = { module = "org.slf4j:slf4j-simple", version.ref = "slf4j" }
 
 # DATA FORMAT
 gson = { module = "com.google.code.gson:gson", version.ref = "gson" }

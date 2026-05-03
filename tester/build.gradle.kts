@@ -30,6 +30,7 @@ dependencies {
     annotationProcessor(libs.lombok)
     compileOnly(libs.jetbrains)
 
+    compileOnly(libs.slf4j)
     compileOnly(libs.gson)
 
     implementation(libs.junit.launcher)
@@ -42,6 +43,7 @@ dependencies {
     testAnnotationProcessor(libs.lombok)
     testCompileOnly(libs.jetbrains)
 
+    testImplementation(libs.slf4j.simple)
     testImplementation(libs.gson)
 }
 
