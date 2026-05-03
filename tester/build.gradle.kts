@@ -38,6 +38,7 @@ dependencies {
 
     testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine")
     testImplementation(libs.bundles.junit)
+    testImplementation(libs.mockito)
 
     testCompileOnly(libs.lombok)
     testAnnotationProcessor(libs.lombok)
