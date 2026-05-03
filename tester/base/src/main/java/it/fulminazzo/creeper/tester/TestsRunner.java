@@ -81,9 +81,9 @@ public final class TestsRunner {
 
                 TestExecutionSummary summary = summaryListener.getSummary();
                 testsResult = SuccessfulTestsResult.of(summary);
-            } catch (Exception e) {
+            } catch (Throwable e) {
                 logger.error("Error while running tests: {}", e.getMessage(), e);
-                testsResult = new ExceptionResult(e);
+                testsResult = new ThrowableResult(e);
             }
             try {
                 String json = GSON.toJson(testsResult);
@@ -233,15 +233,15 @@ public final class TestsRunner {
     @FieldDefaults(level = AccessLevel.PRIVATE)
     @EqualsAndHashCode(callSuper = true)
     @ToString(callSuper = true)
-    static final class ExceptionResult extends TestsResult {
+    static final class ThrowableResult extends TestsResult {
         @NotNull TestsRunner.ThrowableData exception;
 
         /**
-         * Instantiates a new Exception result.
+         * Instantiates a new Throwable result.
          *
          * @param exception the exception that caused the failure
          */
-        public ExceptionResult(final @NotNull Exception exception) {
+        public ThrowableResult(final @NotNull Throwable exception) {
             setSuccess(false);
             this.exception = ThrowableData.of(exception);
         }

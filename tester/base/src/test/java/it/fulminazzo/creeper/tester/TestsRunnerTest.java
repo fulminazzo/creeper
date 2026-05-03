@@ -223,7 +223,7 @@ class TestsRunnerTest {
             assertTrue(resultsFile.exists(), "Results file should have been created");
 
             try (FileReader reader = new FileReader(resultsFile)) {
-                TestsRunner.ExceptionResult result = GSON.fromJson(reader, TestsRunner.ExceptionResult.class);
+                TestsRunner.ThrowableResult result = GSON.fromJson(reader, TestsRunner.ThrowableResult.class);
                 assertFalse(result.isSuccess(), "Test should have failed");
 
                 TestsRunner.ThrowableData data = result.getException();
