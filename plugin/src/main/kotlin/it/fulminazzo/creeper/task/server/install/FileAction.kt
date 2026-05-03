@@ -1,7 +1,6 @@
 package it.fulminazzo.creeper.task.server.install
 
 import it.fulminazzo.creeper.PlayerResolver
-import it.fulminazzo.creeper.server.installer.MinecraftServerInstaller
 import it.fulminazzo.creeper.server.spec.MinecraftServerSpec
 import it.fulminazzo.creeper.server.spec.ServerSpec
 import tools.jackson.module.kotlin.jacksonObjectMapper
@@ -28,7 +27,7 @@ sealed class FileAction {
     data object Eula : FileAction() {
 
         override fun apply(directory: Path, specification: ServerSpec<*, *>, playerResolver: PlayerResolver) {
-            val eulaFile = directory.resolve("eula.txt")
+            val eulaFile = directory.createDirectories().resolve("eula.txt")
             eulaFile.toFile().writeText(
                 """#By changing the setting below to TRUE you are indicating your agreement to our EULA (https://aka.ms/MinecraftEULA).
             |eula=true""".trimMargin()
