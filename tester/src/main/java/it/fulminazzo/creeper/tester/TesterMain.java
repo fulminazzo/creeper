@@ -1,14 +1,17 @@
 package it.fulminazzo.creeper.tester;
 
-import lombok.AccessLevel;
-import lombok.RequiredArgsConstructor;
+import lombok.*;
 import lombok.experimental.FieldDefaults;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Main class of the program, containing the testing and reporting logic.
@@ -35,6 +38,70 @@ public class TesterMain {
         } catch (Exception e) {
             //TODO: exception handling
         }
+    }
+
+    /**
+     * General DTO class to report tests results.
+     */
+    @Data
+    @FieldDefaults(level = AccessLevel.PRIVATE)
+    abstract static class TestsResult {
+        boolean success;
+
+    }
+
+    /**
+     * DTO test result to report exceptions while preparing the environment for tests execution.
+     */
+    @Data
+    @FieldDefaults(level = AccessLevel.PRIVATE)
+    @EqualsAndHashCode(callSuper = true)
+    @ToString(callSuper = true)
+    static final class ExceptionResult extends TestsResult {
+        @NotNull ExceptionData exception;
+
+        /**
+         * Instantiates a new Exception result.
+         *
+         * @param exception the exception that caused the failure
+         */
+        public ExceptionResult(final @NotNull Exception exception) {
+            setSuccess(false);
+            this.exception = ExceptionData.of(exception);
+        }
+
+    }
+
+    /**
+     * Contains all relevant information about an exception.
+     */
+    @Data
+    @FieldDefaults(level = AccessLevel.PRIVATE)
+    @NoArgsConstructor
+    @AllArgsConstructor
+    static final class ExceptionData {
+        @NotNull String exceptionName;
+        @Nullable String message;
+        @NotNull List<String> stackTrace;
+        @Nullable ExceptionData cause;
+
+        /**
+         * Generates an {@link ExceptionData} from an exception.
+         *
+         * @param exception the exception to generate the data from
+         * @return the exception data
+         */
+        public static @NotNull ExceptionData of(final @NotNull Exception exception) {
+            Throwable cause = exception.getCause();
+            ExceptionData causeData = cause instanceof Exception ? of((Exception) cause) : null;
+            return new ExceptionData(
+                    exception.getClass().getCanonicalName(),
+                    exception.getMessage(),
+                    Arrays.stream(exception.getStackTrace()).map(Object::toString).collect(Collectors.toList()),
+                    causeData
+            );
+        }
+
     }
 
 }
