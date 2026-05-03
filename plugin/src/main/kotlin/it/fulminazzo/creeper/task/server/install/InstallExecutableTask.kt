@@ -1,7 +1,6 @@
 package it.fulminazzo.creeper.task.server.install
 
 import it.fulminazzo.creeper.provider.JarProvider
-import it.fulminazzo.creeper.server.ServerType
 import it.fulminazzo.creeper.server.spec.ServerSpec
 import org.gradle.api.DefaultTask
 import org.gradle.api.file.RegularFileProperty
@@ -10,7 +9,6 @@ import org.gradle.api.services.ServiceReference
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.OutputFile
 import org.gradle.api.tasks.TaskAction
-import java.nio.file.Path
 
 /**
  * Task to install a server executable.
@@ -25,16 +23,13 @@ abstract class InstallExecutableTask : DefaultTask() {
     @get:Input
     abstract val specification: Property<ServerSpec<*, *>>
 
-    @get:Input
-    abstract val serverDirectory: Property<String>
-
     @get:OutputFile
     abstract val executable: RegularFileProperty
 
     @TaskAction
     fun run() {
         val spec = specification.get()
-        val directory = Path.of(serverDirectory.get())
+        val directory = executable.get().asFile.parentFile.toPath()
         logger.lifecycle("Installing server ${spec.type.name} ${spec.version} in: $directory")
         val executablePath = jarProvider.get(spec.type, spec.version, directory).join()
         executable.set(executablePath.toFile())

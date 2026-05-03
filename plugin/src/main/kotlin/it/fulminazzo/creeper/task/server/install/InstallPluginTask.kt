@@ -8,7 +8,6 @@ import org.gradle.api.services.ServiceReference
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.OutputFile
 import org.gradle.api.tasks.TaskAction
-import java.nio.file.Path
 
 /**
  * Task to install one plugin in a server.
@@ -23,15 +22,12 @@ abstract class InstallPluginTask : DefaultTask() {
     @get:Input
     abstract val request: PluginRequest
 
-    @get:Input
-    abstract val pluginsDirectory: RegularFileProperty
-
     @get:OutputFile
     abstract val plugins: RegularFileProperty
 
     @TaskAction
     fun run() {
-        val directory = Path.of(pluginsDirectory.get().asFile.toURI())
+        val directory = plugins.get().asFile.parentFile.toPath()
         val path = pluginProvider.handleRequest(directory, request).join()
         plugins.set(path.toFile())
     }
