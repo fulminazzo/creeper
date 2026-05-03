@@ -64,6 +64,9 @@ allprojects {
         annotationProcessor(libs.lombok)
         compileOnly(libs.jetbrains)
 
+        val baseProject = project(":base")
+        if (project.path != baseProject.path) implementation(baseProject)
+
         testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine")
         testImplementation(libs.junit.launcher)
         testImplementation(libs.bundles.junit)
