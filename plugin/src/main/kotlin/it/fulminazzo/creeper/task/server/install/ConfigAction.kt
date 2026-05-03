@@ -48,7 +48,9 @@ sealed class ConfigAction {
     data object BukkitConfig : ConfigAction() {
 
         override fun apply(configuration: MutableMap<String, Any>, specification: ServerSpec<*, *>) {
-            configuration["settings.allow-end"] = false
+            val settings = configuration.getOrPut("settings") { mutableMapOf<String, Any>() }
+            @Suppress("UNCHECKED_CAST")
+            (settings as MutableMap<String, Any>)["allow-end"] = false
         }
 
     }
