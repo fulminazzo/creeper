@@ -11,7 +11,7 @@ on:
   push:
 
 concurrency:
-  group: gradle-${{ github.ref }}
+  group: gradle-tester-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
