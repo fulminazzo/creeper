@@ -23,7 +23,7 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public final class TesterMain {
     private static final @NotNull String TEST_CLASSES_PACKAGE = TesterMain.class.getPackage().getName() + ".tests";
-    private static final @NotNull String TEST_RESULTS_FILENAME = "test-results.json";
+    static final @NotNull String TEST_RESULTS_FILENAME = "test-results.json";
 
     private static final @NotNull Gson GSON = new Gson();
 
