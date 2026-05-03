@@ -21,7 +21,7 @@ scalatest-engine = "3.2.19.1"
 junit-launcher = "1.14.4"
 
 # MINECRAFT
-spigot = "1.8.8-R0.1-SNAPSHOT"
+spigot = "1.16.5-R0.1-SNAPSHOT"
 
 # TESTS
 junit = "5.14.4"
