@@ -158,7 +158,8 @@ allprojects {
     }
 
     tasks.processResources {
-        val commandName = projectName.lowercase()
+        val rootProjectName = rootProject.name.lowercase()
+        val commandName = projectName.lowercase().replace(rootProjectName, "test")
         filesMatching("*.yml") {
             expand(
                 mapOf(
@@ -171,7 +172,7 @@ allprojects {
                             "WARNING: to ensure maximum compatibility, these tests will be run synchronously " +
                             "when possible. Be ready to lag spikes and other undesirable effects.",
                     "command_usage" to "/$commandName",
-                    "command_aliases" to listOf(rootProject.name.lowercase())
+                    "command_aliases" to listOf(rootProjectName, "${rootProjectName}test")
                 )
             )
         }

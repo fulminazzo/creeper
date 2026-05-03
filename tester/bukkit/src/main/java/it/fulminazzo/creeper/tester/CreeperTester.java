@@ -77,7 +77,7 @@ public final class CreeperTester extends JavaPlugin implements TesterApplication
     }
 
     private @NotNull String getCommandName() {
-        return getName().toLowerCase();
+        return getName().toLowerCase().replace("tester", "test");
     }
 
     @Override
