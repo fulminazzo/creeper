@@ -28,8 +28,7 @@ abstract class InstallPluginTask : DefaultTask() {
     @TaskAction
     fun run() {
         val directory = plugins.get().asFile.parentFile.toPath()
-        val path = pluginProvider.handleRequest(directory, request).join()
-        plugins.set(path.toFile())
+        pluginProvider.handleRequest(directory, request).join()
     }
 
 }

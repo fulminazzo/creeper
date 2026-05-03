@@ -31,8 +31,7 @@ abstract class InstallExecutableTask : DefaultTask() {
         val spec = specification.get()
         val directory = executable.get().asFile.parentFile.toPath()
         logger.lifecycle("Installing server ${spec.type.name} ${spec.version} in: $directory")
-        val executablePath = jarProvider.get(spec.type, spec.version, directory).join()
-        executable.set(executablePath.toFile())
+        jarProvider.get(spec.type, spec.version, directory).join()
     }
 
 }
