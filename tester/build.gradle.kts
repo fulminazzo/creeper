@@ -36,7 +36,7 @@ dependencies {
     implementationDependencies.forEach { implementation(it) }
 
     testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine")
-    testImplementation(libs.junit)
+    testImplementation(libs.bundles.junit)
 
     testCompileOnly(libs.lombok)
     testAnnotationProcessor(libs.lombok)
