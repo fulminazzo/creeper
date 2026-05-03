@@ -7,7 +7,7 @@ import java.util.concurrent.CompletableFuture
 /**
  * A provider for configurations of the specified server platform and version.
  */
-sealed interface ConfigProvider<T : ServerType> {
+sealed interface ConfigProvider {
 
     /**
      * Downloads the configuration file of the specified server platform and version to the given directory.
@@ -21,14 +21,9 @@ sealed interface ConfigProvider<T : ServerType> {
      */
     fun get(
         name: String,
-        platform: T,
+        platform: ServerType,
         version: String,
         directory: Path
     ): CompletableFuture<Path>
 
 }
-
-/**
- * A provider for configurations of the specified Minecraft platform and version.
- */
-interface MinecraftConfigProvider : ConfigProvider<ServerType.MinecraftType>

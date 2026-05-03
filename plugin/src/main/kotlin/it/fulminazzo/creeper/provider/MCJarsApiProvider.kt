@@ -18,7 +18,7 @@ import kotlin.io.path.createDirectories
 import kotlin.io.path.writeText
 
 /**
- * A [JarProvider] and [MinecraftConfigProvider] that uses the [MCJars API](https://mcjars.app).
+ * A [JarProvider] and [ConfigProvider] that uses the [MCJars API](https://mcjars.app).
  *
  * @property downloader the internal downloader
  * @property logger the logger to display errors
@@ -29,7 +29,7 @@ class MCJarsApiProvider(
     private val downloader: CachedDownloader,
     private val logger: Logger,
     private val executor: Executor
-) : JarProvider, MinecraftConfigProvider {
+) : JarProvider, ConfigProvider {
     private val cache = ConcurrentHashMap<Pair<ServerType, String>, CompletableFuture<BuildResponse?>>()
 
     /**
@@ -64,7 +64,7 @@ class MCJarsApiProvider(
      */
     internal fun fetchConfig(
         name: String,
-        type: ServerType.MinecraftType,
+        type: ServerType,
         version: String
     ): CompletableFuture<Config?> =
         fetchBuild(type, version).thenCompose { build ->
@@ -89,7 +89,7 @@ class MCJarsApiProvider(
 
     override fun get(
         name: String,
-        platform: ServerType.MinecraftType,
+        platform: ServerType,
         version: String,
         directory: Path
     ): CompletableFuture<Path> =
