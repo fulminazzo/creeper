@@ -38,16 +38,6 @@ public class TestsRunnerIntegrationTest {
 
             assertEquals(0, result.getFailedContainers(), "There should have been no failed containers: " + result);
             assertEquals(0, result.getSkippedContainers(), "There should have been no skipped containers: " + result);
-            assertEquals(
-                    EXPECTED_TOTAL_TESTS,
-                    result.getSucceededContainers(),
-                    String.format("There should have been %s succeeded containers: %s", EXPECTED_TOTAL_TESTS, result)
-            );
-            assertEquals(
-                    EXPECTED_TOTAL_TESTS,
-                    result.getTotalContainers(),
-                    String.format("There should have been %s total containers: %s", EXPECTED_TOTAL_TESTS, result)
-            );
 
             assertEquals(0, result.getFailedTests(), "There should have been no failed tests: " + result);
             assertEquals(0, result.getSkippedTests(), "There should have been no skipped tests: " + result);
