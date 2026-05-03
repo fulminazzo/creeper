@@ -2,6 +2,7 @@ plugins {
     java
     groovy
     alias(libs.plugins.kotlin)
+    scala
 }
 
 // VARIABLES START

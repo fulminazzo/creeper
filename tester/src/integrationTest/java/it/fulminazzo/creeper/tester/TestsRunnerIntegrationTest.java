@@ -19,8 +19,11 @@ public class TestsRunnerIntegrationTest {
      * Groovy - Spock
      * Kotlin - JUnit
      * Kotlin - Kotest
+     * Scala - Scalatest
      */
-    private static final int EXPECTED_TOTAL_TESTS = 5;
+    private static final int EXPECTED_SUCCEEDED_TESTS = 6;
+    // Scalatest counts the suite class as a test
+    private static final int EXPECTED_TOTAL_TESTS = EXPECTED_SUCCEEDED_TESTS + 1;
 
     private static final @NotNull ClassLoader CLASS_LOADER = TestsRunnerIntegrationTest.class.getClassLoader();
 
@@ -47,7 +50,7 @@ public class TestsRunnerIntegrationTest {
             assertEquals(0, result.getFailedTests(), "There should have been no failed tests: " + result);
             assertEquals(0, result.getSkippedTests(), "There should have been no skipped tests: " + result);
             assertEquals(
-                    EXPECTED_TOTAL_TESTS,
+                    EXPECTED_SUCCEEDED_TESTS,
                     result.getSucceededTests(),
                     String.format("There should have been %s succeeded tests: %s", EXPECTED_TOTAL_TESTS, result)
             );
