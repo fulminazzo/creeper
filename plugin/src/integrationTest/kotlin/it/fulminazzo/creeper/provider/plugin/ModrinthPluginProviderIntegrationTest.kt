@@ -8,44 +8,40 @@ import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.assertThrows
 import org.slf4j.LoggerFactory
 import java.nio.file.Path
-import java.util.concurrent.CompletionException
 import kotlin.io.path.createDirectories
 import kotlin.io.path.exists
 import kotlin.test.Test
 import kotlin.test.assertEquals
-import kotlin.test.assertIs
 import kotlin.test.assertTrue
 
 class ModrinthPluginProviderIntegrationTest {
     private val provider = ModrinthPluginProvider(
         LoggerFactory.getLogger(ModrinthPluginProviderIntegrationTest::class.java),
-        { it.run() },
-        CachedDownloader.simple(Downloader.http()) { it.run() }
+        CachedDownloader.simple(Downloader.http())
     )
 
     @Test
     fun `test that provider correctly downloads plugin`() {
         val destination = DIRECTORY.resolve(VERSION.name)
         DIRECTORY.toFile().deleteRecursively()
-        val path = provider.handleRequest(DIRECTORY, REQUEST).join()
+        val path = provider.handleRequest(DIRECTORY, REQUEST)
         assertTrue(destination.exists(), "Downloaded plugin does not exist: $destination")
         assertEquals(destination, path, "Downloaded path does not match expected path")
     }
 
     @Test
     fun `test that provider throws if the release could not be found`() {
-        val e = assertThrows<CompletionException> {
+        assertThrows<PluginNotFoundException> {
             provider.handleRequest(
                 DIRECTORY,
                 ModrinthPluginRequest("teleporteffects", "1.0.l", "TeleportEffects-3.0.0.jar")
-            ).join()
+            )
         }
-        assertIs<PluginNotFoundException>(e.cause)
     }
 
     @Test
     fun `test that provider fetches correct metadata for version`() {
-        val response = provider.fetchVersionFileMetadata(REQUEST).join()
+        val response = provider.fetchVersionFileMetadata(REQUEST)
         assertEquals(VERSION, response, "Response does not match expected version file")
     }
 
@@ -61,7 +57,7 @@ class ModrinthPluginProviderIntegrationTest {
             "voicechat-bukkit-2.6.16.jar",
             "https://cdn.modrinth.com/data/9eGKb6K1/versions/ZQfVgh62/voicechat-bukkit-2.6.16.jar"
         )
-        val response = provider.fetchVersionFileMetadata(request).join()
+        val response = provider.fetchVersionFileMetadata(request)
         assertEquals(version, response, "Response does not match expected version file")
     }
 

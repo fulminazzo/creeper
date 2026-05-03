@@ -12,28 +12,26 @@ import org.junit.jupiter.api.assertThrows
 import org.slf4j.LoggerFactory
 import java.nio.file.Path
 import java.util.*
-import java.util.concurrent.CompletionException
 import kotlin.io.path.deleteIfExists
 import kotlin.io.path.exists
 import kotlin.io.path.name
 import kotlin.io.path.readLines
 import kotlin.test.Test
-import kotlin.test.assertIs
 
 class MCJarsApiProviderIntegrationTest {
-    private val downloader = CachedDownloader.global(Downloader.http()) { it.run() }
+    private val downloader = CachedDownloader.global(Downloader.http())
 
     private val provider = MCJarsApiProvider(
         downloader,
         LoggerFactory.getLogger(MCJarsApiProviderIntegrationTest::class.java)
-    ) { it.run() }
+    )
 
     @Test
     fun `test that MinecraftJarProvider#get works`() {
         val destination = WORK_DIR.resolve("${PLATFORM.id}-$VERSION.jar")
         destination.deleteIfExists()
 
-        provider.get(PLATFORM, VERSION, destination.parent).join()
+        provider.get(PLATFORM, VERSION, destination.parent)
         Assertions.assertTrue(destination.exists(), "JAR file does not exist: ${destination.toAbsolutePath()}")
     }
 
@@ -42,10 +40,7 @@ class MCJarsApiProviderIntegrationTest {
         val version = "1.8.8-not-found"
         val destination = WORK_DIR.resolve("${PLATFORM.id}-$version.jar")
 
-        val e = assertThrows<CompletionException> {
-            provider.get(PLATFORM, version, destination.parent).join()
-        }
-        assertIs<JarNotFoundException>(e.cause)
+        assertThrows<JarNotFoundException> { provider.get(PLATFORM, version, destination.parent) }
     }
 
     @Test
@@ -53,7 +48,7 @@ class MCJarsApiProviderIntegrationTest {
         val destination = WORK_DIR.resolve("server.properties")
         destination.deleteIfExists()
 
-        provider.get(destination.name, PLATFORM, VERSION, destination.parent).join()
+        provider.get(destination.name, PLATFORM, VERSION, destination.parent)
         Assertions.assertTrue(
             destination.exists(),
             "configuration file does not exist: ${destination.toAbsolutePath()}"
@@ -65,37 +60,36 @@ class MCJarsApiProviderIntegrationTest {
         val version = "1.8.8-not-found"
         val destination = WORK_DIR.resolve("server.properties")
 
-        val e = assertThrows<CompletionException> {
-            provider.get(destination.name, PLATFORM, version, destination.parent).join()
+        assertThrows<ConfigurationNotFoundException> {
+            provider.get(destination.name, PLATFORM, version, destination.parent)
         }
-        assertIs<ConfigurationNotFoundException>(e.cause)
     }
 
     @Test
     fun `test fetchBuild internal cache`() {
         mockkObject(HttpUtils)
 
-        var actual = provider.fetchBuild(PLATFORM, VERSION).join()
+        var actual = provider.fetchBuild(PLATFORM, VERSION)
         Assertions.assertEquals(EXPECTED_BUILD_RESPONSE, actual, "build data was not equal")
-        verify(exactly = 1) { HttpUtils.getApi(any(), any()) }
+        verify(exactly = 1) { HttpUtils.getApi(any()) }
 
-        actual = provider.fetchBuild(PLATFORM, VERSION).join()
+        actual = provider.fetchBuild(PLATFORM, VERSION)
         Assertions.assertEquals(EXPECTED_BUILD_RESPONSE, actual, "build data was not equal")
-        verify(exactly = 1) { HttpUtils.getApi(any(), any()) }
+        verify(exactly = 1) { HttpUtils.getApi(any()) }
 
         unmockkObject(HttpUtils)
     }
 
     @Test
     fun `test that fetchBuild returns correct data`() {
-        val actual = provider.fetchBuild(PLATFORM, VERSION).join()
+        val actual = provider.fetchBuild(PLATFORM, VERSION)
         Assertions.assertEquals(EXPECTED_BUILD_RESPONSE, actual, "build data was not equal")
     }
 
     @Test
     fun `test that fetchConfig returns correct data`() {
         val expectedConfig = EXPECTED_CONFIG
-        val actual = provider.fetchConfig(expectedConfig.name, PLATFORM, VERSION).join()
+        val actual = provider.fetchConfig(expectedConfig.name, PLATFORM, VERSION)
         Assertions.assertEquals(expectedConfig, actual, "config data was not equal")
     }
 

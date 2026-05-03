@@ -7,7 +7,6 @@ import org.junit.jupiter.api.Assertions.assertFalse
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.BeforeEach
 import java.nio.file.Path
-import java.util.concurrent.Executor
 import kotlin.io.path.createDirectories
 import kotlin.io.path.exists
 import kotlin.io.path.name
@@ -30,22 +29,22 @@ class SimpleCachedDownloaderTest {
         every { delegate.download(RESOURCE_PATH, DESTINATION_PATH) } answers {
             arg<Path>(1).writeText("Hello, world!")
         }
-        downloader = CachedDownloader.simple(delegate) { it.run() }
+        downloader = CachedDownloader.simple(delegate)
     }
 
     @Test
     fun `test that downloader downloads resource only once`() {
-        downloader.download(RESOURCE_PATH, DESTINATION_PATH, HASH).join()
+        downloader.download(RESOURCE_PATH, DESTINATION_PATH, HASH)
         verify(exactly = 1) { delegate.download(RESOURCE_PATH, DESTINATION_PATH) }
 
-        downloader.download(RESOURCE_PATH, DESTINATION_PATH, HASH).join()
+        downloader.download(RESOURCE_PATH, DESTINATION_PATH, HASH)
         verify(exactly = 1) { delegate.download(RESOURCE_PATH, DESTINATION_PATH) }
     }
 
     @Test
     fun `test that downloader does not download resource if checksum matches`() {
         CHECKSUM_PATH.writeText(HASH)
-        val path = downloader.download(RESOURCE_PATH, DESTINATION_PATH, HASH).join()
+        val path = downloader.download(RESOURCE_PATH, DESTINATION_PATH, HASH)
         assertFalse(DESTINATION_PATH.exists())
         checkDestinationPath(path)
     }
@@ -53,14 +52,14 @@ class SimpleCachedDownloaderTest {
     @Test
     fun `test that downloader downloads resource if checksum does not match`() {
         CHECKSUM_PATH.writeText(HASH)
-        val path = downloader.download(RESOURCE_PATH, DESTINATION_PATH, "ABC").join()
+        val path = downloader.download(RESOURCE_PATH, DESTINATION_PATH, "ABC")
         checkFileExists()
         checkDestinationPath(path)
     }
 
     @Test
     fun `test that downloader downloads resource and stores checksum`() {
-        val path = downloader.download(RESOURCE_PATH, DESTINATION_PATH, HASH).join()
+        val path = downloader.download(RESOURCE_PATH, DESTINATION_PATH, HASH)
         checkFileExists()
         checkChecksumExists()
         checkDestinationPath(path)

@@ -8,9 +8,7 @@ import it.fulminazzo.creeper.util.sha256
 import java.io.File
 import java.net.URI
 import java.nio.file.Path
-import java.util.concurrent.CompletableFuture
 import java.util.concurrent.ConcurrentHashMap
-import java.util.concurrent.Executor
 import kotlin.io.path.*
 
 /**
@@ -28,7 +26,7 @@ interface CachedDownloader {
      * @param hash the hash of the resource (to compare with the local one)
      * @return the path of the newly downloaded file
      */
-    fun download(resource: String, destination: Path, hash: String): CompletableFuture<Path>
+    fun download(resource: String, destination: Path, hash: String): Path
 
     companion object {
         private const val HASH_EXTENSION = "hash"
@@ -38,21 +36,17 @@ interface CachedDownloader {
          * Then, it copies the cached file to the requested destination.
          *
          * @param delegate the downloader used to download the files
-         * @param executor the executor to use for asynchronous downloads
          * @return the cached downloader
          */
-        fun global(delegate: Downloader, executor: Executor): CachedDownloader =
-            GlobalCachedDownloader(delegate, executor)
+        fun global(delegate: Downloader): CachedDownloader = GlobalCachedDownloader(delegate)
 
         /**
          * Creates a new [CachedDownloader] that delegates the download part to a [Downloader].
          *
          * @param delegate the downloader used to download the files
-         * @param executor the executor to use for asynchronous downloads
          * @return the cached downloader
          */
-        fun simple(delegate: Downloader, executor: Executor): CachedDownloader =
-            SimpleCachedDownloader(delegate, executor)
+        fun simple(delegate: Downloader): CachedDownloader = SimpleCachedDownloader(delegate)
 
     }
 
@@ -68,24 +62,18 @@ interface CachedDownloader {
      * @constructor Creates a new Global Cached downloader
      *
      * @param downloader the downloader used to download the files
-     * @param executor the executor to use for asynchronous downloads
      */
-    class GlobalCachedDownloader internal constructor(
-        downloader: Downloader,
-        executor: Executor
-    ) : CachedDownloader {
-        private val delegate = SimpleCachedDownloader(downloader, executor)
-        private val operations = ConcurrentHashMap<String, CompletableFuture<Path>>()
+    class GlobalCachedDownloader internal constructor(downloader: Downloader) : CachedDownloader {
+        private val delegate = SimpleCachedDownloader(downloader)
+        private val operations = ConcurrentHashMap<String, Path>()
 
-        override fun download(resource: String, destination: Path, hash: String): CompletableFuture<Path> {
-            return operations.computeIfAbsent(hashUrl(resource)) { u ->
+        override fun download(resource: String, destination: Path, hash: String): Path {
+            val downloadedFile = operations.computeIfAbsent(hashUrl(resource)) { u ->
                 val cacheDestination = CreeperPlugin.CACHE_DIRECTORY.resolve(u)
                 delegate.download(resource, cacheDestination, hash)
-            }.thenApply { downloadedFile ->
-                destination.parent.createDirectories()
-                downloadedFile.copyTo(destination, overwrite = true)
-                destination
             }
+            destination.parent.createDirectories()
+            return downloadedFile.copyTo(destination, overwrite = true)
         }
 
         internal companion object {
@@ -118,23 +106,18 @@ interface CachedDownloader {
      * Base implementation of [CachedDownloader] that delegates the download part to a [Downloader].
      *
      * @property delegate the downloader used to download the files
-     * @property executor the executor to use for asynchronous downloads
      * @constructor Creates a new Cached downloader
      */
-    private class SimpleCachedDownloader(
-        private val delegate: Downloader,
-        private val executor: Executor
-    ) : CachedDownloader {
+    private class SimpleCachedDownloader(private val delegate: Downloader) : CachedDownloader {
 
-        override fun download(resource: String, destination: Path, hash: String): CompletableFuture<Path> =
-            CompletableFuture.supplyAsync({
-                val checksum = destination.resolveSibling("${destination.name}.$HASH_EXTENSION")
-                if (!checksum.exists() || hash != checksum.readText()) {
-                    delegate.download(resource, destination)
-                    checksum.writeText(hash)
-                }
-                destination
-            }, executor)
+        override fun download(resource: String, destination: Path, hash: String): Path {
+            val checksum = destination.resolveSibling("${destination.name}.$HASH_EXTENSION")
+            if (!checksum.exists() || hash != checksum.readText()) {
+                delegate.download(resource, destination)
+                checksum.writeText(hash)
+            }
+            return destination
+        }
 
     }
 

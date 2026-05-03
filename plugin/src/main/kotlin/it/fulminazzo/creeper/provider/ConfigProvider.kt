@@ -2,7 +2,6 @@ package it.fulminazzo.creeper.provider
 
 import it.fulminazzo.creeper.server.ServerType
 import java.nio.file.Path
-import java.util.concurrent.CompletableFuture
 
 /**
  * A provider for configurations of the specified server platform and version.
@@ -19,11 +18,6 @@ sealed interface ConfigProvider {
      * @return the path of the downloaded configuration file
      * @throws ConfigurationNotFoundException if the configuration was not found
      */
-    fun get(
-        name: String,
-        platform: ServerType,
-        version: String,
-        directory: Path
-    ): CompletableFuture<Path>
+    fun get(name: String, platform: ServerType, version: String, directory: Path): Path
 
 }

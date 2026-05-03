@@ -11,9 +11,7 @@ import org.slf4j.Logger
 import tools.jackson.module.kotlin.readValue
 import java.nio.file.Path
 import java.util.*
-import java.util.concurrent.CompletableFuture
 import java.util.concurrent.ConcurrentHashMap
-import java.util.concurrent.Executor
 import kotlin.io.path.createDirectories
 import kotlin.io.path.writeText
 
@@ -22,15 +20,13 @@ import kotlin.io.path.writeText
  *
  * @property downloader the internal downloader
  * @property logger the logger to display errors
- * @property executor the executor to use for asynchronous operations
  * @constructor Creates a new MCJars API provider
  */
 class MCJarsApiProvider(
     private val downloader: CachedDownloader,
-    private val logger: Logger,
-    private val executor: Executor
+    private val logger: Logger
 ) : JarProvider, ConfigProvider {
-    private val cache = ConcurrentHashMap<Pair<ServerType, String>, CompletableFuture<BuildResponse?>>()
+    private val cache = ConcurrentHashMap<Pair<ServerType, String>, Optional<BuildResponse>>()
 
     /**
      * Attempts to get the requested build information from the API.
@@ -40,18 +36,17 @@ class MCJarsApiProvider(
      * @return the build information (or `null` if the build was not found)
      * @throws it.fulminazzo.creeper.util.HttpUtils.ApiException if the API returns an error
      */
-    internal fun fetchBuild(type: ServerType, version: String): CompletableFuture<BuildResponse?> =
+    internal fun fetchBuild(type: ServerType, version: String): BuildResponse? =
         cache.computeIfAbsent(type to version) {
             logger.info("Fetching build information for Minecraft ${type.name} $version")
-            HttpUtils.getApi("$API_URL${getBuildUrl(type, version)}", executor).thenApply { raw ->
-                raw ?: return@thenApply null
-                val data = JSON_MAPPER.readValue<RawBuildResponse>(raw).builds.data.firstOrNull()
-                    ?: return@thenApply null
-                val installation = data.installation.firstOrNull()?.firstOrNull()
-                    ?: return@thenApply null
-                BuildResponse(data.uuid, installation.size, installation.url)
-            }
-        }
+            val raw = HttpUtils.getApi("$API_URL${getBuildUrl(type, version)}")
+                ?: return@computeIfAbsent Optional.empty()
+            val data = JSON_MAPPER.readValue<RawBuildResponse>(raw).builds.data.firstOrNull()
+                ?: return@computeIfAbsent Optional.empty()
+            val installation = data.installation.firstOrNull()?.firstOrNull()
+                ?: return@computeIfAbsent Optional.empty()
+            Optional.of(BuildResponse(data.uuid, installation.size, installation.url))
+        }.orElse(null)
 
     /**
      * Attempts to get the requested configuration information from the API.
@@ -62,43 +57,32 @@ class MCJarsApiProvider(
      * @return the configuration information (or `null` if the configuration or build were not found)
      * @throws it.fulminazzo.creeper.util.HttpUtils.ApiException if the API returns an error
      */
-    internal fun fetchConfig(
-        name: String,
-        type: ServerType,
-        version: String
-    ): CompletableFuture<Config?> =
-        fetchBuild(type, version).thenCompose { build ->
+    internal fun fetchConfig(name: String, type: ServerType, version: String): Config? =
+        fetchBuild(type, version)?.let { build ->
             logger.info("Fetching configuration '$name' for Minecraft ${type.name} $version")
-            build ?: return@thenCompose CompletableFuture.completedFuture(null)
-            HttpUtils.getApi("$API_URL${getBuildConfigUrl(build.uuid)}", executor).thenApply { raw ->
-                raw ?: return@thenApply null
+            HttpUtils.getApi("$API_URL${getBuildConfigUrl(build.uuid)}")?.let { raw ->
                 JSON_MAPPER.readValue<ConfigResponse>(raw).configs.firstOrNull { it.name.endsWith(name) }
             }
         }
 
-    override fun get(platform: ServerType, version: String, directory: Path): CompletableFuture<Path> =
-        fetchBuild(platform, version).thenCompose { buildResponse ->
-            val build = buildResponse ?: throw JarNotFoundException(platform, version)
-            logger.info("Downloading Minecraft ${platform.name} $version")
-            downloader.download(
-                build.url,
-                directory.resolve("${platform.id}-$version.jar"),
-                build.toHashString()
-            )
-        }
+    override fun get(platform: ServerType, version: String, directory: Path): Path {
+        val buildResponse = fetchBuild(platform, version)
+        val build = buildResponse ?: throw JarNotFoundException(platform, version)
+        logger.info("Downloading Minecraft ${platform.name} $version")
+        return downloader.download(
+            build.url,
+            directory.resolve("${platform.id}-$version.jar"),
+            build.toHashString()
+        )
+    }
 
-    override fun get(
-        name: String,
-        platform: ServerType,
-        version: String,
-        directory: Path
-    ): CompletableFuture<Path> =
-        fetchConfig(name, platform, version).thenApply { config ->
-            val resolved = config ?: throw ConfigurationNotFoundException(name, platform, version)
-            val destination = directory.createDirectories().resolve(resolved.name)
-            destination.writeText(resolved.data)
-            destination
-        }
+    override fun get(name: String, platform: ServerType, version: String, directory: Path): Path {
+        val config = fetchConfig(name, platform, version)
+        val resolved = config ?: throw ConfigurationNotFoundException(name, platform, version)
+        val destination = directory.createDirectories().resolve(resolved.name)
+        destination.writeText(resolved.data)
+        return destination
+    }
 
     companion object {
         private const val API_URL = "https://mcjars.app/api/v3/"

@@ -2,11 +2,9 @@ package it.fulminazzo.creeper.util
 
 import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.assertThrows
-import java.util.concurrent.CompletionException
 import java.util.concurrent.Executors
 import kotlin.test.Test
 import kotlin.test.assertEquals
-import kotlin.test.assertIs
 
 class HttpUtilsTest {
     private val requestCatcher = RequestCatcher(EXECUTOR)
@@ -24,7 +22,7 @@ class HttpUtilsTest {
                 |test""".trimMargin().toByteArray()
                 )
             }
-            val response = HttpUtils.getApi("http://localhost:$port/test", EXECUTOR).join()
+            val response = HttpUtils.getApi("http://localhost:$port/test")
             assertEquals("test", response)
         } finally {
             requestCatcher.stop()
@@ -44,7 +42,7 @@ class HttpUtilsTest {
                 |test""".trimMargin().toByteArray()
                 )
             }
-            val response = HttpUtils.getApi("http://localhost:$port/test", EXECUTOR).join()
+            val response = HttpUtils.getApi("http://localhost:$port/test")
             assertEquals(null, response)
         } finally {
             requestCatcher.stop()
@@ -64,9 +62,7 @@ class HttpUtilsTest {
                 |test""".trimMargin().toByteArray()
                 )
             }
-            val e =
-                assertThrows<CompletionException> { HttpUtils.getApi("http://localhost:$port/test", EXECUTOR).join() }
-            assertIs<HttpUtils.ApiException>(e.cause)
+            assertThrows<HttpUtils.ApiException> { HttpUtils.getApi("http://localhost:$port/test") }
         } finally {
             requestCatcher.stop()
         }
@@ -85,7 +81,7 @@ class HttpUtilsTest {
                 |test""".trimMargin().toByteArray()
                 )
             }
-            val response = HttpUtils.postApi("http://localhost:$port/test", "", EXECUTOR).join()
+            val response = HttpUtils.postApi("http://localhost:$port/test", "")
             assertEquals("test", response)
         } finally {
             requestCatcher.stop()
@@ -105,7 +101,7 @@ class HttpUtilsTest {
                 |test""".trimMargin().toByteArray()
                 )
             }
-            val response = HttpUtils.postApi("http://localhost:$port/test", "", EXECUTOR).join()
+            val response = HttpUtils.postApi("http://localhost:$port/test", "")
             assertEquals(null, response)
         } finally {
             requestCatcher.stop()
@@ -125,10 +121,7 @@ class HttpUtilsTest {
                 |test""".trimMargin().toByteArray()
                 )
             }
-            val e = assertThrows<CompletionException> {
-                HttpUtils.postApi("http://localhost:$port/test", "", EXECUTOR).join()
-            }
-            assertIs<HttpUtils.ApiException>(e.cause)
+            assertThrows<HttpUtils.ApiException> { HttpUtils.postApi("http://localhost:$port/test", "") }
         } finally {
             requestCatcher.stop()
         }

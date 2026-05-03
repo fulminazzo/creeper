@@ -11,11 +11,10 @@ import it.fulminazzo.creeper.util.HttpUtils
 import it.fulminazzo.creeper.util.sha256
 import it.fulminazzo.creeper.util.urlEncode
 import org.slf4j.Logger
-import tools.jackson.module.kotlin.jacksonObjectMapper
 import tools.jackson.module.kotlin.readValue
 import java.nio.file.Path
-import java.util.concurrent.CompletableFuture
-import java.util.concurrent.Executor
+import java.util.*
+import java.util.concurrent.ConcurrentHashMap
 import kotlin.time.Duration.Companion.hours
 
 /**
@@ -25,19 +24,16 @@ import kotlin.time.Duration.Companion.hours
  * @constructor Creates a new Modrinth plugin provider
  *
  * @param logger the logger to use for logging
- * @param executor the executor to use for asynchronous operations
  */
 class ModrinthPluginProvider internal constructor(
     logger: Logger,
-    executor: Executor,
     private val downloader: CachedDownloader
-) : PluginProvider<ModrinthPluginRequest>(
-    logger,
-    executor
-) {
+) : PluginProvider<ModrinthPluginRequest>(logger) {
     val cacheDuration = 6.hours
 
     private val cache = CacheManager[CACHE_FILE, VersionFile::class.java]
+    private val requestCache = ConcurrentHashMap<String, Optional<VersionFile>>()
+    private val projectRequestCache = ConcurrentHashMap<String, Optional<String>>()
 
     /**
      * Attempts to get the requested version information from the API.
@@ -46,19 +42,17 @@ class ModrinthPluginProvider internal constructor(
      * @return the version information (or `null` if the version was not found)
      * @throws it.fulminazzo.creeper.util.HttpUtils.ApiException if the API returns an error
      */
-    internal fun fetchVersionFileMetadata(request: ModrinthPluginRequest): CompletableFuture<VersionFile?> =
-        cache[request.toHashString()]?.let { CompletableFuture.completedFuture(it) }
-            ?: fetchVersionsMetadata(request.projectName).thenApply { r ->
-                r?.let { raw -> JSON_MAPPER.readValue<List<Version>>(raw) }
-                    ?.firstOrNull { it.versionNumber == request.version || it.name == request.version }
-                    ?.files
-                    ?.map { it.toVersionFile() }
-                    ?.firstOrNull { it.name == request.name }
-                    ?.let { versionFile ->
-                        cache.set(request.toHashString(), versionFile, cacheDuration)
-                        versionFile
-                    }
-            }
+    internal fun fetchVersionFileMetadata(request: ModrinthPluginRequest): VersionFile? =
+        cache[request.toHashString()] ?: requestCache.computeIfAbsent(request.toHashString()) {
+            val raw = fetchVersionsMetadata(request.projectName) ?: return@computeIfAbsent Optional.empty()
+            val version = JSON_MAPPER.readValue<List<Version>>(raw)
+                .firstOrNull { it.versionNumber == request.version || it.name == request.version }
+                ?: return@computeIfAbsent Optional.empty()
+            val versionFile = version.files.map { it.toVersionFile() }.firstOrNull { it.name == request.name }
+                ?: return@computeIfAbsent Optional.empty()
+            cache.set(request.toHashString(), versionFile, cacheDuration)
+            Optional.of(versionFile)
+        }.orElse(null)
 
     /**
      * Attempts to get the raw versions information from the API.
@@ -68,27 +62,26 @@ class ModrinthPluginProvider internal constructor(
      * @param projectName the project name
      * @return the versions or `null` if not found
      */
-    private fun fetchVersionsMetadata(projectName: String): CompletableFuture<String?> {
-        return HttpUtils.getApi(getVersionsUrl(projectName), executor).thenCompose { raw ->
-            if (raw != null) CompletableFuture.completedFuture(raw)
-            else HttpUtils.getApi(getSearchUrl(projectName), executor).thenApply { r ->
-                r?.let { raw -> JSON_MAPPER.readValue<SearchResponse>(raw) }?.hits?.first()?.slug
-            }.thenCompose { slug ->
-                slug?.let { HttpUtils.getApi(getVersionsUrl(slug), executor) }
+    private fun fetchVersionsMetadata(projectName: String): String? =
+        projectRequestCache.computeIfAbsent(projectName) {
+            var raw = HttpUtils.getApi(getVersionsUrl(projectName))
+            if (raw != null) return@computeIfAbsent Optional.of(raw)
+            else {
+                raw = HttpUtils.getApi(getSearchUrl(projectName)) ?: return@computeIfAbsent Optional.empty()
+                val slug = JSON_MAPPER.readValue<SearchResponse>(raw).hits.first().slug
+                HttpUtils.getApi(getVersionsUrl(slug))?.let { Optional.of(it) } ?: Optional.empty()
             }
-        }
-    }
+        }.orElse(null)
 
-    override fun handleRequest(directory: Path, request: ModrinthPluginRequest): CompletableFuture<Path> {
+    override fun handleRequest(directory: Path, request: ModrinthPluginRequest): Path {
         logger.info("Fetching Modrinth release information for ${request.projectName} (version = ${request.version}, filename = ${request.name})")
-        return fetchVersionFileMetadata(request).thenCompose { versionFile ->
-            versionFile?.let {
-                logger.info("Downloading plugin from ${versionFile.url}")
-                downloader.download(versionFile.url, directory.resolve(versionFile.name), versionFile.hash)
-            } ?: throw PluginNotFoundException(
-                "Could not find Modrinth release for ${request.projectName} (version = ${request.version}, filename = ${request.name})"
-            )
-        }
+        return fetchVersionFileMetadata(request)?.let { versionFile ->
+            logger.info("Downloading plugin from ${versionFile.url}")
+            downloader.download(versionFile.url, directory.resolve(versionFile.name), versionFile.hash)
+        } ?: throw PluginNotFoundException(
+            "Could not find Modrinth release for ${request.projectName} (version = ${request.version}, filename = ${request.name})"
+        )
+
     }
 
     internal companion object {

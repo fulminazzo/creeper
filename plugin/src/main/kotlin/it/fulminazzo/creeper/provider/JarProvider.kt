@@ -2,7 +2,6 @@ package it.fulminazzo.creeper.provider
 
 import it.fulminazzo.creeper.server.ServerType
 import java.nio.file.Path
-import java.util.concurrent.CompletableFuture
 
 /**
  * A provider for the executable of the specified server platform and version.
@@ -18,6 +17,6 @@ sealed interface JarProvider {
      * @return the path of the downloaded executable
      * @throws JarNotFoundException if the executable was not found
      */
-    fun get(platform: ServerType, version: String, directory: Path): CompletableFuture<Path>
+    fun get(platform: ServerType, version: String, directory: Path): Path
 
 }

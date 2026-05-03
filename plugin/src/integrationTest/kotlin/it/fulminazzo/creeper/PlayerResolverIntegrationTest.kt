@@ -15,7 +15,7 @@ import kotlin.test.assertTrue
 class PlayerResolverIntegrationTest {
     private val resolver = PlayerResolver(
         LoggerFactory.getLogger(PlayerResolverIntegrationTest::class.java)
-    ) { it.run() }
+    )
 
     @Test
     fun `test that getPlayerProfiles of online returns correct value`() {

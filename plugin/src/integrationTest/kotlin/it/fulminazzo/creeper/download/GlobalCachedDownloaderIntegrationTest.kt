@@ -15,7 +15,7 @@ import kotlin.test.assertEquals
 import kotlin.test.assertNotEquals
 
 class GlobalCachedDownloaderIntegrationTest {
-    private val downloader = CachedDownloader.global(Downloader.http()) { it.run() }
+    private val downloader = CachedDownloader.global(Downloader.http())
     private val cacheDirectory = CreeperPlugin.CACHE_DIRECTORY
 
     @BeforeEach
@@ -33,15 +33,15 @@ class GlobalCachedDownloaderIntegrationTest {
             Thread.sleep(1_000)
         }
 
-        val downloader = CachedDownloader.global(delegate) { it.run() }
+        val downloader = CachedDownloader.global(delegate)
 
         val resource = "https://www.google.com"
         val path1 = Path.of("build/resources/test/download/global_cached_downloader_test1.txt")
         val path2 = Path.of("build/resources/test/download/global_cached_downloader_test2.txt")
         val hash = "1234567890"
 
-        val first = downloader.download(resource, path1, hash).join()
-        val second = downloader.download(resource, path2, hash).join()
+        val first = downloader.download(resource, path1, hash)
+        val second = downloader.download(resource, path2, hash)
 
         assertNotEquals(first, second, "Returned paths should not be equal")
         assertEquals(first, path1, "First path should be $path1")
@@ -51,7 +51,7 @@ class GlobalCachedDownloaderIntegrationTest {
 
     @Test
     fun `test that global downloader works with relative path`() {
-        val path = downloader.download(RESOURCE_PATH, DESTINATION_PATH, HASH).join()
+        val path = downloader.download(RESOURCE_PATH, DESTINATION_PATH, HASH)
         assertTrue(
             DESTINATION_PATH.exists(),
             "Destination file does not exist: ${DESTINATION_PATH.toAbsolutePath()}"
@@ -65,7 +65,7 @@ class GlobalCachedDownloaderIntegrationTest {
     fun `test that global downloader works with absolute path`() {
         val destinationPath = Path.of("/tmp/cached_downloader_test.txt")
 
-        val path = downloader.download(RESOURCE_PATH, destinationPath, HASH).join()
+        val path = downloader.download(RESOURCE_PATH, destinationPath, HASH)
         assertTrue(destinationPath.exists(), "Destination file does not exist: ${destinationPath.toAbsolutePath()}")
         assertEquals(destinationPath, path, "Destination and downloaded path did not match")
 

@@ -3,7 +3,6 @@ package it.fulminazzo.creeper.download
 import it.fulminazzo.creeper.ProjectInfo
 import it.fulminazzo.creeper.util.RequestCatcher
 import org.junit.jupiter.api.AfterAll
-import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.assertThrows
 import org.junit.jupiter.params.ParameterizedTest

@@ -2,21 +2,15 @@ package it.fulminazzo.creeper.provider.plugin
 
 import org.slf4j.Logger
 import java.nio.file.Path
-import java.util.concurrent.CompletableFuture
-import java.util.concurrent.Executor
 
 /**
  * A provider for server plugins.
  *
  * @param R the type of supported plugin requests
  * @param logger the logger to use for logging
- * @param executor the executor to use for asynchronous operations
  * @constructor Creates a new Plugin provider
  */
-sealed class PluginProvider<R : PluginRequest>(
-    protected val logger: Logger,
-    protected val executor: Executor
-) {
+sealed class PluginProvider<R : PluginRequest>(protected val logger: Logger) {
 
     /**
      * Handles the specified plugin request.
@@ -26,7 +20,7 @@ sealed class PluginProvider<R : PluginRequest>(
      * @return the path of the downloaded plugin
      * @throws PluginNotFoundException if the plugin was not found
      */
-    abstract fun handleRequest(directory: Path, request: R): CompletableFuture<Path>
+    abstract fun handleRequest(directory: Path, request: R): Path
 
 }
 

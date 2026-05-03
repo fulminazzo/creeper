@@ -27,7 +27,7 @@ class MinecraftServerRunnerIntegrationTest {
         val runner = MinecraftServerRunner(specification, LOGGER, EXECUTOR, BASE_DIRECTORY, JAVA_EXECUTABLE)
 
         val pid = runner.start()
-        runner.awaitCompleteBoot(10.seconds).join()
+        runner.awaitCompleteBoot(10.seconds)
         runner.forceStop()
         runner.await()
 

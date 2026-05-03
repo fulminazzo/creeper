@@ -1,7 +1,6 @@
 package it.fulminazzo.creeper.download
 
 import it.fulminazzo.creeper.ProjectInfo
-import org.jetbrains.annotations.VisibleForTesting
 import java.net.URI
 import java.net.http.HttpClient
 import java.net.http.HttpRequest

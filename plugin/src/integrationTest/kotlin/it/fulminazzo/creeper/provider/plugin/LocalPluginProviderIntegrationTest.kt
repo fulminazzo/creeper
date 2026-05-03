@@ -8,7 +8,6 @@ import java.util.concurrent.CompletionException
 import kotlin.io.path.*
 import kotlin.test.Test
 import kotlin.test.assertEquals
-import kotlin.test.assertIs
 import kotlin.test.assertTrue
 
 class LocalPluginProviderIntegrationTest {
@@ -16,7 +15,7 @@ class LocalPluginProviderIntegrationTest {
 
     private val provider = LocalPluginProvider(
         LoggerFactory.getLogger(LocalPluginProviderIntegrationTest::class.java)
-    ) { it.run() }
+    )
 
     @Test
     fun `test that provider correctly copies plugin`() {
@@ -24,7 +23,7 @@ class LocalPluginProviderIntegrationTest {
 
         val request = LocalPluginRequest(PLUGIN_FILE, true)
 
-        provider.handleRequest(DIRECTORY, request).join()
+        provider.handleRequest(DIRECTORY, request)
         checkPluginFile()
     }
 
@@ -34,7 +33,7 @@ class LocalPluginProviderIntegrationTest {
 
         val request = LocalPluginRequest(PLUGIN_FILE, true)
 
-        provider.handleRequest(DIRECTORY, request).join()
+        provider.handleRequest(DIRECTORY, request)
         checkPluginFile()
     }
 
@@ -44,7 +43,7 @@ class LocalPluginProviderIntegrationTest {
 
         val request = LocalPluginRequest(PLUGIN_FILE, false)
 
-        provider.handleRequest(DIRECTORY, request).join()
+        provider.handleRequest(DIRECTORY, request)
         checkPluginFile()
         assertEquals("Goodbye, mars!", destination.readText(), "Plugin file was overwritten:")
     }
@@ -53,10 +52,7 @@ class LocalPluginProviderIntegrationTest {
     fun `test that provider throws if plugin file does not exist`() {
         val request = LocalPluginRequest(Path.of("not-found.jar"), true)
 
-        val e = assertThrows<CompletionException> {
-            provider.handleRequest(DIRECTORY, request).join()
-        }
-        assertIs<PluginNotFoundException>(e.cause)
+        assertThrows<PluginNotFoundException> { provider.handleRequest(DIRECTORY, request) }
     }
 
     private fun checkPluginFile() {

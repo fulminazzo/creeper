@@ -1,6 +1,5 @@
 package it.fulminazzo.creeper.util
 
-import java.net.URI
 import java.net.URLEncoder
 import java.security.MessageDigest
 

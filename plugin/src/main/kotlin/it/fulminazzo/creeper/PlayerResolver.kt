@@ -7,7 +7,6 @@ import it.fulminazzo.creeper.util.HttpUtils
 import org.slf4j.Logger
 import tools.jackson.module.kotlin.readValue
 import java.util.*
-import java.util.concurrent.Executor
 import kotlin.uuid.Uuid
 import kotlin.uuid.toJavaUuid
 
@@ -15,13 +14,9 @@ import kotlin.uuid.toJavaUuid
  * A resolver for Minecraft players profiles.
  *
  * @property logger the logger to use to log messages
- * @property executor the executor to use for asynchronous operations
  * @constructor Creates a new Player resolver
  */
-class PlayerResolver(
-    private val logger: Logger,
-    private val executor: Executor
-) {
+class PlayerResolver(private val logger: Logger) {
     private val cache = CacheManager[CACHE_FILE, UUID::class.java]
 
     /**
@@ -60,9 +55,8 @@ class PlayerResolver(
         if (missing.isNotEmpty()) {
             logger.info("Fetching the API for player ids of: ${missing.joinToString(", ")}")
             missing.chunked(MAXIMUM_PLAYERS).forEach { chunk ->
-                val profiles =
-                    HttpUtils.postApi(API_URL, JSON_MAPPER.writeValueAsString(chunk), executor).join()
-                        ?.let { JSON_MAPPER.readValue<List<PlayerProfileResponse>>(it) }
+                val profiles = HttpUtils.postApi(API_URL, JSON_MAPPER.writeValueAsString(chunk))
+                    ?.let { JSON_MAPPER.readValue<List<PlayerProfileResponse>>(it) }
                 profiles?.let {
                     it.forEach { profile ->
                         val id = Uuid.parse(profile.id).toJavaUuid()

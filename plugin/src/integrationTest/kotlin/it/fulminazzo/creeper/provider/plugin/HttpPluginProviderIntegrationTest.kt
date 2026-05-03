@@ -5,18 +5,15 @@ import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.assertThrows
 import org.slf4j.LoggerFactory
 import java.nio.file.Path
-import java.util.concurrent.CompletionException
 import kotlin.io.path.createDirectories
 import kotlin.io.path.deleteIfExists
 import kotlin.io.path.exists
 import kotlin.test.Test
-import kotlin.test.assertIs
 import kotlin.test.assertTrue
 
 class HttpPluginProviderIntegrationTest {
     private val provider = HttpPluginProvider(
         LoggerFactory.getLogger(HttpPluginProviderIntegrationTest::class.java),
-        { it.run() },
         Downloader.http()
     )
 
@@ -25,17 +22,14 @@ class HttpPluginProviderIntegrationTest {
         val destination = DIRECTORY.resolve(PLUGIN_NAME)
         destination.deleteIfExists()
         val request = HttpPluginRequest(RESOURCE_URL)
-        provider.handleRequest(DIRECTORY, request).join()
+        provider.handleRequest(DIRECTORY, request)
         assertTrue(destination.exists(), "Downloaded plugin does not exist: $destination")
     }
 
     @Test
     fun `test that provider throws if plugin file could not be found`() {
         val request = HttpPluginRequest("https://github.com/fulminazzo/not-found")
-        val e = assertThrows<CompletionException> {
-            provider.handleRequest(DIRECTORY, request).join()
-        }
-        assertIs<PluginNotFoundException>(e.cause)
+        assertThrows<PluginNotFoundException> { provider.handleRequest(DIRECTORY, request) }
     }
 
     companion object {

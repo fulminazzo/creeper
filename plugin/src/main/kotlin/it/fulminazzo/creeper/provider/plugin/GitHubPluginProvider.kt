@@ -13,8 +13,8 @@ import it.fulminazzo.creeper.util.urlEncode
 import org.slf4j.Logger
 import tools.jackson.module.kotlin.readValue
 import java.nio.file.Path
-import java.util.concurrent.CompletableFuture
-import java.util.concurrent.Executor
+import java.util.*
+import java.util.concurrent.ConcurrentHashMap
 import kotlin.time.Duration.Companion.hours
 
 /**
@@ -24,19 +24,15 @@ import kotlin.time.Duration.Companion.hours
  * @constructor Creates a new GitHub plugin provider
  *
  * @param logger the logger to use for logging
- * @param executor the executor to use for asynchronous operations
  */
 class GitHubPluginProvider internal constructor(
     logger: Logger,
-    executor: Executor,
     private val downloader: CachedDownloader
-) : PluginProvider<GitHubPluginRequest>(
-    logger,
-    executor
-) {
+) : PluginProvider<GitHubPluginRequest>(logger) {
     val cacheDuration = 6.hours
 
     private val cache = CacheManager[CACHE_FILE, Release::class.java]
+    private val requestCache = ConcurrentHashMap<String, Optional<Release>>()
 
     /**
      * Attempts to get the requested release information from the API.
@@ -45,29 +41,24 @@ class GitHubPluginProvider internal constructor(
      * @return the release information (or `null` if the release was not found)
      * @throws it.fulminazzo.creeper.util.HttpUtils.ApiException if the API returns an error
      */
-    internal fun fetchReleaseMetadata(request: GitHubPluginRequest): CompletableFuture<Release?> =
-        cache[request.toHashString()]?.let { CompletableFuture.completedFuture(it) }
-            ?: HttpUtils.getApi(getReleaseUrl(request.owner, request.repository, request.release), executor)
-                .thenApply { r ->
-                    r?.let { raw -> JSON_MAPPER.readValue<ReleaseResponse>(raw) }
-                        ?.assets
-                        ?.firstOrNull { it.name == request.name }
-                        ?.let { release ->
-                            cache.set(request.toHashString(), release, cacheDuration)
-                            release
-                        }
-                }
+    internal fun fetchReleaseMetadata(request: GitHubPluginRequest): Release? =
+        cache[request.toHashString()] ?: requestCache.computeIfAbsent(request.toHashString()) {
+            val raw = HttpUtils.getApi(getReleaseUrl(request.owner, request.repository, request.release))
+                ?: return@computeIfAbsent Optional.empty()
+            val release = JSON_MAPPER.readValue<ReleaseResponse>(raw).assets.firstOrNull { it.name == request.name }
+                ?: return@computeIfAbsent Optional.empty()
+            cache.set(request.toHashString(), release, cacheDuration)
+            Optional.of(release)
+        }.orElse(null)
 
-    override fun handleRequest(directory: Path, request: GitHubPluginRequest): CompletableFuture<Path> {
+    override fun handleRequest(directory: Path, request: GitHubPluginRequest): Path {
         logger.info("Fetching GitHub release information for ${request.owner}/${request.repository}/${request.release} (filename =${request.name})")
-        return fetchReleaseMetadata(request).thenCompose { release ->
-            release?.let {
-                logger.info("Downloading plugin from ${release.url}")
-                downloader.download(release.url, directory.resolve(release.name), release.digest)
-            } ?: throw PluginNotFoundException(
-                "Could not find GitHub release for ${request.owner}/${request.repository}/${request.release} (filename = ${request.name})"
-            )
-        }
+        return fetchReleaseMetadata(request)?.let { release ->
+            logger.info("Downloading plugin from ${release.url}")
+            downloader.download(release.url, directory.resolve(release.name), release.digest)
+        } ?: throw PluginNotFoundException(
+            "Could not find GitHub release for ${request.owner}/${request.repository}/${request.release} (filename = ${request.name})"
+        )
     }
 
     internal companion object {

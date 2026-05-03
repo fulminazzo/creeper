@@ -44,7 +44,7 @@ abstract class InstallConfigTask : DefaultTask() {
             spec.type,
             spec.version,
             file.parentFile.toPath()
-        ).join()
+        )
         val mapper = CreeperPlugin.getMapper(path.extension)
         val currentConfig =
             if (path.fileSize() > 0) mapper.readValue<MutableMap<String, Any>>(path.toFile())
