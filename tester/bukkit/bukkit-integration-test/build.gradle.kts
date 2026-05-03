@@ -25,7 +25,7 @@ tasks.shadowJar {
         "org.spockframework" to "spockframework",
 //        "munit" to "munit", // not relocating for issues
         "io.leangen.geantyref" to "geantyref",
-        "javax" to "javax",
+//        "javax" to "javax", // not relocating for issues
         "org.slf4j" to "slf4j"
     ).forEach { (from, to) -> relocate(from, "$basePackage.$to") }
 
