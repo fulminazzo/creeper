@@ -1,0 +1,25 @@
+[versions]
+# ANNOTATIONS
+lombok = "1.18.46"
+jetbrains = "26.1.0"
+
+# DATA FORMAT
+gson = "2.14.0"
+
+junit-launcher = "1.14.4"
+
+# TESTS
+junit = "5.14.4"
+
+[libraries]
+# ANNOTATIONS
+lombok = { module = "org.projectlombok:lombok", version.ref = "lombok" }
+jetbrains = { module = "org.jetbrains:annotations", version.ref = "jetbrains" }
+
+# DATA FORMAT
+gson = { module = "com.google.code.gson:gson", version.ref = "gson" }
+
+junit-launcher = { module = "org.junit.platform:junit-platform-launcher", version.ref = "junit-launcher" }
+
+# TESTS
+junit = { module = "org.junit.jupiter:junit-jupiter-api", version.ref = "junit" }

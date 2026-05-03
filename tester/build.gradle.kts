@@ -6,10 +6,12 @@ plugins {
 val compileJavaVersion = JavaLanguageVersion.of(8)
 val gradleJavaVersion = JavaLanguageVersion.of(8)
 val implementationDependencies = listOf<String>()
+val creeperGroup = "it.fulminazzo.creeper"
+val creeperVersion = "0.0.1-SNAPSHOT"
 // VARIABLES END
 
-group = "it.fulminazzo"
-version = "0.0.1-SNAPSHOT"
+group = creeperGroup
+version = creeperVersion
 
 java {
     toolchain {
@@ -22,7 +24,22 @@ repositories {
 }
 
 dependencies {
+    compileOnly(libs.lombok)
+    annotationProcessor(libs.lombok)
+    compileOnly(libs.jetbrains)
+
+    compileOnly(libs.gson)
+
+    implementation(libs.junit.launcher)
     implementationDependencies.forEach { implementation(it) }
+
+    testImplementation(libs.junit)
+
+    testCompileOnly(libs.lombok)
+    testAnnotationProcessor(libs.lombok)
+    testCompileOnly(libs.jetbrains)
+
+    testImplementation(libs.gson)
 }
 
 tasks.compileJava {
@@ -33,6 +50,7 @@ tasks.compileJava {
 
 tasks.test {
     useJUnitPlatform()
+    jvmArgs = listOf("-XX:+EnableDynamicAgentLoading")
 }
 
 tasks.processResources {
