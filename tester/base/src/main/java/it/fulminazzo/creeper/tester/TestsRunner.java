@@ -175,8 +175,8 @@ public final class TestsRunner {
     @AllArgsConstructor
     @FieldDefaults(level = AccessLevel.PRIVATE)
     static final class Failure {
-        @NotNull String displayName;
-        @NotNull String message;
+        @Nullable String displayName;
+        @Nullable String message;
         @Nullable TestSource source;
         @NotNull TestsRunner.ThrowableData exception;
 
