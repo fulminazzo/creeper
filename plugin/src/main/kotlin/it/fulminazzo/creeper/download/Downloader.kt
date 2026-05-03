@@ -132,7 +132,7 @@ interface Downloader {
 }
 
 /**
- * An exception thrown by [HttpDownloader] when the server returns an unexpected status code.
+ * An exception thrown by [Downloader.HttpDownloader] when the server returns an unexpected status code.
  *
  * @constructor Creates a new Unrecognized status code exception
  *
