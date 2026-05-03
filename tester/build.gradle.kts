@@ -107,6 +107,50 @@ allprojects {
     tasks.shadowJar {
         archiveClassifier = ""
         archiveBaseName = if (project.name == baseProject.name) project.name else projectName
+
+        val basePackage = "${rootProject.group}.${rootProject.name}.libs"
+        mapOf(
+            "kotlin" to "kotlin",
+            "org.junit" to "junit",
+            "org.opentest4j" to "opentest4j",
+            "com.beust" to "beust",
+            "org.testng" to "testng",
+            "io.kotest" to "kotest",
+            "io.github.classgraph" to "classgraph",
+            "nonapi.io.github.classgraph" to "nonapi.classgraph",
+            "com.github.difflib" to "difflib",
+            "com.github.ajalt" to "ajalt",
+            "net.bytebuddy" to "bytebuddy",
+            "_COROUTINE" to "_COROUTINE",
+            "junit" to "vintage.junit",
+            "org.hamcrest" to "hamcrest",
+            "scala" to "scala",
+            "org.scalactic" to "scalactic",
+            "org.scalatest" to "scalatest",
+            "org.scalatestplus" to "scalatestplus"
+        ).forEach { (from, to) -> relocate(from, "$basePackage.$to") }
+
+        dependencies {
+            val jetbrainsAnnotations = libs.jetbrains.get().module
+            exclude(dependency(jetbrainsAnnotations.group + ":" + jetbrainsAnnotations.name))
+            exclude(dependency("org.apache-extras.beanshell:bsh"))
+            exclude(dependency("net.java.dev.jna:jna"))
+            exclude(dependency("net.java.dev.jna:jna-platform"))
+
+            exclude(
+                "DebugProbesKt.bin", // from kotlin
+                "testng.css", "testng-1.0.dtd", "testngtasks", // from testng
+                "win32-x86/**", "win32-x86-64/**", // from jna
+                "html/**", "images/**", "scala-*.properties", "library.properties", "rootdoc.txt", // from scalatest
+                "**/COPYRIGHT*", "**/LICENSE*", "**/NOTICE*"
+            )
+
+            listOf(
+                "com.android.tools/**", "licenses/**", "maven/**", "proguard/**", "*.version", "*.kotlin_module"
+            ).forEach { exclude("META-INF/$it") }
+        }
+
+        mergeServiceFiles()
     }
 
     tasks.build {

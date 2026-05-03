@@ -10,3 +10,7 @@ dependencies {
     integrationTestImplementation(libs.spigot)
     integrationTestImplementation(libs.mockbukkit)
 }
+
+tasks.shadowJar {
+    relocate("org.slf4j", "${project.group}.${rootProject.name}.libs.slf4j")
+}
