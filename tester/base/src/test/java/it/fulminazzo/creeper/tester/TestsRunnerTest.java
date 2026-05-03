@@ -278,11 +278,6 @@ class TestsRunnerTest {
         assertEquals(expected, actual, "ExceptionData should be generated correctly");
     }
 
-    @Test
-    void testThatTestingEnvironmentWorks() {
-        assertTrue(true);
-    }
-
     private static @NotNull List<String> generateStacktrace(final @NotNull Exception exception) {
         return Arrays.stream(exception.getStackTrace()).map(Object::toString).collect(Collectors.toList());
     }
