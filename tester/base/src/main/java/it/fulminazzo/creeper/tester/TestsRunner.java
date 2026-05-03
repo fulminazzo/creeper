@@ -57,39 +57,46 @@ public final class TestsRunner {
      * @param classLoader the class loader to get the classes from
      */
     public void runTests(final @NotNull ClassLoader classLoader) {
-        TestsResult testsResult;
-        final Path resultsFile = Paths.get(workDir.getAbsolutePath(), TEST_RESULTS_FILENAME);
+        Thread currentThread = Thread.currentThread();
+        ClassLoader previous = currentThread.getContextClassLoader();
         try {
-            logger.info("Running tests...");
-            Files.deleteIfExists(resultsFile);
-            Files.createDirectories(resultsFile.getParent());
+            currentThread.setContextClassLoader(classLoader);
+            TestsResult testsResult;
+            final Path resultsFile = Paths.get(workDir.getAbsolutePath(), TEST_RESULTS_FILENAME);
+            try {
+                logger.info("Running tests...");
+                Files.deleteIfExists(resultsFile);
+                Files.createDirectories(resultsFile.getParent());
 
-            LauncherDiscoveryRequest request = LauncherDiscoveryRequestBuilder.request()
-                    .selectors(ResourceUtils.loadClasses(classLoader, TEST_CLASSES_PACKAGE).stream()
-                            .map(DiscoverySelectors::selectClass)
-                            .collect(Collectors.toList()))
-                    .build();
+                LauncherDiscoveryRequest request = LauncherDiscoveryRequestBuilder.request()
+                        .selectors(ResourceUtils.loadClasses(classLoader, TEST_CLASSES_PACKAGE).stream()
+                                .map(DiscoverySelectors::selectClass)
+                                .collect(Collectors.toList()))
+                        .build();
 
-            Launcher launcher = LauncherFactory.create();
-            SummaryGeneratingListener summaryListener = new SummaryGeneratingListener();
-            launcher.registerTestExecutionListeners(summaryListener);
-            launcher.execute(request);
+                Launcher launcher = LauncherFactory.create();
+                SummaryGeneratingListener summaryListener = new SummaryGeneratingListener();
+                launcher.registerTestExecutionListeners(summaryListener);
+                launcher.execute(request);
 
-            TestExecutionSummary summary = summaryListener.getSummary();
-            testsResult = SuccessfulTestsResult.of(summary);
-        } catch (Exception e) {
-            logger.error("Error while running tests: {}", e.getMessage(), e);
-            testsResult = new ExceptionResult(e);
-        }
-        try {
-            String json = GSON.toJson(testsResult);
-            logger.info("Writing results to {}", resultsFile);
-            try (FileWriter writer = new FileWriter(resultsFile.toFile())) {
-                writer.write(json);
+                TestExecutionSummary summary = summaryListener.getSummary();
+                testsResult = SuccessfulTestsResult.of(summary);
+            } catch (Exception e) {
+                logger.error("Error while running tests: {}", e.getMessage(), e);
+                testsResult = new ExceptionResult(e);
             }
-        } catch (Exception e) {
-            // Yet another exception, we cannot recover from this one
-            logger.error("Error while writing results file in {}: {}", resultsFile, e.getMessage(), e);
+            try {
+                String json = GSON.toJson(testsResult);
+                logger.info("Writing results to {}", resultsFile);
+                try (FileWriter writer = new FileWriter(resultsFile.toFile())) {
+                    writer.write(json);
+                }
+            } catch (Exception e) {
+                // Yet another exception, we cannot recover from this one
+                logger.error("Error while writing results file in {}: {}", resultsFile, e.getMessage(), e);
+            }
+        } finally {
+            currentThread.setContextClassLoader(previous);
         }
     }
 
