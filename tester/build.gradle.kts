@@ -6,16 +6,17 @@ plugins {
 val compileJavaVersion = JavaLanguageVersion.of(8)
 val gradleJavaVersion = JavaLanguageVersion.of(8)
 val implementationDependencies = listOf<String>()
-val creeperGroup = "it.fulminazzo.creeper"
-val creeperVersion = "0.0.1-SNAPSHOT"
+val parentGroup = "it.fulminazzo.creeper"
+val parentVersion = "0.0.1-SNAPSHOT"
+val parentName = "Creeper${project.name.replaceFirstChar { if (it.isLowerCase()) it.titlecase() else it.toString() }}"
 // VARIABLES END
 
 val compileJavaVersionInt = compileJavaVersion.asInt()
 
 extra["implementationDependencies"] = implementationDependencies
 
-group = creeperGroup
-version = creeperVersion
+group = parentGroup
+version = parentVersion
 
 allprojects {
     apply { plugin("java") }
@@ -96,17 +97,20 @@ allprojects {
     }
 
     tasks.processResources {
-        filesMatching("*.(yml|yaml|json)") {
+        val commandName = parentName.lowercase()
+        filesMatching("*.yml") {
             expand(
                 mapOf(
-                    "group" to project.group,
-                    "version" to project.version,
-                    "name" to project.name,
-                    "commandName" to "creepertest",
-                    "commandAliases" to listOf("creepert", "ctest", "ct"),
-                    "commandDescription" to "Runs all the tests contained in the plugin. " +
+                    "group" to rootProject.group,
+                    "version" to rootProject.version,
+                    "name" to parentName,
+                    "name_lower" to parentName.lowercase(),
+                    "command_name" to commandName,
+                    "command_description" to "Runs all the tests contained in the plugin. " +
                             "WARNING: to ensure maximum compatibility, these tests will be run synchronously " +
-                            "when possible. Be ready to lag spikes and other undesirable effects."
+                            "when possible. Be ready to lag spikes and other undesirable effects.",
+                    "command_usage" to "/$commandName",
+                    "command_aliases" to listOf(rootProject.name.lowercase())
                 )
             )
         }
