@@ -1,5 +1,7 @@
 plugins {
     java
+
+    alias(libs.plugins.shadow)
 }
 
 // VARIABLES START
@@ -8,20 +10,22 @@ val gradleJavaVersion = JavaLanguageVersion.of(8)
 val implementationDependencies = listOf<String>()
 val parentGroup = "it.fulminazzo.creeper"
 val parentVersion = "0.0.1-SNAPSHOT"
-val parentName = "Creeper${project.name.replaceFirstChar { if (it.isLowerCase()) it.titlecase() else it.toString() }}"
+val projectName = "Creeper${project.name.replaceFirstChar { if (it.isLowerCase()) it.titlecase() else it.toString() }}"
 // VARIABLES END
 
 val compileJavaVersionInt = compileJavaVersion.asInt()
 
 extra["implementationDependencies"] = implementationDependencies
 
-group = parentGroup
-version = parentVersion
-
 allprojects {
-    apply { plugin("java") }
-
     val libs = rootProject.libs
+    val baseProject = project(":base")
+
+    apply { plugin("java") }
+    apply { plugin(libs.plugins.shadow.get().pluginId) }
+
+    group = parentGroup
+    version = parentVersion
 
     java {
         toolchain {
@@ -65,7 +69,6 @@ allprojects {
         annotationProcessor(libs.lombok)
         compileOnly(libs.jetbrains)
 
-        val baseProject = project(":base")
         if (project.path != baseProject.path) implementation(baseProject)
 
         testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine")
@@ -96,15 +99,29 @@ allprojects {
         compileJavaVersionInt.takeIf { it > 21 }?.let { jvmArgs = listOf("-XX:+EnableDynamicAgentLoading") }
     }
 
+    tasks.jar {
+        archiveClassifier = "original"
+        archiveBaseName = if (project.name == baseProject.name) project.name else projectName
+    }
+
+    tasks.shadowJar {
+        archiveClassifier = ""
+        archiveBaseName = if (project.name == baseProject.name) project.name else projectName
+    }
+
+    tasks.build {
+        dependsOn(tasks.shadowJar)
+    }
+
     tasks.processResources {
-        val commandName = parentName.lowercase()
+        val commandName = projectName.lowercase()
         filesMatching("*.yml") {
             expand(
                 mapOf(
                     "group" to rootProject.group,
                     "version" to rootProject.version,
-                    "name" to parentName,
-                    "name_lower" to parentName.lowercase(),
+                    "name" to projectName,
+                    "name_lower" to projectName.lowercase(),
                     "command_name" to commandName,
                     "command_description" to "Runs all the tests contained in the plugin. " +
                             "WARNING: to ensure maximum compatibility, these tests will be run synchronously " +

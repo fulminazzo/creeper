@@ -1,6 +1,8 @@
 [versions]
 # PLUGINS
 kotlin = "2.3.21"
+# This version of shadow seems to support all versions of Java from 1.8 and Gradle from 8
+shadow = "8.3.10"
 
 # ANNOTATIONS
 lombok = "1.18.46"
@@ -79,6 +81,7 @@ munit = { module = "org.scalameta:munit_3", version.ref = "munit" }
 
 [plugins]
 kotlin = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
+shadow = { id = "com.gradleup.shadow", version.ref = "shadow" }
 
 [bundles]
 # TEST ENGINES
