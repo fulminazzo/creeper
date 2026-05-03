@@ -1,11 +1,13 @@
 package it.fulminazzo.creeper.tester;
 
+import com.google.gson.Gson;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
+import java.io.FileWriter;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -18,9 +20,11 @@ import java.util.stream.Collectors;
  */
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 @RequiredArgsConstructor
-public class TesterMain {
+public final class TesterMain {
     private static final @NotNull String TEST_CLASSES_PACKAGE = TesterMain.class.getPackage().getName() + ".tests";
     private static final @NotNull String TEST_RESULTS_FILENAME = "test-results.json";
+
+    private static final @NotNull Gson GSON = new Gson();
 
     @NotNull File workDir;
 
@@ -30,13 +34,22 @@ public class TesterMain {
      * @param classLoader the class loader to get the classes from
      */
     public void runTests(final @NotNull ClassLoader classLoader) {
+        final TestsResult testsResult;
+        final Path resultsFile = Paths.get(workDir.getAbsolutePath(), TEST_RESULTS_FILENAME);
         try {
-            Path resultsFile = Paths.get(workDir.getAbsolutePath(), TEST_RESULTS_FILENAME);
             Files.deleteIfExists(resultsFile);
             Files.createDirectories(resultsFile.getParent());
-            //TODO: tests
+            throw new UnsupportedOperationException("Not yet implemented");
         } catch (Exception e) {
-            //TODO: exception handling
+            testsResult = new ExceptionResult(e);
+        }
+        try {
+            String json = GSON.toJson(testsResult);
+            try (FileWriter writer = new FileWriter(resultsFile.toFile())) {
+                writer.write(json);
+            }
+        } catch (Exception e) {
+            // Yet another exception, we cannot recover from this one
         }
     }
 
