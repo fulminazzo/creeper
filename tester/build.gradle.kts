@@ -10,6 +10,8 @@ val creeperGroup = "it.fulminazzo.creeper"
 val creeperVersion = "0.0.1-SNAPSHOT"
 // VARIABLES END
 
+val compileJavaVersionInt = compileJavaVersion.asInt()
+
 group = creeperGroup
 version = creeperVersion
 
@@ -45,12 +47,12 @@ dependencies {
 tasks.compileJava {
     // compile to the required Java version
     javaCompiler = javaToolchains.compilerFor { languageVersion = compileJavaVersion }
-    options.release.set(compileJavaVersion.asInt())
+    compileJavaVersionInt.takeIf { it > 8 }?.let { options.release = it }
 }
 
 tasks.test {
     useJUnitPlatform()
-    jvmArgs = listOf("-XX:+EnableDynamicAgentLoading")
+    compileJavaVersionInt.takeIf { it > 21 }?.let { jvmArgs = listOf("-XX:+EnableDynamicAgentLoading") }
 }
 
 tasks.processResources {
