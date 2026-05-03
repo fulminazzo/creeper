@@ -1,4 +1,7 @@
 [versions]
+# PLUGINS
+kotlin = "2.3.21"
+
 # ANNOTATIONS
 lombok = "1.18.46"
 jetbrains = "26.1.0"
@@ -21,6 +24,7 @@ testng-engine = "1.1.0"
 # TEST FRAMEWORKS
 testng = "7.5.1"
 spock = "2.4-groovy-4.0"
+kotlin-test = "2.3.21"
 
 [libraries]
 # ANNOTATIONS
@@ -47,6 +51,10 @@ testng-engine = { module = "org.junit.support:testng-engine", version.ref = "tes
 # TEST FRAMEWORKS
 testng = { module = "org.testng:testng", version.ref = "testng" }
 spock = { module = "org.spockframework:spock-core", version.ref = "spock" }
+kotlin-test = { module = "org.jetbrains.kotlin:kotlin-test", version.ref = "kotlin-test" }
+
+[plugins]
+kotlin = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
 
 [bundles]
 # TESTS
@@ -60,5 +68,6 @@ test-engines = [
 # TEST FRAMEWORKS
 test-frameworks = [
     "testng", # Java
-    "spock" # Groovy
+    "spock", # Groovy
+    "kotlin-test" # Kotlin
 ]
