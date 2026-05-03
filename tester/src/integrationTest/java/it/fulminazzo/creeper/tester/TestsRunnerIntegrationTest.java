@@ -20,8 +20,9 @@ public class TestsRunnerIntegrationTest {
      * Kotlin - JUnit
      * Kotlin - Kotest
      * Scala - Scalatest
+     * Scala - MUnit
      */
-    private static final int EXPECTED_SUCCEEDED_TESTS = 6;
+    private static final int EXPECTED_SUCCEEDED_TESTS = 7;
     // Scalatest counts the suite class as a test
     private static final int EXPECTED_TOTAL_TESTS = EXPECTED_SUCCEEDED_TESTS + 1;
 
@@ -52,7 +53,7 @@ public class TestsRunnerIntegrationTest {
             assertEquals(
                     EXPECTED_SUCCEEDED_TESTS,
                     result.getSucceededTests(),
-                    String.format("There should have been %s succeeded tests: %s", EXPECTED_TOTAL_TESTS, result)
+                    String.format("There should have been %s succeeded tests: %s", EXPECTED_SUCCEEDED_TESTS, result)
             );
             assertEquals(
                     EXPECTED_TOTAL_TESTS,
