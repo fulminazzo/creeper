@@ -30,20 +30,20 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
-class TesterRunnerTest {
+class TestsRunnerTest {
     private static final @NotNull String TEST_EXECUTION_SUMMARY_TYPE = "org.junit.platform.launcher.listeners.MutableTestExecutionSummary";
 
-    private static final @NotNull ClassLoader CLASS_LOADER = TesterRunnerTest.class.getClassLoader();
+    private static final @NotNull ClassLoader CLASS_LOADER = TestsRunnerTest.class.getClassLoader();
 
     private static final @NotNull File WORKING_DIR = new File("build/resources/test/tester_main");
-    private static final @NotNull Logger LOGGER = LoggerFactory.getLogger(TesterRunnerTest.class);
+    private static final @NotNull Logger LOGGER = LoggerFactory.getLogger(TestsRunnerTest.class);
 
     private static final @NotNull Gson GSON = new Gson();
 
     @Test
     void testThatRunTestsCorrectlyReportsTestsSummary() throws ClassNotFoundException, IOException, NoSuchFieldException {
         try (MockedStatic<LauncherFactory> mock = mockStatic(LauncherFactory.class)) {
-            TesterRunner.SuccessfulTestsResult expected = new TesterRunner.SuccessfulTestsResult(
+            TestsRunner.SuccessfulTestsResult expected = new TestsRunner.SuccessfulTestsResult(
                     1000L,
                     2000L,
                     1L,
@@ -51,15 +51,15 @@ class TesterRunnerTest {
                     2L,
                     6L,
                     Collections.singletonList(
-                            new TesterRunner.Failure(
+                            new TestsRunner.Failure(
                                     "Container failure",
                                     "Container failed execution!",
-                                    new TesterRunner.TestSource(
-                                            TesterRunnerTest.class.getCanonicalName(),
+                                    new TestsRunner.TestSource(
+                                            TestsRunnerTest.class.getCanonicalName(),
                                             null,
                                             null
                                     ),
-                                    new TesterRunner.ThrowableData(
+                                    new TestsRunner.ThrowableData(
                                             Error.class.getCanonicalName(),
                                             "Container failed execution!",
                                             Collections.emptyList(),
@@ -72,26 +72,26 @@ class TesterRunnerTest {
                     2L,
                     7L,
                     Arrays.asList(
-                            new TesterRunner.Failure(
+                            new TestsRunner.Failure(
                                     "First test failure",
                                     "Test method failed execution!",
-                                    new TesterRunner.TestSource(
-                                            TesterRunnerTest.class.getCanonicalName(),
+                                    new TestsRunner.TestSource(
+                                            TestsRunnerTest.class.getCanonicalName(),
                                             "testThatRunTestsCorrectlyReportsTestsSummary",
                                             "''"
                                     ),
-                                    new TesterRunner.ThrowableData(
+                                    new TestsRunner.ThrowableData(
                                             RuntimeException.class.getCanonicalName(),
                                             "Test method failed execution!",
                                             Collections.emptyList(),
                                             null
                                     )
                             ),
-                            new TesterRunner.Failure(
+                            new TestsRunner.Failure(
                                     "Second test failure",
                                     "Test class failed execution!",
                                     null,
-                                    new TesterRunner.ThrowableData(
+                                    new TestsRunner.ThrowableData(
                                             Exception.class.getCanonicalName(),
                                             "Test class failed execution!",
                                             Collections.emptyList(),
@@ -122,7 +122,7 @@ class TesterRunnerTest {
                 when(identifier.getDisplayName()).thenReturn("Container failure");
                 when(identifier.getSource()).thenAnswer(a2 -> {
                     ClassSource source = mock(ClassSource.class);
-                    when(source.getClassName()).thenReturn(TesterRunnerTest.class.getCanonicalName());
+                    when(source.getClassName()).thenReturn(TestsRunnerTest.class.getCanonicalName());
                     return Optional.of(source);
                 });
                 return identifier;
@@ -144,7 +144,7 @@ class TesterRunnerTest {
                 when(identifier.getDisplayName()).thenReturn("First test failure");
                 when(identifier.getSource()).thenAnswer(a2 -> {
                     MethodSource source = mock(MethodSource.class);
-                    when(source.getClassName()).thenReturn(TesterRunnerTest.class.getCanonicalName());
+                    when(source.getClassName()).thenReturn(TestsRunnerTest.class.getCanonicalName());
                     when(source.getMethodName()).thenReturn("testThatRunTestsCorrectlyReportsTestsSummary");
                     when(source.getMethodParameterTypes()).thenReturn("''");
                     return Optional.of(source);
@@ -188,14 +188,14 @@ class TesterRunnerTest {
 
             mock.when(LauncherFactory::create).thenReturn(launcher);
 
-            TesterRunner runner = new TesterRunner(WORKING_DIR, LOGGER);
+            TestsRunner runner = new TestsRunner(WORKING_DIR, LOGGER);
             assertDoesNotThrow(() -> runner.runTests(CLASS_LOADER));
 
-            File resultsFile = new File(WORKING_DIR, TesterRunner.TEST_RESULTS_FILENAME);
+            File resultsFile = new File(WORKING_DIR, TestsRunner.TEST_RESULTS_FILENAME);
             assertTrue(resultsFile.exists(), "Results file should have been created");
 
             try (FileReader reader = new FileReader(resultsFile)) {
-                TesterRunner.SuccessfulTestsResult result = GSON.fromJson(reader, TesterRunner.SuccessfulTestsResult.class);
+                TestsRunner.SuccessfulTestsResult result = GSON.fromJson(reader, TestsRunner.SuccessfulTestsResult.class);
                 assertTrue(result.isSuccess(), "Test should have not failed");
 
                 // Remove stacktrace to compare with expected
@@ -216,17 +216,17 @@ class TesterRunnerTest {
                 throw new RuntimeException("Test exception");
             });
 
-            TesterRunner runner = new TesterRunner(WORKING_DIR, LOGGER);
+            TestsRunner runner = new TestsRunner(WORKING_DIR, LOGGER);
             assertDoesNotThrow(() -> runner.runTests(CLASS_LOADER));
 
-            File resultsFile = new File(WORKING_DIR, TesterRunner.TEST_RESULTS_FILENAME);
+            File resultsFile = new File(WORKING_DIR, TestsRunner.TEST_RESULTS_FILENAME);
             assertTrue(resultsFile.exists(), "Results file should have been created");
 
             try (FileReader reader = new FileReader(resultsFile)) {
-                TesterRunner.ExceptionResult result = GSON.fromJson(reader, TesterRunner.ExceptionResult.class);
+                TestsRunner.ExceptionResult result = GSON.fromJson(reader, TestsRunner.ExceptionResult.class);
                 assertFalse(result.isSuccess(), "Test should have failed");
 
-                TesterRunner.ThrowableData data = result.getException();
+                TestsRunner.ThrowableData data = result.getException();
                 assertEquals(
                         RuntimeException.class.getCanonicalName(),
                         data.getThrowableName(),
@@ -246,7 +246,7 @@ class TesterRunnerTest {
 
     @Test
     void testThatRunTestsDoesNotThrowOnWriteException() {
-        TesterRunner runner = new TesterRunner(new File("/tests/"), LOGGER);
+        TestsRunner runner = new TestsRunner(new File("/tests/"), LOGGER);
         assertDoesNotThrow(() -> runner.runTests(CLASS_LOADER));
     }
 
@@ -256,15 +256,15 @@ class TesterRunnerTest {
         Exception cause = new IllegalArgumentException("cause", subcause);
         Exception main = new RuntimeException("test", cause);
 
-        TesterRunner.ThrowableData expected = new TesterRunner.ThrowableData(
+        TestsRunner.ThrowableData expected = new TestsRunner.ThrowableData(
                 RuntimeException.class.getCanonicalName(),
                 "test",
                 generateStacktrace(main),
-                new TesterRunner.ThrowableData(
+                new TestsRunner.ThrowableData(
                         IllegalArgumentException.class.getCanonicalName(),
                         "cause",
                         generateStacktrace(cause),
-                        new TesterRunner.ThrowableData(
+                        new TestsRunner.ThrowableData(
                                 IllegalStateException.class.getCanonicalName(),
                                 null,
                                 generateStacktrace(subcause),
@@ -273,7 +273,7 @@ class TesterRunnerTest {
                 )
         );
 
-        TesterRunner.ThrowableData actual = TesterRunner.ThrowableData.of(main);
+        TestsRunner.ThrowableData actual = TestsRunner.ThrowableData.of(main);
 
         assertEquals(expected, actual, "ExceptionData should be generated correctly");
     }

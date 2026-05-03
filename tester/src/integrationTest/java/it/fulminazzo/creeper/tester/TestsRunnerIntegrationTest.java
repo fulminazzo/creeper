@@ -11,29 +11,29 @@ import java.io.IOException;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class TesterRunnerIntegrationTest {
+public class TestsRunnerIntegrationTest {
     /**
      * Java - JUnit
      */
     private static final int EXPECTED_TOTAL_TESTS = 1;
 
-    private static final ClassLoader CLASS_LOADER = TesterRunnerIntegrationTest.class.getClassLoader();
+    private static final ClassLoader CLASS_LOADER = TestsRunnerIntegrationTest.class.getClassLoader();
 
     private static final File WORKING_DIR = new File("build/resources/test/integration_test");
-    private static final Logger LOGGER = LoggerFactory.getLogger(TesterRunnerIntegrationTest.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(TestsRunnerIntegrationTest.class);
 
     private static final Gson GSON = new Gson();
 
     @Test
     void testThatTestRunnerLoadsTestsFromDifferentPlatforms() throws IOException {
-        TesterRunner runner = new TesterRunner(WORKING_DIR, LOGGER);
+        TestsRunner runner = new TestsRunner(WORKING_DIR, LOGGER);
         assertDoesNotThrow(() -> runner.runTests(CLASS_LOADER));
 
-        File resultsFile = new File(WORKING_DIR, TesterRunner.TEST_RESULTS_FILENAME);
+        File resultsFile = new File(WORKING_DIR, TestsRunner.TEST_RESULTS_FILENAME);
         assertTrue(resultsFile.exists(), "Results file should have been created");
 
         try (FileReader reader = new FileReader(resultsFile)) {
-            TesterRunner.SuccessfulTestsResult result = GSON.fromJson(reader, TesterRunner.SuccessfulTestsResult.class);
+            TestsRunner.SuccessfulTestsResult result = GSON.fromJson(reader, TestsRunner.SuccessfulTestsResult.class);
             assertTrue(result.isSuccess(), "Test should have not failed");
 
             assertEquals(0, result.getFailedContainers(), "There should have been no failed containers: " + result);
