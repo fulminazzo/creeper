@@ -188,8 +188,8 @@ class TesterRunnerTest {
 
             mock.when(LauncherFactory::create).thenReturn(launcher);
 
-            TesterRunner main = new TesterRunner(WORKING_DIR, LOGGER);
-            assertDoesNotThrow(() -> main.runTests(CLASS_LOADER));
+            TesterRunner runner = new TesterRunner(WORKING_DIR, LOGGER);
+            assertDoesNotThrow(() -> runner.runTests(CLASS_LOADER));
 
             File resultsFile = new File(WORKING_DIR, TesterRunner.TEST_RESULTS_FILENAME);
             assertTrue(resultsFile.exists(), "Results file should have been created");
@@ -216,8 +216,8 @@ class TesterRunnerTest {
                 throw new RuntimeException("Test exception");
             });
 
-            TesterRunner main = new TesterRunner(WORKING_DIR, LOGGER);
-            assertDoesNotThrow(() -> main.runTests(CLASS_LOADER));
+            TesterRunner runner = new TesterRunner(WORKING_DIR, LOGGER);
+            assertDoesNotThrow(() -> runner.runTests(CLASS_LOADER));
 
             File resultsFile = new File(WORKING_DIR, TesterRunner.TEST_RESULTS_FILENAME);
             assertTrue(resultsFile.exists(), "Results file should have been created");
@@ -246,8 +246,8 @@ class TesterRunnerTest {
 
     @Test
     void testThatRunTestsDoesNotThrowOnWriteException() {
-        TesterRunner main = new TesterRunner(new File("/tests/"), LOGGER);
-        assertDoesNotThrow(() -> main.runTests(CLASS_LOADER));
+        TesterRunner runner = new TesterRunner(new File("/tests/"), LOGGER);
+        assertDoesNotThrow(() -> runner.runTests(CLASS_LOADER));
     }
 
     @Test
