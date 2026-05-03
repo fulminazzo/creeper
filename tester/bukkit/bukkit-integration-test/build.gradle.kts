@@ -1,3 +1,5 @@
+import com.github.jengelman.gradle.plugins.shadow.transformers.GroovyExtensionModuleTransformer
+
 plugins {
     java
 }
@@ -11,16 +13,17 @@ dependencies {
 
 tasks.shadowJar {
     val basePackage = "${rootProject.group}.${rootProject.name}.testlibs"
+
     mapOf(
-        "org.apache.groovy" to "apache.groovy",
-        "org.codehaus.groovy" to "codehaus.groovy",
-        "groovy" to "groovy",
-        "groovyjarjarantlr4" to "groovyjarjarantlr4",
-        "groovyjarjarasm" to "groovyjarjarasm",
-        "groovyjarjarpicocli" to "groovyjarjarpicocli",
+//        "org.apache.groovy" to "apache.groovy", // not relocating for issues
+//        "org.codehaus.groovy" to "codehaus.groovy", // not relocating for issues
+//        "groovy" to "groovy", // not relocating for issues
+//        "groovyjarjarantlr4" to "groovyjarjarantlr4", // not relocating for issues
+//        "groovyjarjarasm" to "groovyjarjarasm", // not relocating for issues
+//        "groovyjarjarpicocli" to "groovyjarjarpicocli", // not relocating for issues
         "spock" to "spock",
         "org.spockframework" to "spockframework",
-        "munit" to "munit",
+//        "munit" to "munit", // not relocating for issues
         "io.leangen.geantyref" to "geantyref",
         "javax" to "javax",
         "org.slf4j" to "slf4j"
@@ -28,9 +31,8 @@ tasks.shadowJar {
 
     dependencies {
         exclude("dsld/**", "sbt/**", "org/scalatools/**")
-
-        listOf("groovy-release-info.properties", "dgminfo", "resources/**").forEach { exclude("META-INF/$it") }
     }
 
     mergeServiceFiles()
+    transform(GroovyExtensionModuleTransformer::class.java)
 }

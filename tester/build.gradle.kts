@@ -122,7 +122,7 @@ allprojects {
             "com.github.ajalt" to "ajalt",
             "net.bytebuddy" to "bytebuddy",
             "_COROUTINE" to "_COROUTINE",
-            "junit" to "vintage.junit",
+//            "junit" to "vintage.junit", // not relocating for issues
             "org.hamcrest" to "hamcrest",
             "scala" to "scala",
             "org.scalactic" to "scalactic",
