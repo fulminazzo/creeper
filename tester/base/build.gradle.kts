@@ -1,8 +1,5 @@
 plugins {
     `java-library`
-    groovy
-    alias(libs.plugins.kotlin)
-    scala
 }
 
 val implementationDependencies: List<String> by rootProject
@@ -17,5 +14,5 @@ dependencies {
     api(libs.bundles.test.engines)
     implementationDependencies.forEach { api(it) }
 
-    integrationTestImplementation(libs.bundles.test.frameworks)
+    integrationTestImplementation(project(":integration-test"))
 }

@@ -1,6 +1,7 @@
 rootProject.name = "tester"
 
 include(
+    "integration-test",
     "base",
     "bukkit"
 )
