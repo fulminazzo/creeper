@@ -107,7 +107,12 @@ tasks.processResources {
             mapOf(
                 "group" to project.group,
                 "version" to project.version,
-                "name" to project.name
+                "name" to project.name,
+                "commandName" to "creepertest",
+                "commandAliases" to listOf("creepert", "ctest", "ct"),
+                "commandDescription" to "Runs all the tests contained in the plugin. " +
+                        "WARNING: to ensure maximum compatibility, these tests will be run synchronously " +
+                        "when possible. Be ready to lag spikes and other undesirable effects."
             )
         )
     }
