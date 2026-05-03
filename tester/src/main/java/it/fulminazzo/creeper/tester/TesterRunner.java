@@ -28,12 +28,13 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 /**
- * Main class of the program, containing the testing and reporting logic.
+ * A runner for executing tests from the {@link #TEST_CLASSES_PACKAGE}.
+ * Check {@link #runTests(ClassLoader)} to understand how reports are computed.
  */
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 @RequiredArgsConstructor
-public final class TesterMain {
-    private static final @NotNull String TEST_CLASSES_PACKAGE = TesterMain.class.getPackage().getName() + ".tests";
+public final class TesterRunner {
+    private static final @NotNull String TEST_CLASSES_PACKAGE = TesterRunner.class.getPackage().getName() + ".tests";
     static final @NotNull String TEST_RESULTS_FILENAME = "test-results.json";
 
     private static final @NotNull Gson GSON = new Gson();
@@ -170,7 +171,7 @@ public final class TesterMain {
         @NotNull String displayName;
         @NotNull String message;
         @Nullable TestSource source;
-        @NotNull TesterMain.ThrowableData exception;
+        @NotNull TesterRunner.ThrowableData exception;
 
         /**
          * Extracts a {@link Failure} from a JUnit {@link TestExecutionSummary.Failure}.
@@ -226,7 +227,7 @@ public final class TesterMain {
     @EqualsAndHashCode(callSuper = true)
     @ToString(callSuper = true)
     static final class ExceptionResult extends TestsResult {
-        @NotNull TesterMain.ThrowableData exception;
+        @NotNull TesterRunner.ThrowableData exception;
 
         /**
          * Instantiates a new Exception result.
@@ -251,7 +252,7 @@ public final class TesterMain {
         @NotNull String throwableName;
         @Nullable String message;
         @NotNull List<String> stackTrace;
-        @Nullable TesterMain.ThrowableData cause;
+        @Nullable TesterRunner.ThrowableData cause;
 
         /**
          * Generates an {@link ThrowableData} from a {@link Throwable}.
