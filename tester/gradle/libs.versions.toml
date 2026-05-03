@@ -43,6 +43,7 @@ jetbrains = { module = "org.jetbrains:annotations", version.ref = "jetbrains" }
 # LOGGING
 slf4j = { module = "org.slf4j:slf4j-api", version.ref = "slf4j" }
 slf4j-simple = { module = "org.slf4j:slf4j-simple", version.ref = "slf4j" }
+slf4j-jdk = { module = "org.slf4j:slf4j-jdk14", version.ref = "slf4j" }
 
 # DATA FORMAT
 gson = { module = "com.google.code.gson:gson", version.ref = "gson" }
