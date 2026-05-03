@@ -18,8 +18,9 @@ public class TestsRunnerIntegrationTest {
      * Java - TestNG
      * Groovy - Spock
      * Kotlin - JUnit
+     * Kotlin - Kotest
      */
-    private static final int EXPECTED_TOTAL_TESTS = 4;
+    private static final int EXPECTED_TOTAL_TESTS = 5;
 
     private static final @NotNull ClassLoader CLASS_LOADER = TestsRunnerIntegrationTest.class.getClassLoader();
 

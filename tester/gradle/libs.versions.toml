@@ -20,11 +20,13 @@ mockito = "4.11.0"
 
 # TEST ENGINES
 testng-engine = "1.1.0"
+kotest-engine = "5.9.1"
 
 # TEST FRAMEWORKS
 testng = "7.5.1"
 spock = "2.4-groovy-4.0"
 kotlin-test = "2.3.21"
+kotest = "5.9.1"
 
 [libraries]
 # ANNOTATIONS
@@ -47,11 +49,13 @@ mockito = { module = "org.mockito:mockito-inline", version.ref = "mockito" }
 
 # TEST ENGINES
 testng-engine = { module = "org.junit.support:testng-engine", version.ref = "testng-engine" }
+kotest-engine = { module = "io.kotest:kotest-runner-junit5", version.ref = "kotest-engine" }
 
 # TEST FRAMEWORKS
 testng = { module = "org.testng:testng", version.ref = "testng" }
 spock = { module = "org.spockframework:spock-core", version.ref = "spock" }
 kotlin-test = { module = "org.jetbrains.kotlin:kotlin-test", version.ref = "kotlin-test" }
+kotest = { module = "io.kotest:kotest-assertions-core", version.ref = "kotest" }
 
 [plugins]
 kotlin = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
@@ -62,12 +66,14 @@ junit = ["junit", "junit-params"]
 
 # TEST ENGINES
 test-engines = [
-    "testng-engine" # Java
+    "testng-engine", # Java
+    "kotest-engine" # Kotlin
 ]
 
 # TEST FRAMEWORKS
 test-frameworks = [
     "testng", # Java
     "spock", # Groovy
-    "kotlin-test" # Kotlin
+    "kotlin-test", # Kotlin
+    "kotest", # Kotlin
 ]
