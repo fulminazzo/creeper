@@ -9,7 +9,6 @@ import it.fulminazzo.creeper.download.CachedDownloader
 import it.fulminazzo.creeper.util.HttpUtils
 import it.fulminazzo.creeper.util.sha256
 import it.fulminazzo.creeper.util.urlEncode
-import org.apache.tools.ant.Project
 import org.slf4j.Logger
 import tools.jackson.module.kotlin.jacksonObjectMapper
 import tools.jackson.module.kotlin.readValue
