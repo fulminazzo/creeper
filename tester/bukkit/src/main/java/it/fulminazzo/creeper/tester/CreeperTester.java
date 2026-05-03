@@ -2,7 +2,9 @@ package it.fulminazzo.creeper.tester;
 
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
+import org.bukkit.plugin.PluginDescriptionFile;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.bukkit.plugin.java.JavaPluginLoader;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
@@ -21,6 +23,21 @@ import java.util.logging.Level;
  */
 public final class CreeperTester extends JavaPlugin implements TesterApplication {
     private @Nullable Logger logger;
+
+    /**
+     * Instantiates a new Creeper tester.
+     *
+     * @param loader      the loader
+     * @param description the description
+     * @param dataFolder  the data folder
+     * @param file        the file
+     */
+    public CreeperTester(final @NotNull JavaPluginLoader loader,
+                         final @NotNull PluginDescriptionFile description,
+                         final @NotNull File dataFolder,
+                         final @NotNull File file) {
+        super(loader, description, dataFolder, file);
+    }
 
     @Override
     public void onEnable() {
