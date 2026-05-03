@@ -35,6 +35,7 @@ dependencies {
     implementation(libs.junit.launcher)
     implementationDependencies.forEach { implementation(it) }
 
+    testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine")
     testImplementation(libs.junit)
 
     testCompileOnly(libs.lombok)
