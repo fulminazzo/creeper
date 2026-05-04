@@ -9,7 +9,7 @@ import it.fulminazzo.creeper.server.ServerType
 import it.fulminazzo.creeper.util.HttpUtils
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.assertThrows
-import org.slf4j.LoggerFactory
+import org.gradle.api.logging.Logging
 import java.nio.file.Path
 import java.util.*
 import kotlin.io.path.deleteIfExists
@@ -23,7 +23,7 @@ class MCJarsApiProviderIntegrationTest {
 
     private val provider = MCJarsApiProvider(
         downloader,
-        LoggerFactory.getLogger(MCJarsApiProviderIntegrationTest::class.java)
+        Logging.getLogger(MCJarsApiProviderIntegrationTest::class.java)
     )
 
     @Test

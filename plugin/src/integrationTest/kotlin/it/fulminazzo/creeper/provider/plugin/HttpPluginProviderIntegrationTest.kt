@@ -3,7 +3,7 @@ package it.fulminazzo.creeper.provider.plugin
 import it.fulminazzo.creeper.download.Downloader
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.assertThrows
-import org.slf4j.LoggerFactory
+import org.gradle.api.logging.Logging
 import java.nio.file.Path
 import kotlin.io.path.createDirectories
 import kotlin.io.path.deleteIfExists
@@ -13,7 +13,7 @@ import kotlin.test.assertTrue
 
 class HttpPluginProviderIntegrationTest {
     private val provider = HttpPluginProvider(
-        LoggerFactory.getLogger(HttpPluginProviderIntegrationTest::class.java),
+        Logging.getLogger(HttpPluginProviderIntegrationTest::class.java),
         Downloader.http()
     )
 

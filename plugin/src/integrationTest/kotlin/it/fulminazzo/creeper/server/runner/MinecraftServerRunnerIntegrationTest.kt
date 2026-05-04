@@ -9,8 +9,8 @@ import it.fulminazzo.creeper.server.spec.settings.MinecraftServerSettings
 import it.fulminazzo.creeper.server.spec.settings.MinecraftServerSettingsBuilder
 import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.assertThrows
-import org.slf4j.Logger
-import org.slf4j.LoggerFactory
+import org.gradle.api.logging.Logger
+import org.gradle.api.logging.Logging
 import java.nio.file.Path
 import java.util.concurrent.Executors
 import kotlin.test.Test
@@ -67,7 +67,7 @@ class MinecraftServerRunnerIntegrationTest {
     }
 
     private companion object {
-        private val LOGGER: Logger = LoggerFactory.getLogger(MinecraftServerRunnerIntegrationTest::class.java)
+        private val LOGGER: Logger = Logging.getLogger(MinecraftServerRunnerIntegrationTest::class.java)
         private val EXECUTOR = Executors.newCachedThreadPool()
         private val BASE_DIRECTORY = Path.of("build/resources/integrationTest/server/runner")
 

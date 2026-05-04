@@ -2,7 +2,7 @@ package it.fulminazzo.creeper.provider.plugin
 
 import it.fulminazzo.creeper.download.CachedDownloader
 import it.fulminazzo.creeper.download.Downloader
-import org.slf4j.Logger
+import org.gradle.api.logging.Logger
 import java.nio.file.Path
 
 /**

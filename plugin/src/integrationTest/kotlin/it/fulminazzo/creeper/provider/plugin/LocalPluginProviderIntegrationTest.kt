@@ -2,7 +2,7 @@ package it.fulminazzo.creeper.provider.plugin
 
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.assertThrows
-import org.slf4j.LoggerFactory
+import org.gradle.api.logging.Logging
 import java.nio.file.Path
 import java.util.concurrent.CompletionException
 import kotlin.io.path.*
@@ -14,7 +14,7 @@ class LocalPluginProviderIntegrationTest {
     private val destination = DIRECTORY.resolve(PLUGIN_NAME)
 
     private val provider = LocalPluginProvider(
-        LoggerFactory.getLogger(LocalPluginProviderIntegrationTest::class.java)
+        Logging.getLogger(LocalPluginProviderIntegrationTest::class.java)
     )
 
     @Test

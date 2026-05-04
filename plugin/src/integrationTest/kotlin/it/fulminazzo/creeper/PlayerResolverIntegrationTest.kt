@@ -3,7 +3,7 @@ package it.fulminazzo.creeper
 import it.fulminazzo.creeper.cache.CacheManager
 import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.BeforeAll
-import org.slf4j.LoggerFactory
+import org.gradle.api.logging.Logging
 import java.util.*
 import kotlin.io.path.createDirectories
 import kotlin.io.path.deleteIfExists
@@ -14,7 +14,7 @@ import kotlin.test.assertTrue
 
 class PlayerResolverIntegrationTest {
     private val resolver = PlayerResolver(
-        LoggerFactory.getLogger(PlayerResolverIntegrationTest::class.java)
+        Logging.getLogger(PlayerResolverIntegrationTest::class.java)
     )
 
     @Test

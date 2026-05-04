@@ -8,7 +8,6 @@ jackson = "3.1.2"
 
 # TESTING
 mockk = "1.14.9"
-slf4j = "2.0.17"
 
 [libraries]
 kotlin-jvm = { module = "org.jetbrains.kotlin:kotlin-gradle-plugin", version.ref = "kotlin-jvm" }
@@ -21,7 +20,6 @@ jackson-kotlin = { module = "tools.jackson.module:jackson-module-kotlin", versio
 
 # TESTING
 mockk = { module = "io.mockk:mockk", version.ref = "mockk" }
-slf4j = {module="org.slf4j:slf4j-simple",version.ref="slf4j"}
 
 [bundles]
 jackson = ["json", "yaml", "properties", "jackson-kotlin"]

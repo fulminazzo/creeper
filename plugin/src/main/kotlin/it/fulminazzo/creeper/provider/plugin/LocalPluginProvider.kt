@@ -1,6 +1,6 @@
 package it.fulminazzo.creeper.provider.plugin
 
-import org.slf4j.Logger
+import org.gradle.api.logging.Logger
 import java.nio.file.Path
 import kotlin.io.path.copyTo
 import kotlin.io.path.createDirectories

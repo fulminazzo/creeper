@@ -10,7 +10,7 @@ import it.fulminazzo.creeper.download.CachedDownloader
 import it.fulminazzo.creeper.util.HttpUtils
 import it.fulminazzo.creeper.util.sha256
 import it.fulminazzo.creeper.util.urlEncode
-import org.slf4j.Logger
+import org.gradle.api.logging.Logger
 import tools.jackson.module.kotlin.readValue
 import java.nio.file.Path
 import java.util.*

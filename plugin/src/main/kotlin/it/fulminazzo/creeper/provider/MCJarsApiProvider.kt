@@ -7,7 +7,7 @@ import it.fulminazzo.creeper.Hashable
 import it.fulminazzo.creeper.download.CachedDownloader
 import it.fulminazzo.creeper.server.ServerType
 import it.fulminazzo.creeper.util.HttpUtils
-import org.slf4j.Logger
+import org.gradle.api.logging.Logger
 import tools.jackson.module.kotlin.readValue
 import java.nio.file.Path
 import java.util.*

@@ -16,7 +16,7 @@
 //import it.fulminazzo.creeper.server.spec.settings.MinecraftServerSettingsBuilder
 //import org.junit.jupiter.params.ParameterizedTest
 //import org.junit.jupiter.params.provider.MethodSource
-//import org.slf4j.LoggerFactory
+//import org.gradle.api.logging.Logging
 //import tools.jackson.dataformat.javaprop.JavaPropsMapper
 //import tools.jackson.module.kotlin.kotlinModule
 //import tools.jackson.module.kotlin.readValue
@@ -32,7 +32,7 @@
 //import kotlin.test.assertTrue
 //
 //class MinecraftServerInstallerIntegrationTest {
-//    private val logger = LoggerFactory.getLogger(MinecraftServerInstallerIntegrationTest::class.java)
+//    private val logger = Logging.getLogger(MinecraftServerInstallerIntegrationTest::class.java)
 //
 //    @Test
 //    fun `test that install correctly downloads executable and sets configuration`() {

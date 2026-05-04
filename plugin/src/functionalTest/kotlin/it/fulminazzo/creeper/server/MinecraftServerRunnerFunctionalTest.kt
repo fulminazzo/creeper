@@ -13,7 +13,7 @@
 //import org.gradle.jvm.toolchain.JavaToolchainService
 //import org.gradle.testfixtures.ProjectBuilder
 //import org.junit.jupiter.api.AfterAll
-//import org.slf4j.LoggerFactory
+//import org.gradle.api.logging.Logging
 //import java.nio.file.Path
 //import java.util.concurrent.Executors
 //import kotlin.test.Test
@@ -80,7 +80,7 @@
 //    }
 //
 //    private companion object {
-//        private val LOGGER = LoggerFactory.getLogger(MinecraftServerRunnerFunctionalTest::class.java)
+//        private val LOGGER = Logging.getLogger(MinecraftServerRunnerFunctionalTest::class.java)
 //        private val EXECUTOR = Executors.newCachedThreadPool()
 //        private val BASE_DIRECTORY = Path.of("build/resources/functionalTest/server/runner")
 //

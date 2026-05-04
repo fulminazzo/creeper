@@ -6,7 +6,7 @@ import it.fulminazzo.creeper.download.Downloader
 import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.assertThrows
-import org.slf4j.LoggerFactory
+import org.gradle.api.logging.Logging
 import java.nio.file.Path
 import kotlin.io.path.createDirectories
 import kotlin.io.path.exists
@@ -16,7 +16,7 @@ import kotlin.test.assertTrue
 
 class ModrinthPluginProviderIntegrationTest {
     private val provider = ModrinthPluginProvider(
-        LoggerFactory.getLogger(ModrinthPluginProviderIntegrationTest::class.java),
+        Logging.getLogger(ModrinthPluginProviderIntegrationTest::class.java),
         CachedDownloader.simple(Downloader.http())
     )
 

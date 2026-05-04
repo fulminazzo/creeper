@@ -3,7 +3,7 @@ package it.fulminazzo.creeper.server.runner
 import it.fulminazzo.creeper.server.ServerType
 import it.fulminazzo.creeper.server.spec.MinecraftServerSpec
 import it.fulminazzo.creeper.server.spec.settings.MinecraftServerSettings
-import org.slf4j.Logger
+import org.gradle.api.logging.Logger
 import java.nio.file.Path
 import java.util.concurrent.Executor
 
