@@ -4,8 +4,7 @@ import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import org.jetbrains.annotations.NotNull;
 
-import java.io.File;
-import java.io.IOException;
+import java.io.*;
 import java.net.JarURLConnection;
 import java.net.URL;
 import java.nio.file.Files;
@@ -25,6 +24,25 @@ import java.util.zip.ZipEntry;
  */
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public final class ResourceUtils {
+
+    /**
+     * Reads the contents of a resource.
+     * 
+     * @param classLoader the classloader to check into
+     * @param resourceName the resource name
+     * @return the resource contents
+     * @throws IOException if an error occurs while reading the resource
+     */
+    public static @NotNull String readResource(final @NotNull ClassLoader classLoader,
+                                               final @NotNull String resourceName) throws IOException {
+        try (InputStream input = classLoader.getResourceAsStream(resourceName);
+             OutputStream outputStream = new ByteArrayOutputStream()) {
+            byte[] buffer = new byte[1024];
+            int length;
+            while ((length = input.read(buffer)) != -1) outputStream.write(buffer, 0, length);
+            return outputStream.toString();
+        }
+    }
 
     /**
      * Loads all the classes of the given package that match the filter.
