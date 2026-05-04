@@ -50,8 +50,8 @@ abstract class MinecraftServerSettingsBuilder : ServerSettingsBuilder() {
     abstract val eula: Property<Boolean>
     abstract val whitelist: Property<Boolean>
     abstract val hardcore: Property<Boolean>
-    abstract val difficulty: Property<Difficulty>
-    abstract val gamemode: Property<Gamemode>
+    abstract val difficulty: Property<String>
+    abstract val gamemode: Property<String>
     abstract val generateStructures: Property<Boolean>
     abstract val onlineMode: Property<Boolean>
     abstract val spawnProtection: Property<Int>
@@ -61,6 +61,10 @@ abstract class MinecraftServerSettingsBuilder : ServerSettingsBuilder() {
     /**
      * PROPERTY VALUES GETTERS
      */
+    private val difficultyValue: Difficulty
+        get() = getEnumValue(Difficulty::class.java, "difficulty", difficulty)
+    private val gamemodeValue: Gamemode
+        get() = getEnumValue(Gamemode::class.java, "gamemode", gamemode)
     private val spawnProtectionValue: Int
         get() = requireNatural(spawnProtection.get(), "spawnProtection")
     private val viewDistanceValue: Int
@@ -72,8 +76,8 @@ abstract class MinecraftServerSettingsBuilder : ServerSettingsBuilder() {
         eula.convention(false)
         whitelist.convention(false)
         hardcore.convention(false)
-        difficulty.convention(Difficulty.PEACEFUL)
-        gamemode.convention(Gamemode.SURVIVAL)
+        difficulty.convention(Difficulty.PEACEFUL.name)
+        gamemode.convention(Gamemode.SURVIVAL.name)
         generateStructures.convention(false)
         onlineMode.convention(false)
         spawnProtection.convention(0)
@@ -91,8 +95,8 @@ abstract class MinecraftServerSettingsBuilder : ServerSettingsBuilder() {
                 true,
                 whitelist.get(),
                 hardcore.get(),
-                difficulty.get(),
-                gamemode.get(),
+                difficultyValue,
+                gamemodeValue,
                 generateStructures.get(),
                 onlineMode.get(),
                 spawnProtectionValue,

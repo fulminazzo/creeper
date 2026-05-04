@@ -73,6 +73,10 @@ class MinecraftServerSettingsBuilderTest : ExtensionTestHelper() {
                 Arguments.of({ b: MinecraftServerSettingsBuilder -> b.maxRam(0, "jb") }),
                 // MinecraftServerSettingsBuilder
                 Arguments.of({ b: MinecraftServerSettingsBuilder -> b.eula.set(false) }),
+                Arguments.of({ b: MinecraftServerSettingsBuilder -> b.difficulty.convention(null) }),
+                Arguments.of({ b: MinecraftServerSettingsBuilder -> b.difficulty.set("invalid") }),
+                Arguments.of({ b: MinecraftServerSettingsBuilder -> b.gamemode.convention(null) }),
+                Arguments.of({ b: MinecraftServerSettingsBuilder -> b.gamemode.set("invalid") }),
                 Arguments.of({ b: MinecraftServerSettingsBuilder -> b.spawnProtection.set(Int.MIN_VALUE) }),
                 Arguments.of({ b: MinecraftServerSettingsBuilder -> b.spawnProtection.set(-1) }),
                 Arguments.of({ b: MinecraftServerSettingsBuilder -> b.viewDistance.set(Int.MIN_VALUE) }),

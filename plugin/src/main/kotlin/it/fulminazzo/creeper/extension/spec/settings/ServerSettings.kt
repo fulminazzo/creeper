@@ -60,4 +60,24 @@ abstract class ServerSettingsBuilder : RamConfigurator {
      */
     fun flags(action: Action<JvmFlagsBuilder>) = action.execute(flags)
 
+    companion object {
+
+        /**
+         * Helper function to extract an enum value from the given property.
+         *
+         * @param E the enum type
+         * @param enumClass the enum class
+         * @param name the name of the property
+         * @param property the property
+         * @return the enum value
+         */
+        @JvmStatic
+        protected fun <E : Enum<E>> getEnumValue(enumClass: Class<E>, name: String, property: Property<String>): E {
+            val raw = property.orNull ?: throw GradleException("Invalid server configuration, missing: $name =")
+            return enumClass.enumConstants.find { it.name.equals(raw, ignoreCase = true) }
+                ?: throw GradleException("Invalid server configuration, unrecognized: $name = $raw")
+        }
+
+    }
+
 }
