@@ -1,8 +1,8 @@
 package it.fulminazzo.creeper.task.server.install
 
 import it.fulminazzo.creeper.CreeperPlugin
-import it.fulminazzo.creeper.provider.ConfigProvider
 import it.fulminazzo.creeper.server.spec.ServerSpec
+import it.fulminazzo.creeper.service.provider.ConfigProviderService
 import org.gradle.api.DefaultTask
 import org.gradle.api.file.RegularFileProperty
 import org.gradle.api.provider.Property
@@ -22,8 +22,8 @@ import kotlin.io.path.fileSize
  */
 abstract class InstallConfigTask : DefaultTask() {
 
-    @get:ServiceReference("configProvider")
-    abstract val configProvider: ConfigProvider
+    @get:ServiceReference("configProviderService")
+    abstract val configProviderService: ConfigProviderService
 
     @get:Internal
     abstract val action: Property<ConfigAction>
@@ -39,7 +39,7 @@ abstract class InstallConfigTask : DefaultTask() {
         val spec = specification.get()
         val file = configFile.get().asFile
         logger.lifecycle("Installing server configuration: ${file.name}")
-        val path = configProvider.get(
+        val path = configProviderService.configProvider.get(
             file.name,
             spec.type,
             spec.version,
