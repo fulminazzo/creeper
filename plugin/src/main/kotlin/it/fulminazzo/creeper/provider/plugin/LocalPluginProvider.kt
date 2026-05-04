@@ -43,6 +43,8 @@ data class LocalPluginRequest(val filepath: String, val overwrite: Boolean) : Pl
     internal val file: Path
         get() = Path.of(filepath)
 
+    constructor(file: Path, overwrite: Boolean) : this(file.toString(), overwrite)
+
     override fun toHashString(): String = filepath.sha256()
 
 }
