@@ -2,7 +2,8 @@ rootProject.name = "tester"
 
 include(
     "base",
-    "bukkit"
+    "bukkit",
+    "integration-test"
 )
 
 @Suppress("UnstableApiUsage")
