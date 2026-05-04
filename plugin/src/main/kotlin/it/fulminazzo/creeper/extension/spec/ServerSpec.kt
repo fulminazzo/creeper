@@ -40,7 +40,7 @@ sealed class ServerSpec<T : ServerType, S : ServerSettings>(
  */
 abstract class ServerSpecBuilder<T : ServerType, B : ServerSettingsBuilder, S : ServerSettings> {
 
-    abstract val type: Property<T>
+    abstract val type: Property<String>
 
     abstract val version: Property<String>
 
@@ -48,6 +48,8 @@ abstract class ServerSpecBuilder<T : ServerType, B : ServerSettingsBuilder, S : 
     abstract val plugins: PluginRequestsBuilder
 
     abstract val serverConfig: B
+
+    protected abstract val serverClassType: Class<T>
 
     /**
      * Builds the server specification.
@@ -76,8 +78,18 @@ abstract class ServerSpecBuilder<T : ServerType, B : ServerSettingsBuilder, S : 
      *
      * @return the type
      */
-    protected fun getSetType(): T =
-        type.orNull ?: throw GradleException("Invalid server configuration, missing: type =")
+    protected fun getSetType(): T {
+        val raw = type.orNull ?: throw GradleException("Invalid server configuration, missing: type =")
+        val type =
+            ServerType.valueOf(raw) ?: throw GradleException("Invalid server configuration, unrecognized: type = $raw")
+        return type.takeIf { serverClassType.isInstance(it) }?.let {
+            @Suppress("UNCHECKED_CAST")
+            it as T
+        } ?: throw GradleException(
+            "Invalid server configuration, type = $raw is not applicable to this configuration. " +
+                    "Expected ${serverClassType.simpleName}"
+        )
+    }
 
     /**
      * Gets the set version.

@@ -42,7 +42,7 @@ class MinecraftServerSpec(
 abstract class MinecraftServerSpecBuilder :
     ServerSpecBuilder<ServerType.MinecraftType, MinecraftServerSettingsBuilder, MinecraftServerSettings>() {
 
-    abstract override val type: Property<ServerType.MinecraftType>
+    abstract override val type: Property<String>
 
     @get:Nested
     abstract override val serverConfig: MinecraftServerSettingsBuilder
@@ -50,6 +50,8 @@ abstract class MinecraftServerSpecBuilder :
     abstract val whitelist: SetProperty<String>
 
     abstract val operators: SetProperty<String>
+
+    override val serverClassType: Class<ServerType.MinecraftType> = ServerType.MinecraftType::class.java
 
     /**
      * Adds players to the whitelist.

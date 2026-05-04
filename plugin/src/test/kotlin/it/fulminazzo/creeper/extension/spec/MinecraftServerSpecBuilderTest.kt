@@ -18,7 +18,7 @@ class MinecraftServerSpecBuilderTest : ExtensionTestHelper() {
 
     @Test
     fun `test that build returns correct default values`() {
-        builder.type.set(ServerType.VANILLA)
+        builder.type.set(ServerType.VANILLA.name)
         builder.version.set("1.16.5")
         builder.whitelist("Fulminazzo")
         builder.whitelist("xca_mux")
@@ -60,7 +60,15 @@ class MinecraftServerSpecBuilderTest : ExtensionTestHelper() {
 
     @Test
     fun `test that build with no version throws`() {
-        builder.type.set(ServerType.VANILLA)
+        builder.type.set(ServerType.VANILLA.name)
+        builder.serverConfig { it.eula.set(true) }
+        assertThrows<GradleException> { builder.build() }
+    }
+
+    @Test
+    fun `test that build throws with invalid type`() {
+        builder.type.set("invalid")
+        builder.version.set("1.16.5")
         builder.serverConfig { it.eula.set(true) }
         assertThrows<GradleException> { builder.build() }
     }
