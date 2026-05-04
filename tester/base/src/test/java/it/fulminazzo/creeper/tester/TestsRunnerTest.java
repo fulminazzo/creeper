@@ -24,6 +24,7 @@ import java.lang.reflect.Field;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -210,10 +211,15 @@ class TestsRunnerTest {
     @Test
     void testThatRunTestsDoesNotThrowOnExceptionDuringExecutionAndCorrectlyStoresResults() throws IOException {
         try (MockedStatic<Files> mock = mockStatic(Files.class)) {
+            AtomicBoolean exceptionThrown = new AtomicBoolean(false);
             mock.when(() -> Files.createDirectories(any())).thenAnswer(a -> {
                 Path path = a.getArgument(0);
                 path.toFile().mkdirs();
-                throw new RuntimeException("Test exception");
+                if (!exceptionThrown.get()) {
+                    exceptionThrown.set(true);
+                    throw new RuntimeException("Test exception");
+                }
+                return path;
             });
 
             TestsRunner runner = new TestsRunner(WORKING_DIR, LOGGER);

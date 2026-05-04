@@ -4,8 +4,7 @@ import be.seeseemelk.mockbukkit.MockBukkit;
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.MockedConstruction;
@@ -24,18 +23,15 @@ import static org.mockito.Mockito.when;
 class CreeperTesterIntegrationTest {
     private CreeperTester plugin;
 
-    @BeforeAll
-    static void setupAll() {
-        MockBukkit.mock();
-    }
-
     @BeforeEach
     void setup() {
+        MockBukkit.mock();
         plugin = MockBukkit.load(CreeperTester.class);
     }
 
-    @AfterAll
-    static void tearDownAll() {
+    @AfterEach
+    void tearDown() {
+        plugin.getDataFolder().mkdirs();
         MockBukkit.unmock();
     }
 
