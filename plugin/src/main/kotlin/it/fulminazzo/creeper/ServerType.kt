@@ -21,6 +21,11 @@ sealed class ServerType(val name: String, private val parent: ServerType?) : Ser
     fun isForkOf(other: ServerType): Boolean = other == this || parent?.isForkOf(other) ?: false
 
     /**
+     * Internal [ServerType] for testing purposes.
+     */
+    internal data object UNKNOWN : ServerType("Unknown", null)
+
+    /**
      * [ServerType] only for Minecraft server platforms.
      *
      * @property name the name of the platform

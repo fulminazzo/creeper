@@ -1,5 +1,9 @@
 package it.fulminazzo.creeper.extension.spec
 
+import io.mockk.every
+import io.mockk.mockk
+import io.mockk.mockkObject
+import io.mockk.unmockkObject
 import it.fulminazzo.creeper.extension.ExtensionTestHelper
 import it.fulminazzo.creeper.provider.plugin.GitHubPluginRequest
 import it.fulminazzo.creeper.provider.plugin.HttpPluginRequest
@@ -63,6 +67,17 @@ class MinecraftServerSpecBuilderTest : ExtensionTestHelper() {
         builder.type.set(ServerType.VANILLA.name)
         builder.serverConfig { it.eula.set(true) }
         assertThrows<GradleException> { builder.build() }
+    }
+
+    @Test
+    fun `test that build throws with non-applicable type`() {
+        mockkObject(ServerType)
+        every { ServerType.valueOf("unknown") } returns ServerType.UNKNOWN
+        builder.type.set("unknown")
+        builder.version.set("1.16.5")
+        builder.serverConfig { it.eula.set(true) }
+        assertThrows<GradleException> { builder.build() }
+        unmockkObject(ServerType)
     }
 
     @Test
