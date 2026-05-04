@@ -38,10 +38,10 @@ object InstallServerTaskRegistrar {
     fun register(project: Project, specification: ServerSpec<*, *>, directory: Path): TaskProvider<Task> {
         val serverId = specification.id.replaceFirstChar { it.uppercaseChar() }
         val installTaskBaseName = "install${serverId}"
-        val tasks = listOf<TaskProvider<*>>()
+        val tasks = mutableListOf<TaskProvider<*>>()
         // MANDATORY, the executable
         val serverDirectory = directory.resolve(serverId)
-        tasks + CreeperPlugin.registerTask(
+        tasks += CreeperPlugin.registerTask(
             project,
             "${installTaskBaseName}Executable",
             "Installs the server executable of server $serverId",
@@ -53,7 +53,7 @@ object InstallServerTaskRegistrar {
         // MANDATORY, the plugins
         val pluginsDirectory = serverDirectory.resolve("plugins")
         val pluginsMetadataDirectory = pluginsDirectory.resolve(ProjectInfo.NAME).resolve("plugins")
-        tasks + specification.plugins.mapIndexed { index, pluginRequest ->
+        tasks += specification.plugins.mapIndexed { index, pluginRequest ->
             val pluginNumber = index + 1
             val pluginMetadata = pluginsMetadataDirectory.resolve(pluginRequest.toHashString())
             val fetchMetadata = CreeperPlugin.registerTask(
@@ -80,7 +80,7 @@ object InstallServerTaskRegistrar {
         // PER-SPECIFICATION
         if (specification is MinecraftServerSpec) {
             // server.properties
-            tasks + CreeperPlugin.registerTask(
+            tasks += CreeperPlugin.registerTask(
                 project,
                 "${installTaskBaseName}ServerProperties",
                 "Installs the server.properties file of server $serverId",
@@ -92,7 +92,7 @@ object InstallServerTaskRegistrar {
             }
             // bukkit.yml
             if (specification.type.isForkOf(ServerType.BUKKIT))
-                tasks + CreeperPlugin.registerTask(
+                tasks += CreeperPlugin.registerTask(
                     project,
                     "${installTaskBaseName}BukkitYml",
                     "Installs the bukkit.yml file of server $serverId",
@@ -103,7 +103,7 @@ object InstallServerTaskRegistrar {
                     task.configFile.set(serverDirectory.resolve("bukkit.yml").toFile())
                 }
             // whitelist.json
-            tasks + CreeperPlugin.registerTask(
+            tasks += CreeperPlugin.registerTask(
                 project,
                 "${installTaskBaseName}Whitelist",
                 "Installs the whitelist.json file of server $serverId",
@@ -114,7 +114,7 @@ object InstallServerTaskRegistrar {
                 task.file.set(serverDirectory.resolve("whitelist.json").toFile())
             }
             // ops.json
-            tasks + CreeperPlugin.registerTask(
+            tasks += CreeperPlugin.registerTask(
                 project,
                 "${installTaskBaseName}Operators",
                 "Installs the ops.json file of server $serverId",
@@ -125,7 +125,7 @@ object InstallServerTaskRegistrar {
                 task.file.set(serverDirectory.resolve("ops.json").toFile())
             }
             // eula.txt
-            tasks + CreeperPlugin.registerTask(
+            tasks += CreeperPlugin.registerTask(
                 project,
                 "${installTaskBaseName}Eula",
                 "Installs the eula.txt file of server $serverId",
