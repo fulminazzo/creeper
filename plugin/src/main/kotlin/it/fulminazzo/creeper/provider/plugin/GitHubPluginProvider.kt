@@ -12,6 +12,7 @@ import it.fulminazzo.creeper.util.sha256
 import it.fulminazzo.creeper.util.urlEncode
 import org.gradle.api.logging.Logger
 import com.fasterxml.jackson.module.kotlin.readValue
+import org.gradle.api.GradleException
 import java.nio.file.Path
 import java.util.*
 import java.util.concurrent.ConcurrentHashMap
@@ -60,7 +61,7 @@ class GitHubPluginProvider internal constructor(
         return fetchReleaseMetadata(request, filename)?.let { release ->
             logger.lifecycle("Downloading plugin from ${release.url}")
             downloader.download(release.url, directory.resolve(filename), release.digest)
-        } ?: throw PluginNotFoundException(
+        } ?: throw GradleException(
             "Could not find GitHub release for ${request.owner}/${request.repository}/${request.release} (filename = ${filename})"
         )
     }

@@ -10,6 +10,7 @@ import it.fulminazzo.creeper.download.CachedDownloader
 import it.fulminazzo.creeper.util.HttpUtils
 import it.fulminazzo.creeper.util.sha256
 import it.fulminazzo.creeper.util.urlEncode
+import org.gradle.api.GradleException
 import org.gradle.api.logging.Logger
 import java.nio.file.Path
 import java.util.*
@@ -87,7 +88,7 @@ class ModrinthPluginProvider internal constructor(
     }
 
     private fun <T> executeSafeRequest(request: ModrinthPluginRequest, filename: String, block: () -> T?): T =
-        block() ?: throw PluginNotFoundException(
+        block() ?: throw GradleException(
             "Could not find Modrinth release for ${request.projectName} (version = ${request.version}, filename = ${filename})"
         )
 

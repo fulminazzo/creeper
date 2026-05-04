@@ -3,6 +3,7 @@ package it.fulminazzo.creeper.provider.plugin
 import it.fulminazzo.creeper.cache.CacheManager
 import it.fulminazzo.creeper.download.CachedDownloader
 import it.fulminazzo.creeper.download.Downloader
+import org.gradle.api.GradleException
 import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.assertThrows
@@ -31,7 +32,7 @@ class GithubPluginProviderIntegrationTest {
 
     @Test
     fun `test that provider throws if the release could not be found`() {
-        assertThrows<PluginNotFoundException> {
+        assertThrows<GradleException> {
             provider.handleRequest(
                 GitHubPluginRequest("fulminazzo", "YAGL", "1.0.l", "YAGL-1.0.0.jar"),
                 DIRECTORY

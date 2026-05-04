@@ -3,6 +3,7 @@ package it.fulminazzo.creeper.provider.plugin
 import it.fulminazzo.creeper.download.Downloader
 import it.fulminazzo.creeper.download.UnrecognizedStatusCodeException
 import it.fulminazzo.creeper.util.sha256
+import org.gradle.api.GradleException
 import org.gradle.api.logging.Logger
 import java.nio.file.Path
 
@@ -35,7 +36,7 @@ class HttpPluginProvider internal constructor(
     private fun <T> executeSafeRequest(request: HttpPluginRequest, block: () -> T): T = try {
         block()
     } catch (e: Exception) {
-        throw PluginNotFoundException(
+        throw GradleException(
             "Could not find plugin from url: ${request.url}${
                 e.message.takeIf { it != null }?.let { " ($it)" } ?: ""
             }")

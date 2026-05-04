@@ -1,6 +1,7 @@
 package it.fulminazzo.creeper.provider.plugin
 
 import it.fulminazzo.creeper.util.sha256
+import org.gradle.api.GradleException
 import org.gradle.api.logging.Logger
 import java.nio.file.Path
 import kotlin.io.path.copyTo
@@ -20,7 +21,7 @@ class LocalPluginProvider internal constructor(logger: Logger, ) : PluginProvide
 
     override fun handleRequest(request: LocalPluginRequest, directory: Path, filename: String): Path {
         val file = request.file
-        if (!file.exists()) throw PluginNotFoundException("Could not find plugin from local file: $file")
+        if (!file.exists()) throw GradleException("Could not find plugin from local file: $file")
         val destination = directory.createDirectories().resolve(filename)
         if (!destination.exists() || request.overwrite) {
             logger.lifecycle("Copying plugin from $file to $destination")

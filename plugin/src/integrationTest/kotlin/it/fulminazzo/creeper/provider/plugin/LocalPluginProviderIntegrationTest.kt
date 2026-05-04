@@ -1,5 +1,6 @@
 package it.fulminazzo.creeper.provider.plugin
 
+import org.gradle.api.GradleException
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.assertThrows
 import org.gradle.api.logging.Logging
@@ -51,7 +52,7 @@ class LocalPluginProviderIntegrationTest {
     fun `test that provider throws if plugin file does not exist`() {
         val request = LocalPluginRequest(Path.of("not-found.jar"), true)
 
-        assertThrows<PluginNotFoundException> { provider.handleRequest(request, DIRECTORY) }
+        assertThrows<GradleException> { provider.handleRequest(request, DIRECTORY) }
     }
 
     private fun checkPluginFile() {

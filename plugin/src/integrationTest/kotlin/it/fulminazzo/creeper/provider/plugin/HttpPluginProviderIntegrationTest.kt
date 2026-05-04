@@ -1,6 +1,7 @@
 package it.fulminazzo.creeper.provider.plugin
 
 import it.fulminazzo.creeper.download.Downloader
+import org.gradle.api.GradleException
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.assertThrows
 import org.gradle.api.logging.Logging
@@ -29,7 +30,7 @@ class HttpPluginProviderIntegrationTest {
     @Test
     fun `test that provider throws if plugin file could not be found`() {
         val request = HttpPluginRequest("https://github.com/fulminazzo/not-found")
-        assertThrows<PluginNotFoundException> { provider.handleRequest(request, DIRECTORY) }
+        assertThrows<GradleException> { provider.handleRequest(request, DIRECTORY) }
     }
 
     companion object {
