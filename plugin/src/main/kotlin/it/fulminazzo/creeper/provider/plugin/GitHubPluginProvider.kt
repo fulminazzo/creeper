@@ -52,9 +52,9 @@ class GitHubPluginProvider internal constructor(
         }.orElse(null)
 
     override fun handleRequest(directory: Path, request: GitHubPluginRequest): Path {
-        logger.info("Fetching GitHub release information for ${request.owner}/${request.repository}/${request.release} (filename =${request.filename})")
+        logger.lifecycle("Fetching GitHub release information for ${request.owner}/${request.repository}/${request.release} (filename =${request.filename})")
         return fetchReleaseMetadata(request)?.let { release ->
-            logger.info("Downloading plugin from ${release.url}")
+            logger.lifecycle("Downloading plugin from ${release.url}")
             downloader.download(release.url, directory.resolve(release.name), release.digest)
         } ?: throw PluginNotFoundException(
             "Could not find GitHub release for ${request.owner}/${request.repository}/${request.release} (filename = ${request.filename})"

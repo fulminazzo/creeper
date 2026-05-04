@@ -53,7 +53,7 @@ class PlayerResolver(private val logger: Logger) {
                 ?: missing.add(username)
         }
         if (missing.isNotEmpty()) {
-            logger.info("Fetching the API for player ids of: ${missing.joinToString(", ")}")
+            logger.lifecycle("Fetching the API for player ids of: ${missing.joinToString(", ")}")
             missing.chunked(MAXIMUM_PLAYERS).forEach { chunk ->
                 val profiles = HttpUtils.postApi(API_URL, JSON_MAPPER.writeValueAsString(chunk))
                     ?.let { JSON_MAPPER.readValue<List<PlayerProfileResponse>>(it) }

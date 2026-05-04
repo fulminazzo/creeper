@@ -105,7 +105,7 @@ sealed class ServerRunner<T : ServerType, C : ServerSettings, S : ServerSpec<T, 
         command += executableName
         command += "nogui"
 
-        logger.info(formatLog("Starting server on port ${specification.settings.port}..."))
+        logger.lifecycle(formatLog("Starting server on port ${specification.settings.port}..."))
         lines.clear()
 
         shutdownHook = Thread { if (isRunning()) forceStop() }
@@ -135,7 +135,7 @@ sealed class ServerRunner<T : ServerType, C : ServerSettings, S : ServerSpec<T, 
      * Forcefully stops the server.
      */
     fun forceStop() {
-        if (isRunning()) logger.info(formatLog("Forcefully stopping server..."))
+        if (isRunning()) logger.lifecycle(formatLog("Forcefully stopping server..."))
         shutdownHook?.let {
             try {
                 Runtime.getRuntime().removeShutdownHook(it)

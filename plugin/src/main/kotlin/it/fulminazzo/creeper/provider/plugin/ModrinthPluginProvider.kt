@@ -74,9 +74,9 @@ class ModrinthPluginProvider internal constructor(
         }.orElse(null)
 
     override fun handleRequest(directory: Path, request: ModrinthPluginRequest): Path {
-        logger.info("Fetching Modrinth release information for ${request.projectName} (version = ${request.version}, filename = ${request.name})")
+        logger.lifecycle("Fetching Modrinth release information for ${request.projectName} (version = ${request.version}, filename = ${request.name})")
         return fetchVersionFileMetadata(request)?.let { versionFile ->
-            logger.info("Downloading plugin from ${versionFile.url}")
+            logger.lifecycle("Downloading plugin from ${versionFile.url}")
             downloader.download(versionFile.url, directory.resolve(versionFile.name), versionFile.hash)
         } ?: throw PluginNotFoundException(
             "Could not find Modrinth release for ${request.projectName} (version = ${request.version}, filename = ${request.name})"

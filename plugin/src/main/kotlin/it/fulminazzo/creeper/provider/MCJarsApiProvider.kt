@@ -38,7 +38,7 @@ class MCJarsApiProvider(
      */
     internal fun fetchBuild(type: ServerType, version: String): BuildResponse? =
         cache.computeIfAbsent(type to version) {
-            logger.info("Fetching build information for Minecraft ${type.name} $version")
+            logger.lifecycle("Fetching build information for Minecraft ${type.name} $version")
             val raw = HttpUtils.getApi("$API_URL${getBuildUrl(type, version)}")
                 ?: return@computeIfAbsent Optional.empty()
             val data = JSON_MAPPER.readValue<RawBuildResponse>(raw).builds.data.firstOrNull()
@@ -59,7 +59,7 @@ class MCJarsApiProvider(
      */
     internal fun fetchConfig(name: String, type: ServerType, version: String): Config? =
         fetchBuild(type, version)?.let { build ->
-            logger.info("Fetching configuration '$name' for Minecraft ${type.name} $version")
+            logger.lifecycle("Fetching configuration '$name' for Minecraft ${type.name} $version")
             HttpUtils.getApi("$API_URL${getBuildConfigUrl(build.uuid)}")?.let { raw ->
                 JSON_MAPPER.readValue<ConfigResponse>(raw).configs.firstOrNull { it.name.endsWith(name) }
             }
@@ -68,7 +68,7 @@ class MCJarsApiProvider(
     override fun get(platform: ServerType, version: String, directory: Path): Path {
         val buildResponse = fetchBuild(platform, version)
         val build = buildResponse ?: throw JarNotFoundException(platform, version)
-        logger.info("Downloading Minecraft ${platform.name} $version")
+        logger.lifecycle("Downloading Minecraft ${platform.name} $version")
         return downloader.download(
             build.url,
             directory.resolve("${platform.id}-$version.jar"),

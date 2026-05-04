@@ -18,7 +18,7 @@ class HttpPluginProvider internal constructor(
 ) : PluginProvider<HttpPluginRequest>(logger) {
 
     override fun handleRequest(directory: Path, request: HttpPluginRequest): Path {
-        logger.info("Downloading plugin from ${request.url}")
+        logger.lifecycle("Downloading plugin from ${request.url}")
         return downloader.downloadIn(request.url, directory)
             ?: throw PluginNotFoundException("Could not find plugin from url: ${request.url}")
     }

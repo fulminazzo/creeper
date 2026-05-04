@@ -22,7 +22,7 @@ class LocalPluginProvider internal constructor(
         if (!file.exists()) throw PluginNotFoundException("Could not find plugin from local file: $file")
         val destination = directory.createDirectories().resolve(file.fileName)
         if (!destination.exists() || request.overwrite) {
-            logger.info("Copying plugin from $file to $destination")
+            logger.lifecycle("Copying plugin from $file to $destination")
             file.copyTo(destination, overwrite = true)
         }
         return destination
