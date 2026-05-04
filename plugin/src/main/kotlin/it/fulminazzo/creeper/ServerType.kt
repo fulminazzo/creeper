@@ -34,4 +34,20 @@ sealed class ServerType(val name: String, private val parent: ServerType?) {
     data object PURPUR : MinecraftType("Purpur", PAPER)
     data object FOLIA : MinecraftType("Folia", PAPER)
 
+    companion object {
+
+        /**
+         * Gets the [ServerType] by its name.
+         */
+        fun valueOf(name: String): ServerType? = values().find { it.name.equals(name, ignoreCase = true) }
+
+        /**
+         * Gets all the set values.
+         *
+         * @return the list of values
+         */
+        fun values(): List<ServerType> = listOf(VANILLA, BUKKIT, SPIGOT, PAPER, PURPUR, FOLIA)
+
+    }
+
 }
