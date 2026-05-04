@@ -14,6 +14,7 @@ import com.fasterxml.jackson.module.kotlin.readValue
 import it.fulminazzo.creeper.extension.spec.ServerSpec
 import kotlin.io.path.extension
 import kotlin.io.path.fileSize
+import kotlin.io.path.readText
 
 /**
  * Task to install a server configuration file.
@@ -47,7 +48,8 @@ abstract class InstallConfigTask : DefaultTask() {
         )
         val mapper = CreeperPlugin.getMapper(path.extension)
         val currentConfig =
-            if (path.fileSize() > 0) mapper.readValue<MutableMap<String, Any>>(path.toFile())
+            // Reading in ISO_8859_1 to support section signs
+            if (path.fileSize() > 0) mapper.readValue<MutableMap<String, Any>>(path.readText(Charsets.ISO_8859_1))
             else mutableMapOf()
         action.get().apply(currentConfig, spec)
         mapper.writeValue(path.toFile(), currentConfig)
