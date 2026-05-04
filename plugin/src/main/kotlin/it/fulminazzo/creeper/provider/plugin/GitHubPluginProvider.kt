@@ -38,26 +38,30 @@ class GitHubPluginProvider internal constructor(
      * Attempts to get the requested release information from the API.
      *
      * @param request the request
+     * @param filename the name of the plugin file
      * @return the release information (or `null` if the release was not found)
      * @throws it.fulminazzo.creeper.util.HttpUtils.ApiException if the API returns an error
      */
-    internal fun fetchReleaseMetadata(request: GitHubPluginRequest): Release? =
+    @JvmOverloads
+    internal fun fetchReleaseMetadata(request: GitHubPluginRequest, filename: String = getName(request)): Release? =
         cache[request.toHashString()] ?: requestCache.computeIfAbsent(request.toHashString()) {
             val raw = HttpUtils.getApi(getReleaseUrl(request.owner, request.repository, request.release))
                 ?: return@computeIfAbsent Optional.empty()
-            val release = JSON_MAPPER.readValue<ReleaseResponse>(raw).assets.firstOrNull { it.name == request.filename }
+            val release = JSON_MAPPER.readValue<ReleaseResponse>(raw).assets.firstOrNull { it.name == filename }
                 ?: return@computeIfAbsent Optional.empty()
             cache.set(request.toHashString(), release, cacheDuration)
             Optional.of(release)
         }.orElse(null)
 
-    override fun handleRequest(request: GitHubPluginRequest, directory: Path): Path {
-        logger.lifecycle("Fetching GitHub release information for ${request.owner}/${request.repository}/${request.release} (filename =${request.filename})")
-        return fetchReleaseMetadata(request)?.let { release ->
+    override fun getName(request: GitHubPluginRequest): String = request.filename
+
+    override fun handleRequest(request: GitHubPluginRequest, directory: Path, filename: String): Path {
+        logger.lifecycle("Fetching GitHub release information for ${request.owner}/${request.repository}/${request.release} (filename =${filename})")
+        return fetchReleaseMetadata(request, filename)?.let { release ->
             logger.lifecycle("Downloading plugin from ${release.url}")
-            downloader.download(release.url, directory.resolve(release.name), release.digest)
+            downloader.download(release.url, directory.resolve(filename), release.digest)
         } ?: throw PluginNotFoundException(
-            "Could not find GitHub release for ${request.owner}/${request.repository}/${request.release} (filename = ${request.filename})"
+            "Could not find GitHub release for ${request.owner}/${request.repository}/${request.release} (filename = ${filename})"
         )
     }
 

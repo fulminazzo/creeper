@@ -13,6 +13,25 @@ import java.nio.file.Path
 sealed class PluginProvider<R : PluginRequest>(protected val logger: Logger) {
 
     /**
+     * Gets the file name of the plugin.
+     *
+     * @param request the plugin request
+     * @return the file name
+     */
+    abstract fun getName(request: R): String
+
+    /**
+     * Handles the specified plugin request.
+     *
+     * @param directory the directory to download plugins to
+     * @param request the plugin request
+     * @param filename the name of the plugin file
+     * @return the path of the downloaded plugin
+     * @throws PluginNotFoundException if the plugin was not found
+     */
+    abstract fun handleRequest(request: R, directory: Path, filename: String): Path
+
+    /**
      * Handles the specified plugin request.
      *
      * @param directory the directory to download plugins to
@@ -20,7 +39,7 @@ sealed class PluginProvider<R : PluginRequest>(protected val logger: Logger) {
      * @return the path of the downloaded plugin
      * @throws PluginNotFoundException if the plugin was not found
      */
-    abstract fun handleRequest(request: R, directory: Path): Path
+    fun handleRequest(request: R, directory: Path): Path = handleRequest(request, directory, getName(request))
 
 }
 

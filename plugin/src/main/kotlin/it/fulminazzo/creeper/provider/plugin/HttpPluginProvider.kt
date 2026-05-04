@@ -1,6 +1,7 @@
 package it.fulminazzo.creeper.provider.plugin
 
 import it.fulminazzo.creeper.download.Downloader
+import it.fulminazzo.creeper.download.UnrecognizedStatusCodeException
 import org.gradle.api.logging.Logger
 import java.nio.file.Path
 
@@ -17,10 +18,26 @@ class HttpPluginProvider internal constructor(
     private val downloader: Downloader
 ) : PluginProvider<HttpPluginRequest>(logger) {
 
-    override fun handleRequest(request: HttpPluginRequest, directory: Path): Path {
+    override fun getName(request: HttpPluginRequest): String = executeSafeRequest(request) {
+        downloader.getFileName(request.url) ?: throw NullPointerException()
+    }
+
+    override fun handleRequest(request: HttpPluginRequest, directory: Path, filename: String): Path {
         logger.lifecycle("Downloading plugin from ${request.url}")
-        return downloader.downloadIn(request.url, directory)
-            ?: throw PluginNotFoundException("Could not find plugin from url: ${request.url}")
+        return executeSafeRequest(request) {
+            val destination = directory.resolve(filename)
+            downloader.download(request.url, destination)
+            destination
+        }
+    }
+
+    private fun <T> executeSafeRequest(request: HttpPluginRequest, block: () -> T): T = try {
+        block()
+    } catch (e: Exception) {
+        throw PluginNotFoundException(
+            "Could not find plugin from url: ${request.url}${
+                e.message.takeIf { it != null }?.let { " ($it)" } ?: ""
+            }")
     }
 
 }

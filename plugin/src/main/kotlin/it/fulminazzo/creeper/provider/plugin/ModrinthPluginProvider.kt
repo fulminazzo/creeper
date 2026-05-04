@@ -73,16 +73,24 @@ class ModrinthPluginProvider internal constructor(
             }
         }.orElse(null)
 
-    override fun handleRequest(request: ModrinthPluginRequest, directory: Path): Path {
-        logger.lifecycle("Fetching Modrinth release information for ${request.projectName} (version = ${request.version}, filename = ${request.name})")
-        return fetchVersionFileMetadata(request)?.let { versionFile ->
-            logger.lifecycle("Downloading plugin from ${versionFile.url}")
-            downloader.download(versionFile.url, directory.resolve(versionFile.name), versionFile.hash)
-        } ?: throw PluginNotFoundException(
-            "Could not find Modrinth release for ${request.projectName} (version = ${request.version}, filename = ${request.name})"
-        )
-
+    override fun getName(request: ModrinthPluginRequest): String = executeSafeRequest(request, request.name) {
+        fetchVersionFileMetadata(request)?.name
     }
+
+    override fun handleRequest(request: ModrinthPluginRequest, directory: Path, filename: String): Path {
+        logger.lifecycle("Fetching Modrinth release information for ${request.projectName} (version = ${request.version}, filename = ${filename})")
+        return executeSafeRequest(request, filename) {
+            fetchVersionFileMetadata(request)?.let { versionFile ->
+                logger.lifecycle("Downloading plugin from ${versionFile.url}")
+                downloader.download(versionFile.url, directory.resolve(filename), versionFile.hash)
+            }
+        }
+    }
+
+    private fun <T> executeSafeRequest(request: ModrinthPluginRequest, filename: String, block: () -> T?): T =
+        block() ?: throw PluginNotFoundException(
+            "Could not find Modrinth release for ${request.projectName} (version = ${request.version}, filename = ${filename})"
+        )
 
     internal companion object {
         internal val CACHE_FILE = CreeperPlugin.CACHE_DIRECTORY.resolve("modrinth.json")

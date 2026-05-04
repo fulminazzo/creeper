@@ -13,14 +13,14 @@ import kotlin.io.path.exists
  *
  * @param logger the logger to use for logging
  */
-class LocalPluginProvider internal constructor(
-    logger: Logger,
-) : PluginProvider<LocalPluginRequest>(logger) {
+class LocalPluginProvider internal constructor(logger: Logger, ) : PluginProvider<LocalPluginRequest>(logger) {
 
-    override fun handleRequest(request: LocalPluginRequest, directory: Path): Path {
+    override fun getName(request: LocalPluginRequest): String = request.file.fileName.toString()
+
+    override fun handleRequest(request: LocalPluginRequest, directory: Path, filename: String): Path {
         val file = request.file
         if (!file.exists()) throw PluginNotFoundException("Could not find plugin from local file: $file")
-        val destination = directory.createDirectories().resolve(file.fileName)
+        val destination = directory.createDirectories().resolve(filename)
         if (!destination.exists() || request.overwrite) {
             logger.lifecycle("Copying plugin from $file to $destination")
             file.copyTo(destination, overwrite = true)
