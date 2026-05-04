@@ -64,6 +64,7 @@ sealed class ServerSpecBuilder<T : ServerType, B : ServerSettingsBuilder, S : Se
      * Builds the server specification.
      *
      * @return the server spec
+     * @throws BuildException if the specification is invalid
      */
     abstract fun build(): ServerSpec<T, S>
 
