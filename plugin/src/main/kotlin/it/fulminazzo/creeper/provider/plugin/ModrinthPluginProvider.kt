@@ -73,7 +73,7 @@ class ModrinthPluginProvider internal constructor(
             }
         }.orElse(null)
 
-    override fun handleRequest(directory: Path, request: ModrinthPluginRequest): Path {
+    override fun handleRequest(request: ModrinthPluginRequest, directory: Path): Path {
         logger.lifecycle("Fetching Modrinth release information for ${request.projectName} (version = ${request.version}, filename = ${request.name})")
         return fetchVersionFileMetadata(request)?.let { versionFile ->
             logger.lifecycle("Downloading plugin from ${versionFile.url}")

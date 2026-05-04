@@ -22,14 +22,14 @@ class HttpPluginProviderIntegrationTest {
         val destination = DIRECTORY.resolve(PLUGIN_NAME)
         destination.deleteIfExists()
         val request = HttpPluginRequest(RESOURCE_URL)
-        provider.handleRequest(DIRECTORY, request)
+        provider.handleRequest(request, DIRECTORY)
         assertTrue(destination.exists(), "Downloaded plugin does not exist: $destination")
     }
 
     @Test
     fun `test that provider throws if plugin file could not be found`() {
         val request = HttpPluginRequest("https://github.com/fulminazzo/not-found")
-        assertThrows<PluginNotFoundException> { provider.handleRequest(DIRECTORY, request) }
+        assertThrows<PluginNotFoundException> { provider.handleRequest(request, DIRECTORY) }
     }
 
     companion object {

@@ -17,7 +17,7 @@ class LocalPluginProvider internal constructor(
     logger: Logger,
 ) : PluginProvider<LocalPluginRequest>(logger) {
 
-    override fun handleRequest(directory: Path, request: LocalPluginRequest): Path {
+    override fun handleRequest(request: LocalPluginRequest, directory: Path): Path {
         val file = request.file
         if (!file.exists()) throw PluginNotFoundException("Could not find plugin from local file: $file")
         val destination = directory.createDirectories().resolve(file.fileName)

@@ -51,7 +51,7 @@ class GitHubPluginProvider internal constructor(
             Optional.of(release)
         }.orElse(null)
 
-    override fun handleRequest(directory: Path, request: GitHubPluginRequest): Path {
+    override fun handleRequest(request: GitHubPluginRequest, directory: Path): Path {
         logger.lifecycle("Fetching GitHub release information for ${request.owner}/${request.repository}/${request.release} (filename =${request.filename})")
         return fetchReleaseMetadata(request)?.let { release ->
             logger.lifecycle("Downloading plugin from ${release.url}")

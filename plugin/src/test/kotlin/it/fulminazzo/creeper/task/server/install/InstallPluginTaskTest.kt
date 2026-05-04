@@ -29,7 +29,7 @@ class InstallPluginTaskTest : InstallTaskTestHelper() {
 
         task.run()
 
-        verify(exactly = 1) { provider.handleRequest(plugin.parentFile.toPath(), request) }
+        verify(exactly = 1) { provider.handleRequest(request, plugin.parentFile.toPath()) }
     }
 
 }

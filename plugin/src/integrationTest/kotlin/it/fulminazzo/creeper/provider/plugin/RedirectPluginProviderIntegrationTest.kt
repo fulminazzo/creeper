@@ -24,7 +24,7 @@ class RedirectPluginProviderIntegrationTest {
     fun `test that provider correctly downloads Modrinth plugin`() {
         val destination = DIRECTORY.resolve(MODRINTH_VERSION.name)
         DIRECTORY.toFile().deleteRecursively()
-        val path = provider.handleRequest(DIRECTORY, MODRINTH_REQUEST)
+        val path = provider.handleRequest(MODRINTH_REQUEST, DIRECTORY)
         assertTrue(destination.exists(), "Downloaded plugin does not exist: $destination")
         assertEquals(destination, path, "Downloaded path does not match expected path")
     }
@@ -34,8 +34,8 @@ class RedirectPluginProviderIntegrationTest {
         val destination = DIRECTORY.resolve(GITHUB_RELEASE.name)
         DIRECTORY.toFile().deleteRecursively()
         val path = provider.handleRequest(
-            DIRECTORY,
-            GITHUB_REQUEST
+            GITHUB_REQUEST,
+            DIRECTORY
         )
         assertTrue(destination.exists(), "Downloaded plugin does not exist: $destination")
         assertEquals(destination, path, "Downloaded path does not match expected path")
@@ -46,7 +46,7 @@ class RedirectPluginProviderIntegrationTest {
         val destination = DIRECTORY.resolve(HTTP_PLUGIN_NAME)
         destination.deleteIfExists()
         val request = HttpPluginRequest(HTTP_RESOURCE_URL)
-        provider.handleRequest(DIRECTORY, request)
+        provider.handleRequest(request, DIRECTORY)
         assertTrue(destination.exists(), "Downloaded plugin does not exist: $destination")
     }
 
@@ -57,7 +57,7 @@ class RedirectPluginProviderIntegrationTest {
 
         val request = LocalPluginRequest(LOCAL_PLUGIN_FILE, true)
 
-        provider.handleRequest(DIRECTORY, request)
+        provider.handleRequest(request, DIRECTORY)
         assertTrue(destination.exists(), "Plugin file does not exist: ${destination.toAbsolutePath()}")
     }
 

@@ -22,12 +22,12 @@ class RedirectPluginProvider(
     private val httpPluginProvider = HttpPluginProvider(logger, Downloader.http())
     private val localPluginProvider = LocalPluginProvider(logger)
 
-    override fun handleRequest(directory: Path, request: PluginRequest): Path =
+    override fun handleRequest(request: PluginRequest, directory: Path): Path =
         when (request) {
-            is ModrinthPluginRequest -> modrinthPluginProvider.handleRequest(directory, request)
-            is GitHubPluginRequest -> gitHubPluginProvider.handleRequest(directory, request)
-            is HttpPluginRequest -> httpPluginProvider.handleRequest(directory, request)
-            is LocalPluginRequest -> localPluginProvider.handleRequest(directory, request)
+            is ModrinthPluginRequest -> modrinthPluginProvider.handleRequest(request, directory)
+            is GitHubPluginRequest -> gitHubPluginProvider.handleRequest(request, directory)
+            is HttpPluginRequest -> httpPluginProvider.handleRequest(request, directory)
+            is LocalPluginRequest -> localPluginProvider.handleRequest(request, directory)
         }
 
 }

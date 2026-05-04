@@ -24,7 +24,7 @@ class ModrinthPluginProviderIntegrationTest {
     fun `test that provider correctly downloads plugin`() {
         val destination = DIRECTORY.resolve(VERSION.name)
         DIRECTORY.toFile().deleteRecursively()
-        val path = provider.handleRequest(DIRECTORY, REQUEST)
+        val path = provider.handleRequest(REQUEST, DIRECTORY)
         assertTrue(destination.exists(), "Downloaded plugin does not exist: $destination")
         assertEquals(destination, path, "Downloaded path does not match expected path")
     }
@@ -33,8 +33,8 @@ class ModrinthPluginProviderIntegrationTest {
     fun `test that provider throws if the release could not be found`() {
         assertThrows<PluginNotFoundException> {
             provider.handleRequest(
-                DIRECTORY,
-                ModrinthPluginRequest("teleporteffects", "1.0.l", "TeleportEffects-3.0.0.jar")
+                ModrinthPluginRequest("teleporteffects", "1.0.l", "TeleportEffects-3.0.0.jar"),
+                DIRECTORY
             )
         }
     }

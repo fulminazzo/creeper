@@ -17,7 +17,7 @@ class HttpPluginProvider internal constructor(
     private val downloader: Downloader
 ) : PluginProvider<HttpPluginRequest>(logger) {
 
-    override fun handleRequest(directory: Path, request: HttpPluginRequest): Path {
+    override fun handleRequest(request: HttpPluginRequest, directory: Path): Path {
         logger.lifecycle("Downloading plugin from ${request.url}")
         return downloader.downloadIn(request.url, directory)
             ?: throw PluginNotFoundException("Could not find plugin from url: ${request.url}")

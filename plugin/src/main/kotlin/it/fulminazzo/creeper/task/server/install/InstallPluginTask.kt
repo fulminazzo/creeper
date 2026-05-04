@@ -29,7 +29,7 @@ abstract class InstallPluginTask : DefaultTask() {
     @TaskAction
     fun run() {
         val directory = plugin.get().asFile.parentFile.toPath()
-        pluginProviderService.get().provider.handleRequest(directory, request.get())
+        pluginProviderService.get().provider.handleRequest(request.get(), directory)
     }
 
 }

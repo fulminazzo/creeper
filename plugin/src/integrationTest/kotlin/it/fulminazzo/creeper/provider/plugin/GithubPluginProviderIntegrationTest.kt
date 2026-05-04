@@ -24,7 +24,7 @@ class GithubPluginProviderIntegrationTest {
     fun `test that provider correctly downloads plugin`() {
         val destination = DIRECTORY.resolve(RELEASE.name)
         DIRECTORY.toFile().deleteRecursively()
-        val path = provider.handleRequest(DIRECTORY, REQUEST)
+        val path = provider.handleRequest(REQUEST, DIRECTORY)
         assertTrue(destination.exists(), "Downloaded plugin does not exist: $destination")
         assertEquals(destination, path, "Downloaded path does not match expected path")
     }
@@ -33,8 +33,8 @@ class GithubPluginProviderIntegrationTest {
     fun `test that provider throws if the release could not be found`() {
         assertThrows<PluginNotFoundException> {
             provider.handleRequest(
-                DIRECTORY,
-                GitHubPluginRequest("fulminazzo", "YAGL", "1.0.l", "YAGL-1.0.0.jar")
+                GitHubPluginRequest("fulminazzo", "YAGL", "1.0.l", "YAGL-1.0.0.jar"),
+                DIRECTORY
             )
         }
     }

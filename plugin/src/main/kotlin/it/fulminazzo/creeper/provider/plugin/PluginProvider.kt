@@ -20,7 +20,7 @@ sealed class PluginProvider<R : PluginRequest>(protected val logger: Logger) {
      * @return the path of the downloaded plugin
      * @throws PluginNotFoundException if the plugin was not found
      */
-    abstract fun handleRequest(directory: Path, request: R): Path
+    abstract fun handleRequest(request: R, directory: Path): Path
 
 }
 
