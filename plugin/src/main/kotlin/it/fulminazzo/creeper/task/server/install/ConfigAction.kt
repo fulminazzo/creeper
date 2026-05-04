@@ -1,5 +1,6 @@
 package it.fulminazzo.creeper.task.server.install
 
+import it.fulminazzo.creeper.ProjectInfo
 import it.fulminazzo.creeper.extension.spec.ServerSpec
 import it.fulminazzo.creeper.extension.spec.settings.MinecraftServerSettings
 
@@ -37,6 +38,7 @@ sealed class ConfigAction {
                 configuration["white-list"] = settings.whitelist
 
                 configuration["allow-nether"] = false
+                configuration["motd"] = ProjectInfo.MOTD
             }
         }
 

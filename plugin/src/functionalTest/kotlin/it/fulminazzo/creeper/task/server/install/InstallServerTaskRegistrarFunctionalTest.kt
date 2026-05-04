@@ -3,6 +3,7 @@ package it.fulminazzo.creeper.task.server.install
 import com.fasterxml.jackson.module.kotlin.readValue
 import it.fulminazzo.creeper.CreeperPlugin
 import it.fulminazzo.creeper.PlayerProfile
+import it.fulminazzo.creeper.ProjectInfo
 import org.gradle.testkit.runner.GradleRunner
 import org.junit.jupiter.api.BeforeEach
 import java.io.File
@@ -67,6 +68,7 @@ class InstallServerTaskRegistrarFunctionalTest {
         assertEquals("2", properties["spawn-protection"], "Spawn protection was not set correctly")
         assertEquals("3", properties["view-distance"], "View distance was not set correctly")
         assertEquals("4", properties["simulation-distance"], "Simulation distance was not set correctly")
+        assertEquals(ProjectInfo.MOTD, properties["motd"], "MOTD was not set correctly")
 
         val whitelistFile = serverDir.resolve("whitelist.json")
         assertTrue(whitelistFile.exists(), "Whitelist file does not exist: $whitelistFile")

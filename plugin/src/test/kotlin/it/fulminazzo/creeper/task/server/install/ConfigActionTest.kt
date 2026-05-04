@@ -1,5 +1,6 @@
 package it.fulminazzo.creeper.task.server.install
 
+import it.fulminazzo.creeper.ProjectInfo
 import it.fulminazzo.creeper.extension.spec.MinecraftServerSpec
 import it.fulminazzo.creeper.extension.spec.settings.Difficulty
 import it.fulminazzo.creeper.extension.spec.settings.Gamemode
@@ -36,6 +37,7 @@ class ConfigActionTest {
         assertEquals(true, configuration["white-list"], "White list should be true")
 
         assertEquals(false, configuration["allow-nether"], "Allow nether should be false")
+        assertEquals(ProjectInfo.MOTD, configuration["motd"], "MOTD should be ${ProjectInfo.MOTD}")
     }
 
     @Test

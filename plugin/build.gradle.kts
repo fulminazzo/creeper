@@ -92,6 +92,12 @@ configure<com.github.gmazzo.gradle.plugins.BuildConfigExtension> {
     buildConfigField("String", "NAME", "\"${name}\"")
     buildConfigField("String", "VERSION", "\"${rootProject.version}\"")
     buildConfigField("String", "USER_AGENT", "\"\$NAME/\$VERSION\"")
+    buildConfigField(
+        "String",
+        "MOTD",
+        "\"\"\"\\u00a72             \$NAME\\u00a7r test server\n" +
+                "Check out\\u00a7a https:\\/\\/github.com\\/fulminazzo\\/\$NAME\\u00a7f!\"\"\""
+    )
 }
 
 afterEvaluate {
