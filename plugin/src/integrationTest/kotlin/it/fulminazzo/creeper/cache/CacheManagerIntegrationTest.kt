@@ -25,6 +25,8 @@ class CacheManagerIntegrationTest {
         manager.set("1", expectedFirst, (sleepTime * 2).milliseconds)
         val expectedSecond = Data("2", "two")
         manager["2"] = expectedSecond
+        val expectedThird = Data("3", "two")
+        manager.set("3", expectedThird, null)
 
         Thread.sleep(sleepTime)
         assertTrue(FILE.exists(), "Cache file does not exist: $FILE")
@@ -34,12 +36,16 @@ class CacheManagerIntegrationTest {
         assertEquals(expectedFirst, actualFirst, "Cached data does not match expected data")
         val actualSecond = manager["2"]
         assertEquals(expectedSecond, actualSecond, "Cached data does not match expected data")
+        val actualThird = manager["3"]
+        assertEquals(expectedThird, actualThird, "Cached data does not match expected data")
 
         Thread.sleep(sleepTime)
         val actualFirst2 = manager["1"]
         assertNull(actualFirst2, "Cached data was not removed after being expired")
         val actualSecond2 = manager["2"]
         assertEquals(expectedSecond, actualSecond2, "Cached data does not match expected data")
+        val actualThird2 = manager["3"]
+        assertEquals(expectedThird, actualThird2, "Cached data does not match expected data")
     }
 
     @Test

@@ -3,12 +3,16 @@ package it.fulminazzo.creeper.extension.spec.settings
 import it.fulminazzo.creeper.extension.ExtensionTestHelper
 import it.fulminazzo.creeper.util.MemoryUnit
 import it.fulminazzo.creeper.util.gb
+import it.fulminazzo.creeper.util.kb
 import org.gradle.api.GradleException
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import org.junit.jupiter.params.ParameterizedTest
+import org.junit.jupiter.params.provider.Arguments
 import org.junit.jupiter.params.provider.CsvSource
+import org.junit.jupiter.params.provider.MethodSource
+import java.util.stream.Stream
 
 class JvmFlagsBuilderTest : ExtensionTestHelper() {
     private val builder = newBuilder()
@@ -64,20 +68,38 @@ class JvmFlagsBuilderTest : ExtensionTestHelper() {
     }
 
     @ParameterizedTest
-    @CsvSource(
-        value = [
-            "-1, 2",
-            "0, 2",
-            "512, 0",
-            "512, -1"
-        ]
-    )
-    fun `test that negative or zero memory throws`(min: String, max: String) {
+    @MethodSource("provideInvalidRamTests")
+    fun `test that build fails with invalid RAM values`(test: (JvmFlagsBuilder) -> Unit) {
         assertThrows<GradleException> {
-            builder.minRam(min.toInt(), MemoryUnit.MB)
-            builder.maxRam(max.toInt(), MemoryUnit.MB)
+            test(builder)
             builder.build()
         }
+    }
+
+    private companion object {
+
+        @JvmStatic
+        fun provideInvalidRamTests(): Stream<Arguments> = Stream.of(
+            // minRam(Int, String)
+            Arguments.of({ b: JvmFlagsBuilder -> b.minRam(-1, "invalid") }),
+            Arguments.of({ b: JvmFlagsBuilder -> b.minRam(0, "kb") }),
+            Arguments.of({ b: JvmFlagsBuilder -> b.minRam(1, "invalid") }),
+            // minRam(Int, MemoryUnit)
+            Arguments.of({ b: JvmFlagsBuilder -> b.minRam(-1, MemoryUnit.KB) }),
+            Arguments.of({ b: JvmFlagsBuilder -> b.minRam(0, MemoryUnit.KB) }),
+            // minRam(MemorySize)
+            Arguments.of({ b: JvmFlagsBuilder -> b.minRam(-1.kb) }),
+            // maxRam(Int, String)
+            Arguments.of({ b: JvmFlagsBuilder -> b.maxRam(-1, "invalid") }),
+            Arguments.of({ b: JvmFlagsBuilder -> b.maxRam(0, "kb") }),
+            Arguments.of({ b: JvmFlagsBuilder -> b.maxRam(1, "invalid") }),
+            // maxRam(Int, MemoryUnit)
+            Arguments.of({ b: JvmFlagsBuilder -> b.maxRam(-1, MemoryUnit.KB) }),
+            Arguments.of({ b: JvmFlagsBuilder -> b.maxRam(0, MemoryUnit.KB) }),
+            // maxRam(MemorySize)
+            Arguments.of({ b: JvmFlagsBuilder -> b.maxRam(-1.kb) })
+        )
+
     }
 
 }

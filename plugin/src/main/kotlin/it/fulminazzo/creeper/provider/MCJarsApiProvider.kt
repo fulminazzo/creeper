@@ -112,16 +112,16 @@ class MCJarsApiProvider(
      */
 
     @JsonIgnoreProperties(ignoreUnknown = true)
-    private data class RawBuildResponse(val builds: BuildPage)
+    data class RawBuildResponse(val builds: BuildPage)
 
     @JsonIgnoreProperties(ignoreUnknown = true)
-    private data class BuildPage(val data: List<BuildData>)
+    data class BuildPage(val data: List<BuildData>)
 
     @JsonIgnoreProperties(ignoreUnknown = true)
-    private data class BuildData(val uuid: UUID, val installation: List<List<Installation>>)
+    data class BuildData(val uuid: UUID, val installation: List<List<Installation>>)
 
     @JsonIgnoreProperties(ignoreUnknown = true)
-    private data class Installation(val url: String, val size: Long)
+    data class Installation(val url: String, val size: Long)
 
 }
 

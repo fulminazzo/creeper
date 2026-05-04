@@ -1,8 +1,10 @@
 package it.fulminazzo.creeper.provider
 
+import io.mockk.every
 import io.mockk.mockkObject
 import io.mockk.unmockkObject
 import io.mockk.verify
+import it.fulminazzo.creeper.CreeperPlugin
 import it.fulminazzo.creeper.download.CachedDownloader
 import it.fulminazzo.creeper.download.Downloader
 import it.fulminazzo.creeper.ServerType
@@ -10,8 +12,12 @@ import it.fulminazzo.creeper.util.HttpUtils
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.assertThrows
 import org.gradle.api.logging.Logging
+import org.junit.jupiter.params.ParameterizedTest
+import org.junit.jupiter.params.provider.Arguments
+import org.junit.jupiter.params.provider.MethodSource
 import java.nio.file.Path
 import java.util.*
+import java.util.stream.Stream
 import kotlin.io.path.deleteIfExists
 import kotlin.io.path.exists
 import kotlin.io.path.name
@@ -27,7 +33,7 @@ class MCJarsApiProviderIntegrationTest {
     )
 
     @Test
-    fun `test that MinecraftJarProvider#get works`() {
+    fun `test that JarProvider#get works`() {
         val destination = WORK_DIR.resolve("${PLATFORM.id}-$VERSION.jar")
         destination.deleteIfExists()
 
@@ -36,15 +42,32 @@ class MCJarsApiProviderIntegrationTest {
     }
 
     @Test
-    fun `test that MinecraftJarProvider#get throws if jar is not found`() {
+    fun `test that JarProvider#get throws if jar is not found`() {
         val version = "1.8.8-not-found"
         val destination = WORK_DIR.resolve("${PLATFORM.id}-$version.jar")
 
         assertThrows<JarNotFoundException> { provider.get(PLATFORM, version, destination.parent) }
     }
 
+    @ParameterizedTest
+    @MethodSource("providerJarProviderInvalidResponses")
+    fun `test that JarProvider#get throws on invalid response from API`(response: MCJarsApiProvider.RawBuildResponse) {
+        mockkObject(HttpUtils)
+        every { HttpUtils.getApi(any()) } returns CreeperPlugin.JSON_MAPPER.writeValueAsString(response)
+        assertThrows<JarNotFoundException> { provider.get(PLATFORM, VERSION, WORK_DIR) }
+        unmockkObject(HttpUtils)
+    }
+
     @Test
-    fun `test that MinecraftConfigProvider#get works`() {
+    fun `test that JarProvider#get throws on null response from API`() {
+        mockkObject(HttpUtils)
+        every { HttpUtils.getApi(any()) } returns null
+        assertThrows<JarNotFoundException> { provider.get(PLATFORM, VERSION, WORK_DIR) }
+        unmockkObject(HttpUtils)
+    }
+
+    @Test
+    fun `test that ConfigProvider#get works`() {
         val destination = WORK_DIR.resolve("server.properties")
         destination.deleteIfExists()
 
@@ -56,13 +79,38 @@ class MCJarsApiProviderIntegrationTest {
     }
 
     @Test
-    fun `test that MinecraftConfigProvider#get throws if configuration is not found`() {
+    fun `test that ConfigProvider#get throws if configuration is not found`() {
         val version = "1.8.8-not-found"
         val destination = WORK_DIR.resolve("server.properties")
 
         assertThrows<ConfigurationNotFoundException> {
             provider.get(destination.name, PLATFORM, version, destination.parent)
         }
+    }
+
+    @Test
+    fun `test that ConfigProvider#get throws on null response from API`() {
+        mockkObject(HttpUtils)
+        every { HttpUtils.getApi(any()) } answers {
+            val url = args[0] as String
+            if (url.contains("versions")) CreeperPlugin.JSON_MAPPER.writeValueAsString(
+                MCJarsApiProvider.RawBuildResponse(
+                    MCJarsApiProvider.BuildPage(
+                        listOf(
+                            MCJarsApiProvider.BuildData(
+                                UUID.randomUUID(), listOf(
+                                    listOf(MCJarsApiProvider.Installation("url", 1L))
+                                )
+                            )
+                        )
+                    )
+                )
+            ) else null
+        }
+        assertThrows<ConfigurationNotFoundException> {
+            provider.get("server.properties", PLATFORM, VERSION, WORK_DIR)
+        }
+        unmockkObject(HttpUtils)
     }
 
     @Test
@@ -93,7 +141,7 @@ class MCJarsApiProviderIntegrationTest {
         Assertions.assertEquals(expectedConfig, actual, "config data was not equal")
     }
 
-    companion object {
+    private companion object {
         private val WORK_DIR = Path.of("build/resources/integrationTest/provider/mcjars_api_provider_test")
 
         private val PLATFORM = ServerType.VANILLA
@@ -110,6 +158,20 @@ class MCJarsApiProviderIntegrationTest {
             Path.of("build/resources/integrationTest/provider/server.properties")
                 .readLines()
                 .joinToString("\n")
+        )
+
+        @JvmStatic
+        fun providerJarProviderInvalidResponses(): Stream<Arguments> = Stream.of(
+            Arguments.of(MCJarsApiProvider.RawBuildResponse(MCJarsApiProvider.BuildPage(emptyList()))),
+            Arguments.of(
+                MCJarsApiProvider.RawBuildResponse(
+                    MCJarsApiProvider.BuildPage(
+                        listOf(
+                            MCJarsApiProvider.BuildData(UUID.randomUUID(), emptyList())
+                        )
+                    )
+                )
+            )
         )
 
     }

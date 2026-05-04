@@ -6,7 +6,11 @@ import it.fulminazzo.creeper.provider.plugin.HttpPluginRequest
 import it.fulminazzo.creeper.provider.plugin.LocalPluginRequest
 import it.fulminazzo.creeper.provider.plugin.ModrinthPluginRequest
 import org.junit.jupiter.api.Assertions.*
+import org.junit.jupiter.params.ParameterizedTest
+import org.junit.jupiter.params.provider.Arguments
+import org.junit.jupiter.params.provider.MethodSource
 import java.nio.file.Path
+import java.util.stream.Stream
 import kotlin.test.Test
 
 class PluginRequestsBuilderTest : ExtensionTestHelper() {
@@ -33,10 +37,45 @@ class PluginRequestsBuilderTest : ExtensionTestHelper() {
         assertEquals(expected, builder.requests.first())
     }
 
-    @Test
-    fun `test that local correctly adds LocalPluginRequest`() {
-        val expected = LocalPluginRequest(Path.of("build/libs/YAGL-5.2.2.jar"), false)
-        builder.local(expected.file, expected.overwrite)
+    @ParameterizedTest
+    @MethodSource("provideLocalTests")
+    fun `test that local correctly adds LocalPluginRequest`(test: (PluginRequestsBuilder) -> Unit, expected: LocalPluginRequest) {
+        test(builder)
+        assertEquals(expected, builder.requests.first())
+    }
+
+    private companion object {
+
+        @JvmStatic
+        fun provideLocalTests(): Stream<Arguments> = Stream.of(
+            // PATH
+            Arguments.of(
+                { b: PluginRequestsBuilder -> b.local("build/libs/YAGL-5.2.2.jar") },
+                LocalPluginRequest(Path.of("build/libs/YAGL-5.2.2.jar"), true)
+            ),
+            Arguments.of(
+                { b: PluginRequestsBuilder -> b.local("build/libs/YAGL-5.2.2.jar", true) },
+                LocalPluginRequest(Path.of("build/libs/YAGL-5.2.2.jar"), true)
+            ),
+            Arguments.of(
+                { b: PluginRequestsBuilder -> b.local("build/libs/YAGL-5.2.2.jar", false) },
+                LocalPluginRequest(Path.of("build/libs/YAGL-5.2.2.jar"), false)
+            ),
+            // STRING
+            Arguments.of(
+                { b: PluginRequestsBuilder -> b.local(Path.of("build/libs/YAGL-5.2.2.jar")) },
+                LocalPluginRequest(Path.of("build/libs/YAGL-5.2.2.jar"), true)
+            ),
+            Arguments.of(
+                { b: PluginRequestsBuilder -> b.local(Path.of("build/libs/YAGL-5.2.2.jar"), true) },
+                LocalPluginRequest(Path.of("build/libs/YAGL-5.2.2.jar"), true)
+            ),
+            Arguments.of(
+                { b: PluginRequestsBuilder -> b.local(Path.of("build/libs/YAGL-5.2.2.jar"), false) },
+                LocalPluginRequest(Path.of("build/libs/YAGL-5.2.2.jar"), false)
+            )
+        )
+
     }
 
 }

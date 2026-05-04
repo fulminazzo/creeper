@@ -1,6 +1,9 @@
 package it.fulminazzo.creeper.extension.spec.settings
 
 import it.fulminazzo.creeper.extension.ExtensionTestHelper
+import it.fulminazzo.creeper.util.b
+import it.fulminazzo.creeper.util.gb
+import it.fulminazzo.creeper.util.kb
 import it.fulminazzo.creeper.util.mb
 import org.gradle.api.GradleException
 import org.junit.jupiter.api.Assertions.assertEquals
@@ -12,7 +15,6 @@ import org.junit.jupiter.params.provider.MethodSource
 import java.util.stream.Stream
 import kotlin.test.Test
 import kotlin.test.assertContains
-import kotlin.test.assertTrue
 
 class MinecraftServerSettingsBuilderTest : ExtensionTestHelper() {
     private val builder = objects.newInstance(MinecraftServerSettingsBuilder::class.java)
@@ -63,11 +65,17 @@ class MinecraftServerSettingsBuilderTest : ExtensionTestHelper() {
                 Arguments.of({ b: MinecraftServerSettingsBuilder -> b.maximumPlayers.set(Int.MIN_VALUE) }),
                 Arguments.of({ b: MinecraftServerSettingsBuilder -> b.maximumPlayers.set(-1) }),
                 Arguments.of({ b: MinecraftServerSettingsBuilder -> b.maximumPlayers.set(0) }),
+                Arguments.of({ b: MinecraftServerSettingsBuilder -> b.minimumRam.set(0.b) }),
+                Arguments.of({ b: MinecraftServerSettingsBuilder -> b.minimumRam.set(0.kb) }),
                 Arguments.of({ b: MinecraftServerSettingsBuilder -> b.minimumRam.set(0.mb) }),
+                Arguments.of({ b: MinecraftServerSettingsBuilder -> b.minimumRam.set(0.gb) }),
                 Arguments.of({ b: MinecraftServerSettingsBuilder -> b.minRam(0, "mb") }),
                 Arguments.of({ b: MinecraftServerSettingsBuilder -> b.minRam(10, "jb") }),
                 Arguments.of({ b: MinecraftServerSettingsBuilder -> b.minRam(0, "jb") }),
+                Arguments.of({ b: MinecraftServerSettingsBuilder -> b.maximumRam.set(0.b) }),
+                Arguments.of({ b: MinecraftServerSettingsBuilder -> b.maximumRam.set(0.kb) }),
                 Arguments.of({ b: MinecraftServerSettingsBuilder -> b.maximumRam.set(0.mb) }),
+                Arguments.of({ b: MinecraftServerSettingsBuilder -> b.maximumRam.set(0.gb) }),
                 Arguments.of({ b: MinecraftServerSettingsBuilder -> b.maxRam(0, "mb") }),
                 Arguments.of({ b: MinecraftServerSettingsBuilder -> b.maxRam(10, "jb") }),
                 Arguments.of({ b: MinecraftServerSettingsBuilder -> b.maxRam(0, "jb") }),

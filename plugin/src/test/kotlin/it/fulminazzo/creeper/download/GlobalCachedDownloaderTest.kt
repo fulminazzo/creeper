@@ -28,8 +28,10 @@ class GlobalCachedDownloaderTest {
             "http://www.google.com:80/index?test=true&valid=false,http://www.google.com/index?test=true&valid=false",
             // HTTPS, port, extension, no query
             "https://www.google.com:8080/index.html,https://www.google.com:8080/index.html",
+            "https://www.google.com:80/index.html,https://www.google.com:80/index.html",
             // HTTP, port, extension, no query
             "http://www.google.com:8080/index.html,http://www.google.com:8080/index.html",
+            "http://www.google.com:443/index.html,http://www.google.com:443/index.html",
             // HTTPS, port, no extension, no query
             "https://www.google.com:8080/index,https://www.google.com:8080/index",
             // HTTP, port, no extension, no query
