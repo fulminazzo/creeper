@@ -4,7 +4,7 @@ import it.fulminazzo.creeper.provider.plugin.GitHubPluginRequest
 import it.fulminazzo.creeper.provider.plugin.HttpPluginRequest
 import it.fulminazzo.creeper.provider.plugin.LocalPluginRequest
 import it.fulminazzo.creeper.provider.plugin.ModrinthPluginRequest
-import it.fulminazzo.creeper.server.ServerType
+import it.fulminazzo.creeper.ServerType
 import org.junit.jupiter.api.assertThrows
 import java.net.URI
 import java.nio.file.Path

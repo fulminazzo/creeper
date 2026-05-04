@@ -5,8 +5,7 @@ import it.fulminazzo.creeper.provider.plugin.GitHubPluginRequest
 import it.fulminazzo.creeper.provider.plugin.HttpPluginRequest
 import it.fulminazzo.creeper.provider.plugin.LocalPluginRequest
 import it.fulminazzo.creeper.provider.plugin.ModrinthPluginRequest
-import it.fulminazzo.creeper.server.ServerType
-import it.fulminazzo.creeper.server.spec.BuildException
+import it.fulminazzo.creeper.ServerType
 import org.gradle.api.GradleException
 import org.junit.jupiter.api.assertThrows
 import java.net.URI

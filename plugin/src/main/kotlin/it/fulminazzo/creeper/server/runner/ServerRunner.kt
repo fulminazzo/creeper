@@ -2,7 +2,7 @@ package it.fulminazzo.creeper.server.runner
 
 import it.fulminazzo.creeper.extension.spec.ServerSpec
 import it.fulminazzo.creeper.extension.spec.settings.ServerSettings
-import it.fulminazzo.creeper.server.ServerType
+import it.fulminazzo.creeper.ServerType
 import org.gradle.api.logging.Logger
 import java.nio.file.Path
 import java.util.*

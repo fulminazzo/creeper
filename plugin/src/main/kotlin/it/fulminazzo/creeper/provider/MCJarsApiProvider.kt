@@ -5,7 +5,7 @@ import com.fasterxml.jackson.annotation.JsonProperty
 import it.fulminazzo.creeper.CreeperPlugin.Companion.JSON_MAPPER
 import it.fulminazzo.creeper.Hashable
 import it.fulminazzo.creeper.download.CachedDownloader
-import it.fulminazzo.creeper.server.ServerType
+import it.fulminazzo.creeper.ServerType
 import it.fulminazzo.creeper.util.HttpUtils
 import org.gradle.api.logging.Logger
 import com.fasterxml.jackson.module.kotlin.readValue

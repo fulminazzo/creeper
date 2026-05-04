@@ -5,7 +5,7 @@ import io.mockk.unmockkObject
 import io.mockk.verify
 import it.fulminazzo.creeper.download.CachedDownloader
 import it.fulminazzo.creeper.download.Downloader
-import it.fulminazzo.creeper.server.ServerType
+import it.fulminazzo.creeper.ServerType
 import it.fulminazzo.creeper.util.HttpUtils
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.assertThrows

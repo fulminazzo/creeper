@@ -1,4 +1,4 @@
-package it.fulminazzo.creeper.server
+package it.fulminazzo.creeper
 
 /**
  * Identifies the type of server platform.
@@ -7,10 +7,7 @@ package it.fulminazzo.creeper.server
  * @property parent the platform it was forked from (`null` if vanilla)
  * @constructor Creates a new Server type
  */
-sealed class ServerType(
-    val name: String,
-    private val parent: ServerType?
-) {
+sealed class ServerType(val name: String, private val parent: ServerType?) {
     val id: String = name.lowercase()
 
     /**
@@ -28,10 +25,7 @@ sealed class ServerType(
      * @property parent the platform it was forked from (`null` if vanilla)
      * @constructor Create an empty Minecraft type
      */
-    sealed class MinecraftType(
-        name: String,
-        parent: ServerType?
-    ) : ServerType(name, parent)
+    sealed class MinecraftType(name: String, parent: ServerType?) : ServerType(name, parent)
 
     data object VANILLA : MinecraftType("Vanilla", null)
     data object BUKKIT : MinecraftType("Bukkit", VANILLA)

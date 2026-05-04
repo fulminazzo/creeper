@@ -1,6 +1,6 @@
 package it.fulminazzo.creeper.provider
 
-import it.fulminazzo.creeper.server.ServerType
+import it.fulminazzo.creeper.ServerType
 
 /**
  * Exception thrown when attempting to get a JAR build fails.

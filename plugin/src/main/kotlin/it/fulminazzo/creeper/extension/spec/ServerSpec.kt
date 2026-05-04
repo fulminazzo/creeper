@@ -3,7 +3,7 @@ package it.fulminazzo.creeper.extension.spec
 import it.fulminazzo.creeper.extension.spec.settings.ServerSettings
 import it.fulminazzo.creeper.extension.spec.settings.ServerSettingsBuilder
 import it.fulminazzo.creeper.provider.plugin.PluginRequest
-import it.fulminazzo.creeper.server.ServerType
+import it.fulminazzo.creeper.ServerType
 import org.gradle.api.Action
 import org.gradle.api.GradleException
 import org.gradle.api.provider.Property
