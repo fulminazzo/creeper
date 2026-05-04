@@ -1,28 +1,29 @@
-package it.fulminazzo.creeper.server.spec.settings
+package it.fulminazzo.creeper.extension.spec.settings
 
-import it.fulminazzo.creeper.server.spec.requirePositive
 import it.fulminazzo.creeper.util.MemorySize
 import it.fulminazzo.creeper.util.MemoryUnit
 import it.fulminazzo.creeper.util.gb
 import it.fulminazzo.creeper.util.mb
+import org.gradle.api.GradleException
+import org.gradle.api.provider.Property
 
 /**
  * Builder for JVM flags.
  */
-class JvmFlagsBuilder {
-    var minimumRam = 512.mb
-        set(value) {
-            value.value.toInt().requirePositive("minimum allocated RAM")
-            field = value
-        }
-    var maximumRam = 2.gb
-        set(value) {
-            value.value.toInt().requirePositive("maximum allocated RAM")
-            field = value
-        }
+abstract class JvmFlagsBuilder {
+
+    abstract val minimumRam: Property<MemorySize>
+
+    abstract val maximumRam: Property<MemorySize>
+
     private val enabledDeveloperFlags = mutableMapOf<String, Boolean>()
     private val valueDeveloperFlags = mutableMapOf<String, String>()
     private val propertyFlags = mutableMapOf<String, String>()
+
+    init {
+        minimumRam.convention(512.mb)
+        maximumRam.convention(2.gb)
+    }
 
     /*
      * RAM
@@ -44,7 +45,7 @@ class JvmFlagsBuilder {
      * @param size the size of the allocation
      */
     fun minRam(size: MemorySize) {
-        minimumRam = size
+        minimumRam.set(size)
     }
 
     /**
@@ -63,7 +64,7 @@ class JvmFlagsBuilder {
      * @param size the size of the allocation
      */
     fun maxRam(size: MemorySize) {
-        maximumRam = size
+        maximumRam.set(size)
     }
 
     /*
@@ -105,32 +106,46 @@ class JvmFlagsBuilder {
     }
 
     /**
-     * Applies the flags of another [JvmFlagsBuilder] to the current one.
-     *
-     * It will overwrite existing flags without clearing them first.
-     *
-     * @param other the other flags builder
+     * PRESETS
      */
-    fun from(other: JvmFlagsBuilder) = apply {
-        minimumRam = other.minimumRam
-        maximumRam = other.maximumRam
-        enabledDeveloperFlags.putAll(other.enabledDeveloperFlags)
-        valueDeveloperFlags.putAll(other.valueDeveloperFlags)
-        propertyFlags.putAll(other.propertyFlags)
+    fun aikars() {
+        xx("UseG1GC", true)
+        xx("ParallelRefProcEnabled", true)
+        xx("MaxGCPauseMillis", 200)
+        xx("UnlockExperimentalVMOptions", true)
+        xx("DisableExplicitGC", true)
+        xx("AlwaysPreTouch", true)
+        xx("G1NewSizePercent", 30)
+        xx("G1MaxNewSizePercent", 40)
+        xx("G1HeapRegionSize", 8.mb)
+        xx("G1ReservePercent", 20)
+        xx("G1HeapWastePercent", 5)
+        xx("G1MixedGCCountTarget", 4)
+        xx("InitiatingHeapOccupancyPercent", 15)
+        xx("G1MixedGCLiveThresholdPercent", 90)
+        xx("G1RSetUpdatingPauseTimePercent", 5)
+        xx("SurvivorRatio", 32)
+        xx("PerfDisableSharedMem", true)
+        xx("MaxTenuringThreshold", 1)
     }
 
     /**
      * Creates a new list of flags.
      *
      * @return the list of flags
+     * @throws GradleException if an invalid value has been specified
      */
     fun build(): String {
-        var flags = "-Xms$minimumRam -Xmx$maximumRam"
+        var flags = "-Xms${getMinimumRam()} -Xmx${getMaximumRam()}"
         flags += buildEnabledDeveloperFlags().takeIf { it.isNotEmpty() }?.let { " $it" } ?: ""
         flags += buildValueDeveloperFlags().takeIf { it.isNotEmpty() }?.let { " $it" } ?: ""
         flags += buildPropertyFlags().takeIf { it.isNotEmpty() }?.let { " $it" } ?: ""
         return flags
     }
+
+    private fun getMinimumRam(): MemorySize = requirePositive(minimumRam.get(), "minimumRam")
+
+    private fun getMaximumRam(): MemorySize = requirePositive(maximumRam.get(), "maximumRam")
 
     private fun buildEnabledDeveloperFlags(): String = enabledDeveloperFlags
         .map { (flag, enable) -> "$DEVELOPER_FLAG_PREFIX${if (enable) "+" else "-"}$flag" }
@@ -147,30 +162,6 @@ class JvmFlagsBuilder {
     companion object {
         private const val DEVELOPER_FLAG_PREFIX = "-XX:"
         private const val PROPERTY_FLAG_PREFIX = "-D"
-
-        /**
-         * Aikar's flags
-         */
-        val AIKAR_FLAGS = JvmFlagsBuilder().apply {
-            xx("UseG1GC", true)
-            xx("ParallelRefProcEnabled", true)
-            xx("MaxGCPauseMillis", 200)
-            xx("UnlockExperimentalVMOptions", true)
-            xx("DisableExplicitGC", true)
-            xx("AlwaysPreTouch", true)
-            xx("G1NewSizePercent", 30)
-            xx("G1MaxNewSizePercent", 40)
-            xx("G1HeapRegionSize", 8.mb)
-            xx("G1ReservePercent", 20)
-            xx("G1HeapWastePercent", 5)
-            xx("G1MixedGCCountTarget", 4)
-            xx("InitiatingHeapOccupancyPercent", 15)
-            xx("G1MixedGCLiveThresholdPercent", 90)
-            xx("G1RSetUpdatingPauseTimePercent", 5)
-            xx("SurvivorRatio", 32)
-            xx("PerfDisableSharedMem", true)
-            xx("MaxTenuringThreshold", 1)
-        }
 
     }
 
