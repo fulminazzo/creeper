@@ -2,16 +2,15 @@ package it.fulminazzo.creeper.provider.plugin
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.annotation.JsonProperty
+import com.fasterxml.jackson.module.kotlin.readValue
 import it.fulminazzo.creeper.CreeperPlugin
 import it.fulminazzo.creeper.CreeperPlugin.Companion.JSON_MAPPER
-import it.fulminazzo.creeper.Hashable
 import it.fulminazzo.creeper.cache.CacheManager
 import it.fulminazzo.creeper.download.CachedDownloader
 import it.fulminazzo.creeper.util.HttpUtils
 import it.fulminazzo.creeper.util.sha256
 import it.fulminazzo.creeper.util.urlEncode
 import org.gradle.api.logging.Logger
-import com.fasterxml.jackson.module.kotlin.readValue
 import java.nio.file.Path
 import java.util.*
 import java.util.concurrent.ConcurrentHashMap
@@ -159,7 +158,7 @@ data class ModrinthPluginRequest(
     val projectName: String,
     val version: String,
     val name: String
-) : PluginRequest, Hashable {
+) : PluginRequest {
 
     override fun toHashString(): String = "$projectName:$version:$name".sha256()
 

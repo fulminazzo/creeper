@@ -1,5 +1,6 @@
 package it.fulminazzo.creeper.provider.plugin
 
+import it.fulminazzo.creeper.Hashable
 import org.gradle.api.logging.Logger
 import java.nio.file.Path
 
@@ -46,7 +47,7 @@ sealed class PluginProvider<R : PluginRequest>(protected val logger: Logger) {
 /**
  * Marker interface for plugin requests.
  */
-sealed interface PluginRequest
+sealed interface PluginRequest : Hashable
 
 /**
  * Exception thrown by a failed [PluginProvider.handleRequest].

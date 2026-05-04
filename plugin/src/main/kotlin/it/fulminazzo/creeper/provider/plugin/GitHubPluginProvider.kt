@@ -100,7 +100,7 @@ data class GitHubPluginRequest(
     val repository: String,
     val release: String,
     val filename: String
-) : PluginRequest, Hashable {
+) : PluginRequest {
 
     override fun toHashString(): String = "$owner:$repository:$release:$filename".sha256()
 

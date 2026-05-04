@@ -2,6 +2,7 @@ package it.fulminazzo.creeper.provider.plugin
 
 import it.fulminazzo.creeper.download.Downloader
 import it.fulminazzo.creeper.download.UnrecognizedStatusCodeException
+import it.fulminazzo.creeper.util.sha256
 import org.gradle.api.logging.Logger
 import java.nio.file.Path
 
@@ -48,4 +49,8 @@ class HttpPluginProvider internal constructor(
  * @property url the url to download the plugin from
  * @constructor Creates a new Http plugin request
  */
-data class HttpPluginRequest(val url: String) : PluginRequest
+data class HttpPluginRequest(val url: String) : PluginRequest {
+
+    override fun toHashString(): String = url.sha256()
+
+}

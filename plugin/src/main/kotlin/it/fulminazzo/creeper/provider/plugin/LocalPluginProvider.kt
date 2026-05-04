@@ -1,5 +1,6 @@
 package it.fulminazzo.creeper.provider.plugin
 
+import it.fulminazzo.creeper.util.sha256
 import org.gradle.api.logging.Logger
 import java.nio.file.Path
 import kotlin.io.path.copyTo
@@ -37,4 +38,8 @@ class LocalPluginProvider internal constructor(logger: Logger, ) : PluginProvide
  * @property overwrite if `true`, it will overwrite the existing file
  * @constructor Creates a new Local plugin request
  */
-data class LocalPluginRequest(val file: Path, val overwrite: Boolean) : PluginRequest
+data class LocalPluginRequest(val file: Path, val overwrite: Boolean) : PluginRequest {
+
+    override fun toHashString(): String = "$file".sha256()
+
+}
