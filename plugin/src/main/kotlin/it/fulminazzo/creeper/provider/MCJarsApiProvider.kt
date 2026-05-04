@@ -151,14 +151,11 @@ internal data class ConfigResponse(val configs: List<Config>)
 /**
  * Holds a configuration from the API.
  *
- * @property uuid the UUID of the configuration
  * @property data the actual configuration contents
  * @constructor Create a new Configuration
  */
 @JsonIgnoreProperties(ignoreUnknown = true)
 internal data class Config(
-    @JsonProperty("value_uuid")
-    val uuid: UUID,
 
     @JsonProperty("location")
     val name: String,

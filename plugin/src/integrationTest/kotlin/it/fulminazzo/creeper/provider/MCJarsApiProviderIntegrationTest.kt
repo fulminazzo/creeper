@@ -153,7 +153,6 @@ class MCJarsApiProviderIntegrationTest {
             "https://launcher.mojang.com/v1/objects/5fafba3f58c40dc51b5c3ca72a98f62dfdae1db7/server.jar"
         )
         private val EXPECTED_CONFIG = Config(
-            UUID.fromString("ce8ba7dd-71fd-49ba-b31e-9466033e0ef4"),
             "server.properties",
             Path.of("build/resources/integrationTest/provider/server.properties")
                 .readLines()
