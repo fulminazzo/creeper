@@ -12,5 +12,5 @@ dependencies {
 }
 
 tasks.shadowJar {
-    relocate("org.slf4j", "${project.group}.${rootProject.name}.libs.slf4j")
+//    relocate("org.slf4j", "${project.group}.${rootProject.name}.libs.slf4j")
 }

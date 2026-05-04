@@ -129,7 +129,9 @@ allprojects {
             "org.scalactic" to "scalactic",
             "org.scalatest" to "scalatest",
             "org.scalatestplus" to "scalatestplus"
-        ).forEach { (from, to) -> relocate(from, "$basePackage.$to") }
+        ).forEach { (from, to) ->
+//            relocate(from, "$basePackage.$to")
+        }
 
         dependencies {
             val jetbrainsAnnotations = libs.jetbrains.get().module
