@@ -9,6 +9,7 @@ import it.fulminazzo.creeper.provider.plugin.PluginRequest
 import org.gradle.api.Project
 import org.gradle.api.Task
 import org.gradle.api.tasks.TaskProvider
+import java.io.File
 import java.nio.file.Path
 
 /**
@@ -20,7 +21,7 @@ import java.nio.file.Path
  * Although convenient, this can be noisy, so it should only be used for debugging.
  * @constructor Creates a new Install server task registrar
  */
-class InstallServerTaskRegistrar private constructor(
+class InstallServerTaskRegistrar internal constructor(
     private val specification: ServerSpec<*, *>,
     private val showWorkers: Boolean = false
 ) {
@@ -57,7 +58,7 @@ class InstallServerTaskRegistrar private constructor(
      */
     internal fun register(project: Project, directory: Path) {
         this.project = project
-        this.serverDirectory = directory
+        this.serverDirectory = directory.resolve(serverId)
         this.baseTask = CreeperPlugin.registerTask<Task>(
             project = project,
             name = installTaskName,
@@ -85,7 +86,7 @@ class InstallServerTaskRegistrar private constructor(
             registerWriteEula()
             registerWriteWhitelist()
             registerWriteOperators()
-            if (specification.type.isForkOf(ServerType.BUKKIT)) installBukkitYml()
+            if (specification.type.isForkOf(ServerType.BUKKIT)) registerInstallBukkitYml()
         }
     }
 
@@ -105,8 +106,8 @@ class InstallServerTaskRegistrar private constructor(
             task.specification.set(specification)
             task.executable.set(serverDirectory.resolve("${serverId}.jar").toFile())
         }
-        baseTask.dependsOn(task)
         executableTask = task.get()
+        baseTask.dependsOn(executableTask)
         return executableTask
     }
 
@@ -147,7 +148,7 @@ class InstallServerTaskRegistrar private constructor(
             type = FetchPluginMetadataTask::class.java
         ) { task ->
             task.request.set(pluginRequest)
-            task.pluginMetadata.set(pluginsMetadataDirectory.resolve(pluginRequest.toHashString()).toFile())
+            task.pluginMetadata.set(getPluginMetadataFile(pluginRequest))
         }.get()
 
     /**
@@ -165,7 +166,7 @@ class InstallServerTaskRegistrar private constructor(
         type = InstallPluginTask::class.java
     ) { task ->
         task.request.set(pluginRequest)
-        task.pluginMetadata.set(pluginsMetadataDirectory.resolve(pluginRequest.toHashString()).toFile())
+        task.pluginMetadata.set(getPluginMetadataFile(pluginRequest))
         task.pluginsDirectory.set(pluginsDirectory.toFile())
     }.get()
 
@@ -261,7 +262,7 @@ class InstallServerTaskRegistrar private constructor(
      *
      * @return the task that was registered
      */
-    internal fun installBukkitYml() = setDependencyHierarchy(
+    internal fun registerInstallBukkitYml() = setDependencyHierarchy(
         CreeperPlugin.registerTask(
             project = project,
             name = "${installTaskName}BukkitYml",
@@ -280,6 +281,9 @@ class InstallServerTaskRegistrar private constructor(
         baseTask.dependsOn(t.dependsOn(executableTask))
         return t
     }
+
+    private fun getPluginMetadataFile(pluginRequest: PluginRequest): File =
+        pluginsMetadataDirectory.resolve("${pluginRequest.toHashString()}.info").toFile()
 
     companion object {
 
