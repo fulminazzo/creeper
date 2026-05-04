@@ -62,7 +62,7 @@ tasks.jacocoTestReport {
     }
 }
 
-configure<com.github.gmazzo.buildconfig.BuildConfigExtension> {
+configure<com.github.gmazzo.gradle.plugins.BuildConfigExtension> {
     val group = rootProject.group
     val name = rootProject.name
 
@@ -72,7 +72,7 @@ configure<com.github.gmazzo.buildconfig.BuildConfigExtension> {
     buildConfigField("String", "GROUP", "\"${group}\"")
     buildConfigField("String", "NAME", "\"${name}\"")
     buildConfigField("String", "VERSION", "\"${rootProject.version}\"")
-    buildConfigField("String", "USER_AGENT", $$"\"$NAME/$VERSION\"")
+    buildConfigField("String", "USER_AGENT", "\"\$NAME/\$VERSION\"")
 }
 
 afterEvaluate {

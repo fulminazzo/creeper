@@ -1,7 +1,7 @@
 [versions]
 # PLUGINS
 kotlin-jvm = "2.3.0"
-buildconfig = "6.0.9"
+buildconfig = "3.1.0"
 
 # DATA FORMAT
 jackson = "3.1.2"
