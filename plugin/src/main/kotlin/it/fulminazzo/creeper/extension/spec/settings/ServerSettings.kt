@@ -5,6 +5,7 @@ import org.gradle.api.Action
 import org.gradle.api.GradleException
 import org.gradle.api.provider.Property
 import org.gradle.api.tasks.Nested
+import java.io.Serializable
 
 /**
  * Holds all the settings for a general server to run.
@@ -14,7 +15,7 @@ import org.gradle.api.tasks.Nested
  * @property flags the JVM flags to use
  * @constructor Creates a new Server config
  */
-sealed class ServerSettings(val port: Int, val players: Int, val flags: String)
+sealed class ServerSettings(val port: Int, val players: Int, val flags: String) : Serializable
 
 /**
  * Builder for [ServerSettings].

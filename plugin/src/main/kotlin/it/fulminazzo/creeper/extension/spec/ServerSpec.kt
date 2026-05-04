@@ -1,13 +1,14 @@
 package it.fulminazzo.creeper.extension.spec
 
+import it.fulminazzo.creeper.ServerType
 import it.fulminazzo.creeper.extension.spec.settings.ServerSettings
 import it.fulminazzo.creeper.extension.spec.settings.ServerSettingsBuilder
 import it.fulminazzo.creeper.provider.plugin.PluginRequest
-import it.fulminazzo.creeper.ServerType
 import org.gradle.api.Action
 import org.gradle.api.GradleException
 import org.gradle.api.provider.Property
 import org.gradle.api.tasks.Nested
+import java.io.Serializable
 
 /**
  * Identifies the general specification of a server to run.
@@ -25,7 +26,7 @@ sealed class ServerSpec<T : ServerType, S : ServerSettings>(
     val version: String,
     val settings: S,
     val plugins: List<PluginRequest>
-) {
+) : Serializable {
     val id: String = "${type.id}-$version"
 
 }

@@ -1,5 +1,7 @@
 package it.fulminazzo.creeper
 
+import java.io.Serializable
+
 /**
  * Identifies the type of server platform.
  *
@@ -7,7 +9,7 @@ package it.fulminazzo.creeper
  * @property parent the platform it was forked from (`null` if vanilla)
  * @constructor Creates a new Server type
  */
-sealed class ServerType(val name: String, private val parent: ServerType?) {
+sealed class ServerType(val name: String, private val parent: ServerType?) : Serializable {
     val id: String = name.lowercase()
 
     /**
