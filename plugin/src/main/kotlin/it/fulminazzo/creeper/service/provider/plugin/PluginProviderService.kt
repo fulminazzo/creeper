@@ -16,7 +16,7 @@ abstract class PluginProviderService : BuildService<PluginProviderService.Params
 
     private val logger = Logging.getLogger(PluginProviderService::class.java)
 
-    val pluginProvider: PluginProvider<PluginRequest> by lazy {
+    val provider: PluginProvider<PluginRequest> by lazy {
         RedirectPluginProvider(
             logger,
             parameters.downloader.get().downloader,

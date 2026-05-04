@@ -39,7 +39,7 @@ abstract class InstallConfigTask : DefaultTask() {
         val spec = specification.get()
         val file = configFile.get().asFile
         logger.lifecycle("Installing server configuration: ${file.name}")
-        val path = configProviderService.configProvider.get(
+        val path = configProviderService.provider.get(
             file.name,
             spec.type,
             spec.version,

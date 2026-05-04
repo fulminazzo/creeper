@@ -15,7 +15,7 @@ abstract class ConfigProviderService : BuildService<ConfigProviderService.Params
 
     private val logger = Logging.getLogger(ConfigProviderService::class.java)
 
-    val configProvider: ConfigProvider by lazy {
+    val provider: ConfigProvider by lazy {
         MCJarsApiProvider(
             parameters.downloader.get().downloader,
             logger
