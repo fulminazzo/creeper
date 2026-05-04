@@ -65,14 +65,14 @@ abstract class MinecraftServerSpecBuilder :
      *
      * @param names the names of the players to add
      */
-    fun op(vararg names: String) = operator(*names)
+    fun ops(vararg names: String) = operators(*names)
 
     /**
      * Adds players to the operators' list.
      *
      * @param names the names of the players to add
      */
-    fun operator(vararg names: String) = operators.addAll(names.toSet())
+    fun operators(vararg names: String) = operators.addAll(names.toSet())
 
     override fun build(): MinecraftServerSpec {
         return MinecraftServerSpec(

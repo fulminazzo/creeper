@@ -22,7 +22,7 @@ class MinecraftServerSpecBuilderTest : ExtensionTestHelper() {
         builder.version.set("1.16.5")
         builder.whitelist("Fulminazzo")
         builder.whitelist("xca_mux")
-        builder.op("xca_mux")
+        builder.ops("xca_mux")
         builder.serverConfig {
             it.eula.set(true)
             it.port.set(25567)
