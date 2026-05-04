@@ -40,6 +40,8 @@ data class MemorySize(val value: Int, val unit: MemoryUnit) : Comparable<Int> {
 
     override operator fun compareTo(other: Int): Int = value.compareTo(other)
 
+    operator fun unaryMinus() = MemorySize(-value, unit)
+
     override fun toString(): String = "${value}${unit.jvmUnit}"
 
 }
