@@ -59,7 +59,10 @@ class PlayerResolver(private val logger: Logger) {
                     ?.let { JSON_MAPPER.readValue<List<PlayerProfileResponse>>(it) }
                 profiles?.let {
                     it.forEach { profile ->
-                        val id = Uuid.parse(profile.id).toJavaUuid()
+                        val rawId = profile.id
+                        val dashedId = if (rawId.length == 32) rawId.replaceFirst(UUID_REGEX, "$1-$2-$3-$4-$5")
+                        else rawId
+                        val id = Uuid.parse(dashedId).toJavaUuid()
                         cache[profile.name] = id
                         uuids += PlayerProfile(id, profile.name)
                         missing.remove(profile.name)
@@ -74,6 +77,7 @@ class PlayerResolver(private val logger: Logger) {
 
     internal companion object {
         private const val API_URL = "https://api.mojang.com/profiles/minecraft"
+        private val UUID_REGEX = "(\\w{8})(\\w{4})(\\w{4})(\\w{4})(\\w{12})".toRegex()
 
         internal val CACHE_FILE = CreeperPlugin.CACHE_DIRECTORY.resolve("mojang.json")
 
