@@ -38,13 +38,13 @@ gradlePlugin {
 }
 
 tasks.named<JavaCompile>("compileJava") {
-    sourceCompatibility = "8"
-    targetCompatibility = "8"
+    sourceCompatibility = "11"
+    targetCompatibility = "11"
 }
 
 tasks.named<org.jetbrains.kotlin.gradle.tasks.KotlinJvmCompile>("compileKotlin") {
     compilerOptions {
-        jvmTarget = JvmTarget.JVM_1_8
+        jvmTarget = JvmTarget.JVM_11
     }
 }
 

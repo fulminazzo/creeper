@@ -1,13 +1,8 @@
 package it.fulminazzo.creeper.extension.spec
 
-import it.fulminazzo.creeper.provider.plugin.GitHubPluginRequest
-import it.fulminazzo.creeper.provider.plugin.HttpPluginRequest
-import it.fulminazzo.creeper.provider.plugin.LocalPluginRequest
-import it.fulminazzo.creeper.provider.plugin.ModrinthPluginRequest
-import it.fulminazzo.creeper.provider.plugin.PluginRequest
+import it.fulminazzo.creeper.provider.plugin.*
 import java.net.URI
 import java.nio.file.Path
-import java.nio.file.Paths
 
 /**
  * A builder for many [PluginRequest]s.
@@ -45,9 +40,7 @@ abstract class PluginRequestsBuilder {
      *
      * @param url the URL of the plugin
      */
-    fun url(url: URI) {
-        url(url.toString())
-    }
+    fun url(url: URI) = url(url.toString())
 
     /**
      * The plugin will be downloaded from the specified URL.
@@ -65,9 +58,7 @@ abstract class PluginRequestsBuilder {
      * @param overwrite if the file should be overwritten if it already exists
      */
     @JvmOverloads
-    fun local(filepath: String, overwrite: Boolean = true) {
-        local(Paths.get(filepath), overwrite)
-    }
+    fun local(filepath: String, overwrite: Boolean = true) = local(Path.of(filepath), overwrite)
 
     /**
      * The plugin will be copied from the specified file.

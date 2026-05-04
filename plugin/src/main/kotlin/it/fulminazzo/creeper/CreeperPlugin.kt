@@ -13,7 +13,7 @@ import it.fulminazzo.creeper.service.provider.JarProviderService
 import it.fulminazzo.creeper.service.provider.plugin.PluginProviderService
 import org.gradle.api.Plugin
 import org.gradle.api.Project
-import java.nio.file.Paths
+import java.nio.file.Path
 
 /**
  * A simple 'hello world' plugin.
@@ -55,7 +55,7 @@ class CreeperPlugin : Plugin<Project> {
          * The global cache directory.
          */
         internal val CACHE_DIRECTORY
-            get() = Paths.get(System.getProperty("user.home"), ".gradle", "caches", ProjectInfo.NAME)
+            get() = Path.of(System.getProperty("user.home"), ".gradle", "caches", ProjectInfo.NAME)
 
         internal val JSON_MAPPER = jacksonObjectMapper()
         internal val YAML_MAPPER = YAMLMapper.builder().addModule(kotlinModule()).build()
