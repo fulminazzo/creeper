@@ -9,31 +9,27 @@ import it.fulminazzo.creeper.service.provider.plugin.PluginProviderService
 import java.io.File
 import kotlin.test.Test
 
-class InstallPluginTaskTest : InstallTaskTestHelper() {
+class FetchPluginMetadataTaskTest : InstallTaskTestHelper() {
 
     @Test
-    fun `test that InstallPluginTask calls provider#handleRequest`() {
+    fun `test that FetchPluginMetadataTask calls provider#getName`() {
         val request = mockk<PluginRequest>()
         val pluginMetadata = File("build/resources/test/tmp/plugins/creeper/plugin.info").absoluteFile
-        pluginMetadata.parentFile.mkdirs()
-        pluginMetadata.writeText("creeper")
-        val plugin = File("build/resources/test/tmp/plugins/plugin.jar").absoluteFile
 
         val provider = mockk<PluginProvider<PluginRequest>>()
-        every { provider.handleRequest(any(), any(), any()) } returns plugin.toPath()
+        every { provider.getName(any()) } returns "creeper"
 
-        val task = createTask(InstallPluginTask::class.java) { task ->
+        val task = createTask(FetchPluginMetadataTask::class.java) { task ->
             task.pluginProviderService.set(createService<PluginProviderService> {
                 every { it.provider } returns provider
             })
             task.request.set(request)
             task.pluginMetadata.set(pluginMetadata)
-            task.pluginsDirectory.set(plugin.parentFile)
         }
 
         task.run()
 
-        verify(exactly = 1) { provider.handleRequest(request, plugin.parentFile.toPath(), "creeper") }
+        verify(exactly = 1) { provider.getName(request) }
     }
 
 }
