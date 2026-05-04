@@ -8,7 +8,7 @@ import org.gradle.api.services.BuildServiceParameters
 /**
  * Service for the global [CachedDownloader].
  */
-abstract class CachedDownloaderService : BuildService<BuildServiceParameters.None>, AutoCloseable {
+abstract class CachedDownloaderService : BuildService<BuildServiceParameters.None> {
 
     val downloader: CachedDownloader by lazy {
         CachedDownloader.global(Downloader.http())
