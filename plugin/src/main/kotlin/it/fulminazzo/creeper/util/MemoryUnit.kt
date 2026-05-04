@@ -6,27 +6,26 @@ package it.fulminazzo.creeper.util
  * @property jvmUnit the unit in the JVM flags format
  * @constructor Create a new Memory unit
  */
-sealed class MemoryUnit(val jvmUnit: String) {
-
+enum class MemoryUnit(val jvmUnit: String) {
     /**
      * Byte memory unit.
      */
-    data object B : MemoryUnit("")
+    B(""),
 
     /**
      * Kilobyte memory unit.
      */
-    data object KB : MemoryUnit("K")
+    KB("K"),
 
     /**
      * Megabyte memory unit.
      */
-    data object MB : MemoryUnit("M")
+    MB("M"),
 
     /**
      * Gigabyte memory unit.
      */
-    data object GB : MemoryUnit("G")
+    GB("G")
 
 }
 
