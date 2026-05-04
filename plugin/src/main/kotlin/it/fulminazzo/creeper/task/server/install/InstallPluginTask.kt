@@ -18,7 +18,7 @@ import org.gradle.api.tasks.TaskAction
 abstract class InstallPluginTask : DefaultTask() {
 
     @get:ServiceReference("pluginProviderService")
-    abstract val pluginProviderService: PluginProviderService
+    abstract val pluginProviderService: Property<PluginProviderService>
 
     @get:Input
     abstract val request: Property<PluginRequest>
@@ -29,7 +29,7 @@ abstract class InstallPluginTask : DefaultTask() {
     @TaskAction
     fun run() {
         val directory = plugin.get().asFile.parentFile.toPath()
-        pluginProviderService.provider.handleRequest(directory, request.get())
+        pluginProviderService.get().provider.handleRequest(directory, request.get())
     }
 
 }

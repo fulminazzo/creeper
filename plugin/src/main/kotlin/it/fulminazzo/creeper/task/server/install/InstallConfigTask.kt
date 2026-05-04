@@ -23,7 +23,7 @@ import kotlin.io.path.fileSize
 abstract class InstallConfigTask : DefaultTask() {
 
     @get:ServiceReference("configProviderService")
-    abstract val configProviderService: ConfigProviderService
+    abstract val configProviderService: Property<ConfigProviderService>
 
     @get:Internal
     abstract val action: Property<ConfigAction>
@@ -39,7 +39,7 @@ abstract class InstallConfigTask : DefaultTask() {
         val spec = specification.get()
         val file = configFile.get().asFile
         logger.lifecycle("Installing server configuration: ${file.name}")
-        val path = configProviderService.provider.get(
+        val path = configProviderService.get().provider.get(
             file.name,
             spec.type,
             spec.version,

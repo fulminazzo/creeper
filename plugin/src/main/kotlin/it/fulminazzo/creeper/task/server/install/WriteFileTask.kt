@@ -20,7 +20,7 @@ import kotlin.io.path.name
 abstract class WriteFileTask : DefaultTask() {
 
     @get:ServiceReference("playerResolverService")
-    abstract val playerResolverService: PlayerResolverService
+    abstract val playerResolverService: Property<PlayerResolverService>
 
     @get:Internal
     abstract val action: Property<FileAction>
@@ -35,7 +35,7 @@ abstract class WriteFileTask : DefaultTask() {
     fun run() {
         val actualFile = file.get().asFile.toPath()
         logger.lifecycle("Generating server file: ${actualFile.name}")
-        action.get().apply(actualFile.parent, specification.get(), playerResolverService.playerResolver)
+        action.get().apply(actualFile.parent, specification.get(), playerResolverService.get().playerResolver)
     }
 
 }

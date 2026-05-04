@@ -18,7 +18,7 @@ import org.gradle.api.tasks.TaskAction
 abstract class InstallExecutableTask : DefaultTask() {
 
     @get:ServiceReference("jarProviderService")
-    abstract val jarProviderService: JarProviderService
+    abstract val jarProviderService: Property<JarProviderService>
 
     @get:Input
     abstract val specification: Property<ServerSpec<*, *>>
@@ -31,7 +31,7 @@ abstract class InstallExecutableTask : DefaultTask() {
         val spec = specification.get()
         val directory = executable.get().asFile.parentFile.toPath()
         logger.lifecycle("Installing server ${spec.type.name} ${spec.version} in: $directory")
-        jarProviderService.provider.get(spec.type, spec.version, directory)
+        jarProviderService.get().provider.get(spec.type, spec.version, directory)
     }
 
 }
