@@ -64,6 +64,7 @@ abstract class PluginRequestsBuilder {
      * @param filepath the path of the file
      * @param overwrite if the file should be overwritten if it already exists
      */
+    @JvmOverloads
     fun local(filepath: String, overwrite: Boolean = true) {
         local(Paths.get(filepath), overwrite)
     }
@@ -74,6 +75,7 @@ abstract class PluginRequestsBuilder {
      * @param filepath the path of the file
      * @param overwrite if the file should be overwritten if it already exists
      */
+    @JvmOverloads
     fun local(filepath: Path, overwrite: Boolean = true) {
         requests += LocalPluginRequest(filepath, overwrite)
     }
