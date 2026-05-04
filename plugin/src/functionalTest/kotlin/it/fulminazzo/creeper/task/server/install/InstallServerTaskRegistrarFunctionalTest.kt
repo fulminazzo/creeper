@@ -56,7 +56,7 @@ class InstallServerTaskRegistrarFunctionalTest {
 
         val serverProperties = serverDir.resolve("server.properties")
         assertTrue(serverProperties.exists(), "Server properties file does not exist: $serverProperties")
-        val properties = CreeperPlugin.PROPERTIES_MAPPER.readValue<Map<String, Any>>(serverProperties)
+        val properties = CreeperPlugin.PROPERTIES_MAPPER.readValue<Map<String, Any>>(serverProperties.readText(Charsets.ISO_8859_1))
         assertEquals("25567", properties["server-port"], "Server port was not set correctly")
         assertEquals("22", properties["max-players"], "Max players was not set correctly")
         assertEquals("true", properties["white-list"], "White list was not set correctly")
