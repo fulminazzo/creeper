@@ -25,7 +25,26 @@ enum class MemoryUnit(val jvmUnit: String) {
     /**
      * Gigabyte memory unit.
      */
-    GB("G")
+    GB("G");
+
+    companion object {
+
+        /**
+         * Gets the [MemoryUnit] by its unit.
+         * The unit supports both JVM flags (`G`) and the human-readable format (`GB`).
+         *
+         * @param unit the raw unit
+         * @return the unit (if found)
+         */
+        fun ofUnit(unit: String): MemoryUnit? =
+            entries.find {
+                it.jvmUnit.equals(
+                    if (unit.uppercase().endsWith("B")) unit.dropLast(1) else unit,
+                    ignoreCase = true
+                )
+            }
+
+    }
 
 }
 

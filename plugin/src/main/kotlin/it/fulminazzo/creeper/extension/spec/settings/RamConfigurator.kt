@@ -29,7 +29,7 @@ abstract class RamConfigurator {
      */
     fun minRam(value: Int, unit: String) = minRam(
         value,
-        MemoryUnit.entries.find { it.jvmUnit == unit } ?: throw GradleException("Invalid memory unit: $unit")
+        MemoryUnit.ofUnit(unit) ?: throw GradleException("Invalid memory unit: $unit")
     )
 
     /**
@@ -56,7 +56,7 @@ abstract class RamConfigurator {
      */
     fun maxRam(value: Int, unit: String) = maxRam(
         value,
-        MemoryUnit.entries.find { it.jvmUnit == unit } ?: throw GradleException("Invalid memory unit: $unit")
+        MemoryUnit.ofUnit(unit) ?: throw GradleException("Invalid memory unit: $unit")
     )
 
     /**
