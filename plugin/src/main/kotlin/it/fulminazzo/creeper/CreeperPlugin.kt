@@ -5,6 +5,7 @@ import com.fasterxml.jackson.dataformat.javaprop.JavaPropsMapper
 import com.fasterxml.jackson.dataformat.yaml.YAMLMapper
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.fasterxml.jackson.module.kotlin.kotlinModule
+import it.fulminazzo.creeper.extension.ServersConfigurationExtension
 import it.fulminazzo.creeper.service.PlayerResolverService
 import it.fulminazzo.creeper.service.downloader.CachedDownloaderService
 import it.fulminazzo.creeper.service.provider.ConfigProviderService
