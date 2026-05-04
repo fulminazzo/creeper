@@ -4,6 +4,7 @@ import it.fulminazzo.creeper.provider.plugin.PluginRequest
 import it.fulminazzo.creeper.service.provider.plugin.PluginProviderService
 import org.gradle.api.DefaultTask
 import org.gradle.api.file.RegularFileProperty
+import org.gradle.api.provider.Property
 import org.gradle.api.services.ServiceReference
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.OutputFile
@@ -20,15 +21,15 @@ abstract class InstallPluginTask : DefaultTask() {
     abstract val pluginProviderService: PluginProviderService
 
     @get:Input
-    abstract val request: PluginRequest
+    abstract val request: Property<PluginRequest>
 
     @get:OutputFile
-    abstract val plugins: RegularFileProperty
+    abstract val plugin: RegularFileProperty
 
     @TaskAction
     fun run() {
-        val directory = plugins.get().asFile.parentFile.toPath()
-        pluginProviderService.provider.handleRequest(directory, request)
+        val directory = plugin.get().asFile.parentFile.toPath()
+        pluginProviderService.provider.handleRequest(directory, request.get())
     }
 
 }
