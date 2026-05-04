@@ -1,7 +1,7 @@
 package it.fulminazzo.creeper.task.server.install
 
-import it.fulminazzo.creeper.PlayerResolver
 import it.fulminazzo.creeper.server.spec.ServerSpec
+import it.fulminazzo.creeper.service.PlayerResolverService
 import org.gradle.api.DefaultTask
 import org.gradle.api.file.RegularFileProperty
 import org.gradle.api.provider.Property
@@ -19,8 +19,8 @@ import kotlin.io.path.name
  */
 abstract class WriteFileTask : DefaultTask() {
 
-    @get:ServiceReference("playerResolver")
-    abstract val playerResolver: PlayerResolver
+    @get:ServiceReference("playerResolverService")
+    abstract val playerResolverService: PlayerResolverService
 
     @get:Internal
     abstract val action: Property<FileAction>
@@ -35,7 +35,7 @@ abstract class WriteFileTask : DefaultTask() {
     fun run() {
         val actualFile = file.get().asFile.toPath()
         logger.lifecycle("Generating server file: ${actualFile.name}")
-        action.get().apply(actualFile.parent, specification.get(), playerResolver)
+        action.get().apply(actualFile.parent, specification.get(), playerResolverService.playerResolver)
     }
 
 }
