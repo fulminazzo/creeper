@@ -103,6 +103,7 @@ public final class TestsRunner {
             try {
                 String json = GSON.toJson(testsResult);
                 logger.info("Writing results to {}", resultsFile);
+                Files.createDirectories(resultsFile.getParent());
                 try (FileWriter writer = new FileWriter(resultsFile.toFile())) {
                     writer.write(json);
                 }
