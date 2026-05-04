@@ -1,5 +1,6 @@
 package it.fulminazzo.creeper.task.server.install
 
+import it.fulminazzo.creeper.ProjectInfo
 import it.fulminazzo.creeper.ServerType
 import it.fulminazzo.creeper.extension.spec.MinecraftServerSpec
 import it.fulminazzo.creeper.extension.spec.ServerSpec
@@ -17,7 +18,9 @@ object InstallServerTaskRegistrar {
      * Registers a new task to install the requested server.
      * The task will be named `install[ServerSpec.id]` and will be divided into smaller sub-tasks:
      * - `install[ServerSpec.id]Executable` to install the actual server executable;
-     * - `install[ServerSpec.id]Plugin1`, `install[ServerSpec.id]Plugin2`, ... to install the requested plugins (if any);
+     * - `fetch[ServerSpec.id]Plugin1Metadata`, `fetch[ServerSpec.id]Plugin2Metadata`, ... and
+     * `install[ServerSpec.id]Plugin1`, `install[ServerSpec.id]Plugin2`, ... to install the requested plugins (if any).
+     *
      * Then, some platform-specific tasks will be added.
      * - If the [ServerType] is a [ServerType.MinecraftType], then the following tasks will be added:
      *   - `install[ServerSpec.id]ServerProperties` to install the server.properties file;
@@ -46,15 +49,25 @@ object InstallServerTaskRegistrar {
         }
         // MANDATORY, the plugins
         val pluginsDirectory = serverDirectory.resolve("plugins")
-        tasks + specification.plugins.mapIndexed { index, plugin ->
+        val pluginsMetadataDirectory = pluginsDirectory.resolve(ProjectInfo.NAME).resolve("plugins")
+        tasks + specification.plugins.mapIndexed { index, pluginRequest ->
+            val pluginNumber = index + 1
+            val pluginMetadata = pluginsMetadataDirectory.resolve(pluginRequest.toHashString())
+            val fetchMetadata = project.tasks.register(
+                "fetch${serverId}Plugin${pluginNumber}Metadata",
+                FetchPluginMetadataTask::class.java
+            ) { task ->
+                task.request.set(pluginRequest)
+                task.pluginMetadata.set(pluginMetadata.toFile())
+            }
             project.tasks.register(
-                "${installTaskBaseName}Plugin${index + 1}",
+                "${installTaskBaseName}Plugin$pluginNumber",
                 InstallPluginTask::class.java
             ) { task ->
-                task.request.set(plugin)
-                //TODO: better naming, taken from the request
-                //TODO: however how do we pull it from the Http before-hand?
-                task.plugin.set(pluginsDirectory.resolve("plugin${index + 1}.jar").toFile())
+                task.dependsOn(fetchMetadata)
+                task.request.set(pluginRequest)
+                task.pluginMetadata.set(pluginMetadata.toFile())
+                task.pluginsDirectory.set(pluginsDirectory.toFile())
             }
         }
         // PER-SPECIFICATION
