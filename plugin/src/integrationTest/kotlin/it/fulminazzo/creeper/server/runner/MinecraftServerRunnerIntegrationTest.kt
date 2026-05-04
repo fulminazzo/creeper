@@ -6,11 +6,10 @@ import io.mockk.spyk
 import it.fulminazzo.creeper.ServerType
 import it.fulminazzo.creeper.extension.spec.MinecraftServerSpec
 import it.fulminazzo.creeper.extension.spec.settings.MinecraftServerSettings
-import it.fulminazzo.creeper.extension.spec.settings.MinecraftServerSettingsBuilder
-import org.junit.jupiter.api.AfterAll
-import org.junit.jupiter.api.assertThrows
 import org.gradle.api.logging.Logger
 import org.gradle.api.logging.Logging
+import org.junit.jupiter.api.AfterAll
+import org.junit.jupiter.api.assertThrows
 import java.nio.file.Path
 import java.util.concurrent.Executors
 import kotlin.test.Test
@@ -18,7 +17,7 @@ import kotlin.test.assertFalse
 import kotlin.time.Duration.Companion.seconds
 
 class MinecraftServerRunnerIntegrationTest {
-    private val runner = MinecraftServerRunner(mockSpecification(), LOGGER, EXECUTOR, BASE_DIRECTORY, JAVA_EXECUTABLE)
+    private val runner = MinecraftServerRunner(MinecraftServerSpec(), LOGGER, EXECUTOR, BASE_DIRECTORY, JAVA_EXECUTABLE)
 
     @Test
     fun `test normal start cycle`() {
@@ -77,19 +76,6 @@ class MinecraftServerRunnerIntegrationTest {
         @AfterAll
         fun tearDown() {
             EXECUTOR.close()
-        }
-
-        fun mockSpecification(): MinecraftServerSpec {
-            val builder = MinecraftServerSettingsBuilder()
-            builder.eula = true
-            return MinecraftServerSpec(
-                ServerType.VANILLA,
-                "1.21.8",
-                builder.build(),
-                emptySet(),
-                emptySet(),
-                emptyList()
-            )
         }
 
     }
