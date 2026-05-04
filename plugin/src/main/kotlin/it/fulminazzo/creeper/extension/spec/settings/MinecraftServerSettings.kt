@@ -21,20 +21,20 @@ import org.gradle.api.provider.Property
  * @param players the maximum number of players allowed
  * @param flags the JVM flags to use
  */
-class MinecraftServerSettings(
-    port: Int,
-    players: Int,
-    flags: String,
-    val eula: Boolean,
-    val whitelist: Boolean,
-    val hardcore: Boolean,
-    val difficulty: Difficulty,
-    val gamemode: Gamemode,
-    val generateStructures: Boolean,
-    val onlineMode: Boolean,
-    val spawnProtection: Int,
-    val viewDistance: Int,
-    val simulationDistance: Int
+class MinecraftServerSettings @JvmOverloads constructor(
+    port: Int = 25565,
+    players: Int = 20,
+    flags: String = "-Xms512M -Xmx2G",
+    val eula: Boolean = false,
+    val whitelist: Boolean = false,
+    val hardcore: Boolean = false,
+    val difficulty: Difficulty = Difficulty.NORMAL,
+    val gamemode: Gamemode = Gamemode.SURVIVAL,
+    val generateStructures: Boolean = false,
+    val onlineMode: Boolean = false,
+    val spawnProtection: Int = 0,
+    val viewDistance: Int = 2,
+    val simulationDistance: Int = 2
 ) : ServerSettings(
     port,
     players,

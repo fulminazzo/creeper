@@ -20,13 +20,13 @@ import org.gradle.api.tasks.Nested
  * @param operators the operator players of the server
  * @property plugins the plugins to install
  */
-class MinecraftServerSpec(
-    type: ServerType.MinecraftType,
-    version: String,
-    config: MinecraftServerSettings,
-    val whitelist: Set<String>,
-    val operators: Set<String>,
-    plugins: List<PluginRequest>
+class MinecraftServerSpec @JvmOverloads constructor(
+    type: ServerType.MinecraftType = ServerType.VANILLA,
+    version: String = "1.21.11",
+    config: MinecraftServerSettings = MinecraftServerSettings(),
+    val whitelist: Set<String> = emptySet(),
+    val operators: Set<String> = emptySet(),
+    plugins: List<PluginRequest> = emptyList()
 ) : ServerSpec<ServerType.MinecraftType, MinecraftServerSettings>(
     type,
     version,
