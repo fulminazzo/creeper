@@ -73,11 +73,12 @@ class CreeperPlugin : Plugin<Project> {
         internal fun <T : Task> registerTask(
             project: Project,
             name: String,
-            description: String,
+            group: String? = null,
+            description: String? = null,
             type: Class<T> = Task::class.java as Class<T>,
             configuration: Action<T> = {}
         ): TaskProvider<T> = project.tasks.register(name, type) {
-            it.group = ProjectInfo.GROUP
+            it.group = group
             it.description = description
             configuration.execute(it)
         }
