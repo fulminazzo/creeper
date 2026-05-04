@@ -4,6 +4,7 @@ import it.fulminazzo.creeper.extension.spec.settings.MinecraftServerSettings
 import it.fulminazzo.creeper.extension.spec.settings.MinecraftServerSettingsBuilder
 import it.fulminazzo.creeper.provider.plugin.PluginRequest
 import it.fulminazzo.creeper.ServerType
+import org.gradle.api.provider.Property
 import org.gradle.api.provider.SetProperty
 import org.gradle.api.tasks.Nested
 
@@ -40,6 +41,8 @@ class MinecraftServerSpec(
  */
 abstract class MinecraftServerSpecBuilder :
     ServerSpecBuilder<ServerType.MinecraftType, MinecraftServerSettingsBuilder, MinecraftServerSettings>() {
+
+    abstract override val type: Property<ServerType.MinecraftType>
 
     @get:Nested
     abstract override val serverConfig: MinecraftServerSettingsBuilder
