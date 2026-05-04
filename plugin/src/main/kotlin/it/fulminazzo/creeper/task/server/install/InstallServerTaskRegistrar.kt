@@ -147,7 +147,7 @@ class InstallServerTaskRegistrar private constructor(
             type = FetchPluginMetadataTask::class.java
         ) { task ->
             task.request.set(pluginRequest)
-            task.pluginMetadata.set(pluginsMetadataDirectory.toFile())
+            task.pluginMetadata.set(pluginsMetadataDirectory.resolve(pluginRequest.toHashString()).toFile())
         }.get()
 
     /**
@@ -165,7 +165,7 @@ class InstallServerTaskRegistrar private constructor(
         type = InstallPluginTask::class.java
     ) { task ->
         task.request.set(pluginRequest)
-        task.pluginMetadata.set(pluginsMetadataDirectory.toFile())
+        task.pluginMetadata.set(pluginsMetadataDirectory.resolve(pluginRequest.toHashString()).toFile())
         task.pluginsDirectory.set(pluginsDirectory.toFile())
     }.get()
 
