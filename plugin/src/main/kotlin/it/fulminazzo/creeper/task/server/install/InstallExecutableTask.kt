@@ -1,7 +1,7 @@
 package it.fulminazzo.creeper.task.server.install
 
-import it.fulminazzo.creeper.provider.JarProvider
 import it.fulminazzo.creeper.server.spec.ServerSpec
+import it.fulminazzo.creeper.service.provider.JarProviderService
 import org.gradle.api.DefaultTask
 import org.gradle.api.file.RegularFileProperty
 import org.gradle.api.provider.Property
@@ -17,8 +17,8 @@ import org.gradle.api.tasks.TaskAction
  */
 abstract class InstallExecutableTask : DefaultTask() {
 
-    @get:ServiceReference("jarProvider")
-    abstract val jarProvider: JarProvider
+    @get:ServiceReference("jarProviderService")
+    abstract val jarProviderService: JarProviderService
 
     @get:Input
     abstract val specification: Property<ServerSpec<*, *>>
@@ -31,7 +31,7 @@ abstract class InstallExecutableTask : DefaultTask() {
         val spec = specification.get()
         val directory = executable.get().asFile.parentFile.toPath()
         logger.lifecycle("Installing server ${spec.type.name} ${spec.version} in: $directory")
-        jarProvider.get(spec.type, spec.version, directory)
+        jarProviderService.jarProvider.get(spec.type, spec.version, directory)
     }
 
 }
