@@ -1,5 +1,6 @@
 package it.fulminazzo.creeper.server.spec
 
+import it.fulminazzo.creeper.extension.spec.PluginRequestsBuilder
 import it.fulminazzo.creeper.provider.plugin.*
 import it.fulminazzo.creeper.server.ServerType
 import it.fulminazzo.creeper.extension.spec.settings.ServerSettings
@@ -53,7 +54,7 @@ sealed class ServerSpecBuilder<T : ServerType, B : ServerSettingsBuilder, S : Se
             _version = value
         }
 
-    protected val plugins: PluginRequestsBuilder = PluginRequestsBuilder()
+    protected val plugins: PluginRequestsBuilder = TODO("Not yet implemented")
 
     protected abstract val serverConfigBuilder: B
 
@@ -83,77 +84,6 @@ sealed class ServerSpecBuilder<T : ServerType, B : ServerSettingsBuilder, S : Se
      */
     fun plugins(function: PluginRequestsBuilder.() -> Unit) {
         plugins.apply(function)
-    }
-
-}
-
-/**
- * A builder for [PluginRequest]s.
- *
- * @constructor Creates a new Plugin requests builder
- */
-class PluginRequestsBuilder {
-    val requests: MutableList<PluginRequest> = mutableListOf()
-
-    /**
-     * The plugin will be downloaded from Modrinth API.
-     *
-     * @param projectName the name of the project in Modrinth
-     * @param version the name or number of the version
-     * @param filename the name of the plugin file
-     */
-    fun modrinth(projectName: String, version: String, filename: String) {
-        requests += ModrinthPluginRequest(projectName, version, filename)
-    }
-
-    /**
-     * The plugin will be downloaded from GitHub API.
-     *
-     * @param owner the owner of the repository
-     * @param repository the name of the repository
-     * @param release the tag of the release
-     * @param filename the name of the plugin file
-     */
-    fun github(owner: String, repository: String, release: String, filename: String) {
-        requests += GitHubPluginRequest(owner, repository, release, filename)
-    }
-
-    /**
-     * The plugin will be downloaded from the specified URL.
-     *
-     * @param url the URL of the plugin
-     */
-    fun url(url: URI) {
-        url(url.toString())
-    }
-
-    /**
-     * The plugin will be downloaded from the specified URL.
-     *
-     * @param url the URL of the plugin
-     */
-    fun url(url: String) {
-        requests += HttpPluginRequest(url)
-    }
-
-    /**
-     * The plugin will be copied from the specified file.
-     *
-     * @param filepath the path of the file
-     * @param overwrite if the file should be overwritten if it already exists
-     */
-    fun local(filepath: String, overwrite: Boolean = true) {
-        local(Paths.get(filepath), overwrite)
-    }
-
-    /**
-     * The plugin will be copied from the specified file.
-     *
-     * @param filepath the path of the file
-     * @param overwrite if the file should be overwritten if it already exists
-     */
-    fun local(filepath: Path, overwrite: Boolean = true) {
-        requests += LocalPluginRequest(filepath, overwrite)
     }
 
 }

@@ -45,19 +45,19 @@ class GitHubPluginProvider internal constructor(
         cache[request.toHashString()] ?: requestCache.computeIfAbsent(request.toHashString()) {
             val raw = HttpUtils.getApi(getReleaseUrl(request.owner, request.repository, request.release))
                 ?: return@computeIfAbsent Optional.empty()
-            val release = JSON_MAPPER.readValue<ReleaseResponse>(raw).assets.firstOrNull { it.name == request.name }
+            val release = JSON_MAPPER.readValue<ReleaseResponse>(raw).assets.firstOrNull { it.name == request.filename }
                 ?: return@computeIfAbsent Optional.empty()
             cache.set(request.toHashString(), release, cacheDuration)
             Optional.of(release)
         }.orElse(null)
 
     override fun handleRequest(directory: Path, request: GitHubPluginRequest): Path {
-        logger.info("Fetching GitHub release information for ${request.owner}/${request.repository}/${request.release} (filename =${request.name})")
+        logger.info("Fetching GitHub release information for ${request.owner}/${request.repository}/${request.release} (filename =${request.filename})")
         return fetchReleaseMetadata(request)?.let { release ->
             logger.info("Downloading plugin from ${release.url}")
             downloader.download(release.url, directory.resolve(release.name), release.digest)
         } ?: throw PluginNotFoundException(
-            "Could not find GitHub release for ${request.owner}/${request.repository}/${request.release} (filename = ${request.name})"
+            "Could not find GitHub release for ${request.owner}/${request.repository}/${request.release} (filename = ${request.filename})"
         )
     }
 
@@ -88,17 +88,17 @@ class GitHubPluginProvider internal constructor(
  * @property owner the owner of the repositoryhttps://modrinth.com/plugin/veinminer-enchantment
  * @property repository the name of the repository
  * @property release the tag of the release in the repository
- * @property name the name of the plugin file
+ * @property filename the name of the plugin file
  * @constructor Creates a new GitHub plugin request
  */
 data class GitHubPluginRequest(
     val owner: String,
     val repository: String,
     val release: String,
-    val name: String
+    val filename: String
 ) : PluginRequest, Hashable {
 
-    override fun toHashString(): String = "$owner:$repository:$release:$name".sha256()
+    override fun toHashString(): String = "$owner:$repository:$release:$filename".sha256()
 
 }
 
