@@ -1,21 +1,16 @@
 package it.fulminazzo.creeper.extension.spec.settings
 
+import it.fulminazzo.creeper.extension.ExtensionTestHelper
 import it.fulminazzo.creeper.util.MemoryUnit
 import it.fulminazzo.creeper.util.gb
 import org.gradle.api.GradleException
-import org.gradle.api.Project
-import org.gradle.api.model.ObjectFactory
-import org.gradle.testfixtures.ProjectBuilder
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.CsvSource
 
-class JvmFlagsBuilderTest {
-    private val project: Project = ProjectBuilder.builder().build()
-    private val objects: ObjectFactory = project.objects
-
+class JvmFlagsBuilderTest : ExtensionTestHelper() {
     private val builder = newBuilder()
 
     private fun newBuilder(): JvmFlagsBuilder = objects.newInstance(JvmFlagsBuilder::class.java)

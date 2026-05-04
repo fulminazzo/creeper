@@ -1,8 +1,8 @@
 package it.fulminazzo.creeper.extension.spec.settings
 
+import it.fulminazzo.creeper.extension.ExtensionTestHelper
 import it.fulminazzo.creeper.util.mb
 import org.gradle.api.GradleException
-import org.gradle.testfixtures.ProjectBuilder
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertFalse
 import org.junit.jupiter.api.assertThrows
@@ -14,10 +14,7 @@ import kotlin.test.Test
 import kotlin.test.assertContains
 import kotlin.test.assertTrue
 
-class MinecraftServerSettingsBuilderTest {
-    private val project = ProjectBuilder.builder().build()
-    private val objects = project.objects
-
+class MinecraftServerSettingsBuilderTest : ExtensionTestHelper() {
     private val builder = objects.newInstance(MinecraftServerSettingsBuilder::class.java)
 
     @Test
