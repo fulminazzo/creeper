@@ -60,7 +60,7 @@ sealed class FileAction {
     /**
      * Writes the `ops.json` file.
      */
-    data object Ops : FileAction() {
+    data object Operators : FileAction() {
 
         override fun apply(directory: Path, specification: ServerSpec<*, *>, playerResolver: PlayerResolver) {
             if (specification is MinecraftServerSpec) {
