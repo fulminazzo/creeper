@@ -35,6 +35,12 @@ class CreeperPlugin : Plugin<Project> {
             it.parameters.downloader.set(downloadService)
         }
 
+        // EXTENSIONS
+        val serversConfigExtension = project.extensions.create(
+            ProjectInfo.NAME.lowercase(),
+            ServersConfigurationExtension::class.java
+        )
+
         // Register a task
         project.tasks.register("greeting") { task ->
             task.doLast {
