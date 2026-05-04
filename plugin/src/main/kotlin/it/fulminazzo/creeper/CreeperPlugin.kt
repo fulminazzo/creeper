@@ -11,14 +11,18 @@ import it.fulminazzo.creeper.service.downloader.CachedDownloaderService
 import it.fulminazzo.creeper.service.provider.ConfigProviderService
 import it.fulminazzo.creeper.service.provider.JarProviderService
 import it.fulminazzo.creeper.service.provider.plugin.PluginProviderService
+import org.gradle.api.Action
 import org.gradle.api.Plugin
 import org.gradle.api.Project
+import org.gradle.api.Task
+import org.gradle.api.tasks.TaskProvider
 import java.nio.file.Path
 
 /**
  * A simple 'hello world' plugin.
  */
 class CreeperPlugin : Plugin<Project> {
+
     override fun apply(project: Project) {
         val gradle = project.gradle
         // SERVICES
@@ -41,13 +45,6 @@ class CreeperPlugin : Plugin<Project> {
             ProjectInfo.NAME.lowercase(),
             ServersConfigurationExtension::class.java
         )
-
-        // Register a task
-        project.tasks.register("greeting") { task ->
-            task.doLast {
-                println("Hello, world!")
-            }
-        }
     }
 
     companion object {
@@ -60,6 +57,30 @@ class CreeperPlugin : Plugin<Project> {
         internal val JSON_MAPPER = jacksonObjectMapper()
         internal val YAML_MAPPER = YAMLMapper.builder().addModule(kotlinModule()).build()
         internal val PROPERTIES_MAPPER = JavaPropsMapper.builder().addModule(kotlinModule()).build()
+
+        /**
+         * Registers a task with the given name and description.
+         *
+         * @param T the type of the task
+         * @param project the project to register the task in
+         * @param name the name of the task
+         * @param description the description of the task
+         * @param type the type of the task
+         * @param configuration the configuration to apply for the task
+         * @return the created task provider
+         */
+        @Suppress("UNCHECKED_CAST")
+        internal fun <T : Task> registerTask(
+            project: Project,
+            name: String,
+            description: String,
+            type: Class<T> = Task::class.java as Class<T>,
+            configuration: Action<T> = {}
+        ): TaskProvider<T> = project.tasks.register(name, type) {
+            it.group = ProjectInfo.GROUP
+            it.description = description
+            configuration.execute(it)
+        }
 
         /**
          * Gets an appropriate Jackson mapper for the given format.

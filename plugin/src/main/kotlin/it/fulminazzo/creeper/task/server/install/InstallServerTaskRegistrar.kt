@@ -1,5 +1,6 @@
 package it.fulminazzo.creeper.task.server.install
 
+import it.fulminazzo.creeper.CreeperPlugin
 import it.fulminazzo.creeper.ProjectInfo
 import it.fulminazzo.creeper.ServerType
 import it.fulminazzo.creeper.extension.spec.MinecraftServerSpec
@@ -37,11 +38,13 @@ object InstallServerTaskRegistrar {
     fun register(project: Project, specification: ServerSpec<*, *>, directory: Path): TaskProvider<Task> {
         val serverId = specification.id.replaceFirstChar { it.uppercaseChar() }
         val installTaskBaseName = "install${serverId}"
-        val tasks = mutableListOf<TaskProvider<*>>()
+        val tasks = listOf<TaskProvider<*>>()
         // MANDATORY, the executable
         val serverDirectory = directory.resolve(serverId)
-        tasks + project.tasks.register(
+        tasks + CreeperPlugin.registerTask(
+            project,
             "${installTaskBaseName}Executable",
+            "Installs the server executable of server $serverId",
             InstallExecutableTask::class.java
         ) { task ->
             task.specification.set(specification)
@@ -53,15 +56,19 @@ object InstallServerTaskRegistrar {
         tasks + specification.plugins.mapIndexed { index, pluginRequest ->
             val pluginNumber = index + 1
             val pluginMetadata = pluginsMetadataDirectory.resolve(pluginRequest.toHashString())
-            val fetchMetadata = project.tasks.register(
+            val fetchMetadata = CreeperPlugin.registerTask(
+                project,
                 "fetch${serverId}Plugin${pluginNumber}Metadata",
+                "Fetches the metadata for plugin ${pluginRequest.toHashString()} of server $serverId",
                 FetchPluginMetadataTask::class.java
             ) { task ->
                 task.request.set(pluginRequest)
                 task.pluginMetadata.set(pluginMetadata.toFile())
             }
-            project.tasks.register(
+            CreeperPlugin.registerTask(
+                project,
                 "${installTaskBaseName}Plugin$pluginNumber",
+                "Installs plugin ${pluginRequest.toHashString()} of server $serverId",
                 InstallPluginTask::class.java
             ) { task ->
                 task.dependsOn(fetchMetadata)
@@ -73,8 +80,10 @@ object InstallServerTaskRegistrar {
         // PER-SPECIFICATION
         if (specification is MinecraftServerSpec) {
             // server.properties
-            tasks + project.tasks.register(
+            tasks + CreeperPlugin.registerTask(
+                project,
                 "${installTaskBaseName}ServerProperties",
+                "Installs the server.properties file of server $serverId",
                 InstallConfigTask::class.java
             ) { task ->
                 task.action.set(ConfigAction.ServerProperties)
@@ -83,8 +92,10 @@ object InstallServerTaskRegistrar {
             }
             // bukkit.yml
             if (specification.type.isForkOf(ServerType.BUKKIT))
-                tasks + project.tasks.register(
+                tasks + CreeperPlugin.registerTask(
+                    project,
                     "${installTaskBaseName}BukkitYml",
+                    "Installs the bukkit.yml file of server $serverId",
                     InstallConfigTask::class.java
                 ) { task ->
                     task.action.set(ConfigAction.BukkitConfig)
@@ -92,8 +103,10 @@ object InstallServerTaskRegistrar {
                     task.configFile.set(serverDirectory.resolve("bukkit.yml").toFile())
                 }
             // whitelist.json
-            tasks + project.tasks.register(
+            tasks + CreeperPlugin.registerTask(
+                project,
                 "${installTaskBaseName}Whitelist",
+                "Installs the whitelist.json file of server $serverId",
                 WriteFileTask::class.java
             ) { task ->
                 task.action.set(FileAction.Whitelist)
@@ -101,8 +114,10 @@ object InstallServerTaskRegistrar {
                 task.file.set(serverDirectory.resolve("whitelist.json").toFile())
             }
             // ops.json
-            tasks + project.tasks.register(
+            tasks + CreeperPlugin.registerTask(
+                project,
                 "${installTaskBaseName}Operators",
+                "Installs the ops.json file of server $serverId",
                 WriteFileTask::class.java
             ) { task ->
                 task.action.set(FileAction.Operators)
@@ -110,8 +125,10 @@ object InstallServerTaskRegistrar {
                 task.file.set(serverDirectory.resolve("ops.json").toFile())
             }
             // eula.txt
-            tasks + project.tasks.register(
+            tasks + CreeperPlugin.registerTask(
+                project,
                 "${installTaskBaseName}Eula",
+                "Installs the eula.txt file of server $serverId",
                 WriteFileTask::class.java
             ) { task ->
                 task.action.set(FileAction.Eula)
@@ -120,7 +137,11 @@ object InstallServerTaskRegistrar {
             }
         }
         // Finally the task, dependent on everything
-        return project.tasks.register(installTaskBaseName) { task -> tasks.forEach { task.dependsOn(it) } }
+        return CreeperPlugin.registerTask(
+            project,
+            installTaskBaseName,
+            "Installs the server $serverId"
+        ) { task -> tasks.forEach { task.dependsOn(it) } }
     }
 
 }
