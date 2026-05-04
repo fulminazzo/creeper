@@ -8,6 +8,7 @@ import it.fulminazzo.creeper.extension.spec.ServerSpec
 import it.fulminazzo.creeper.provider.plugin.PluginRequest
 import org.gradle.api.Project
 import org.gradle.api.Task
+import org.gradle.api.tasks.TaskProvider
 import java.nio.file.Path
 
 /**
@@ -38,6 +39,8 @@ class InstallServerTaskRegistrar private constructor(
 
     internal lateinit var project: Project
     internal lateinit var baseTask: Task
+
+    internal lateinit var executableTask: Task
 
     private val pluginsDirectory: Path
         get() = serverDirectory.resolve("plugins")
@@ -71,6 +74,7 @@ class InstallServerTaskRegistrar private constructor(
                 val number = index + 1
                 val fetchTask = registerFetchPluginMetadataTask(pluginRequest, number)
                 val pluginTask = registerInstallPluginTask(pluginRequest, number)
+                fetchTask.dependsOn(executableTask)
                 pluginTask.dependsOn(fetchTask)
                 pluginsTask.dependsOn(pluginTask)
             }
@@ -87,19 +91,23 @@ class InstallServerTaskRegistrar private constructor(
 
     /**
      * Registers a `install[ServerSpec.id]Executable` task for installing the server executable.
+     *
+     * @return the task that was registered
      */
-    internal fun registerInstallExecutableTask() {
-        baseTask.dependsOn(
-            CreeperPlugin.registerTask(
-                project = project,
-                name = "${installTaskName}Executable",
-                group = serverDisplayName,
-                description = "Installs the executable file of server $serverDisplayName",
-                type = InstallExecutableTask::class.java
-            ) { task ->
-                task.specification.set(specification)
-                task.executable.set(serverDirectory.resolve("${serverId}.jar").toFile())
-            })
+    internal fun registerInstallExecutableTask(): Task {
+        val task = CreeperPlugin.registerTask(
+            project = project,
+            name = "${installTaskName}Executable",
+            group = serverDisplayName,
+            description = "Installs the executable file of server $serverDisplayName",
+            type = InstallExecutableTask::class.java
+        ) { task ->
+            task.specification.set(specification)
+            task.executable.set(serverDirectory.resolve("${serverId}.jar").toFile())
+        }
+        baseTask.dependsOn(task)
+        executableTask = task.get()
+        return executableTask
     }
 
     /**
@@ -108,16 +116,19 @@ class InstallServerTaskRegistrar private constructor(
 
     /**
      * Registers a `install[ServerSpec.id]Plugins` task for installing the requested plugins.
+     *
+     * @return the task that was registered
      */
-    internal fun registerInstallPluginsTask() {
-        pluginsTask = baseTask.dependsOn(
-            CreeperPlugin.registerTask<Task>(
+    internal fun registerInstallPluginsTask(): Task {
+        pluginsTask = setDependencyHierarchy(
+            CreeperPlugin.registerTask(
                 project = project,
                 name = "${installTaskName}Plugins",
                 group = serverDisplayName,
                 description = "Installs the plugins of server $serverDisplayName (if requested)",
             )
         )
+        return pluginsTask
     }
 
     /**
@@ -127,8 +138,8 @@ class InstallServerTaskRegistrar private constructor(
      * @param index the index of the plugin in the plugin requests list
      * @return the task that was registered
      */
-    internal fun registerFetchPluginMetadataTask(pluginRequest: PluginRequest, index: Int): Task {
-        val task = CreeperPlugin.registerTask(
+    internal fun registerFetchPluginMetadataTask(pluginRequest: PluginRequest, index: Int): Task =
+        CreeperPlugin.registerTask(
             project = project,
             name = "fetch${taskBaseName}Plugin${index}Metadata",
             group = serverDisplayName.takeIf { showWorkers },
@@ -137,10 +148,7 @@ class InstallServerTaskRegistrar private constructor(
         ) { task ->
             task.request.set(pluginRequest)
             task.pluginMetadata.set(pluginsMetadataDirectory.toFile())
-        }
-        pluginsTask.dependsOn(task)
-        return task.get()
-    }
+        }.get()
 
     /**
      * Registers a `install[ServerSpec.id]Plugin[index]` task for installing a plugin.
@@ -149,21 +157,17 @@ class InstallServerTaskRegistrar private constructor(
      * @param index the index of the plugin in the plugin requests list
      * @return the task that was registered
      */
-    internal fun registerInstallPluginTask(pluginRequest: PluginRequest, index: Int): Task {
-        val task = CreeperPlugin.registerTask(
-            project = project,
-            name = "${installTaskName}Plugin${index}",
-            group = serverDisplayName.takeIf { showWorkers },
-            description = "Installs plugin #$index of server $serverDisplayName",
-            type = InstallPluginTask::class.java
-        ) { task ->
-            task.request.set(pluginRequest)
-            task.pluginMetadata.set(pluginsMetadataDirectory.toFile())
-            task.pluginsDirectory.set(pluginsDirectory.toFile())
-        }
-        pluginsTask.dependsOn(task)
-        return task.get()
-    }
+    internal fun registerInstallPluginTask(pluginRequest: PluginRequest, index: Int): Task = CreeperPlugin.registerTask(
+        project = project,
+        name = "${installTaskName}Plugin${index}",
+        group = serverDisplayName.takeIf { showWorkers },
+        description = "Installs plugin #$index of server $serverDisplayName",
+        type = InstallPluginTask::class.java
+    ) { task ->
+        task.request.set(pluginRequest)
+        task.pluginMetadata.set(pluginsMetadataDirectory.toFile())
+        task.pluginsDirectory.set(pluginsDirectory.toFile())
+    }.get()
 
     /**
      * [it.fulminazzo.creeper.ServerType.MinecraftType]
@@ -172,82 +176,80 @@ class InstallServerTaskRegistrar private constructor(
     /**
      * Registers a `install[ServerSpec.id]Properties` task for installing the `server.properties` file.
      * Only available on Minecraft servers.
+     *
+     * @return the task that was registered
      */
-    internal fun registerInstallProperties() {
-        baseTask.dependsOn(
-            CreeperPlugin.registerTask(
-                project = project,
-                name = "${installTaskName}Properties",
-                group = serverDisplayName.takeIf { showWorkers },
-                description = "Installs the server.properties file of server $serverDisplayName",
-                type = InstallConfigTask::class.java
-            ) { task ->
-                task.action.set(ConfigAction.ServerProperties)
-                task.specification.set(specification)
-                task.configFile.set(serverDirectory.resolve("server.properties").toFile())
-            }
-        )
-    }
+    internal fun registerInstallProperties() = setDependencyHierarchy(
+        CreeperPlugin.registerTask(
+            project = project,
+            name = "${installTaskName}Properties",
+            group = serverDisplayName.takeIf { showWorkers },
+            description = "Installs the server.properties file of server $serverDisplayName",
+            type = InstallConfigTask::class.java
+        ) { task ->
+            task.action.set(ConfigAction.ServerProperties)
+            task.specification.set(specification)
+            task.configFile.set(serverDirectory.resolve("server.properties").toFile())
+        }
+    )
 
     /**
      * Registers a `write[ServerSpec.id]Eula` task for writing the `eula.txt` file.
      * Only available on Minecraft servers.
      */
-    internal fun registerWriteEula() {
-        baseTask.dependsOn(
-            CreeperPlugin.registerTask(
-                project = project,
-                name = "${writeTaskName}Eula",
-                group = serverDisplayName.takeIf { showWorkers },
-                description = "Installs the eula.txt file of server $serverDisplayName",
-                type = WriteFileTask::class.java
-            ) { task ->
-                task.action.set(FileAction.Eula)
-                task.specification.set(specification)
-                task.file.set(serverDirectory.resolve("eula.txt").toFile())
-            }
-        )
-    }
+    internal fun registerWriteEula() = setDependencyHierarchy(
+        CreeperPlugin.registerTask(
+            project = project,
+            name = "${writeTaskName}Eula",
+            group = serverDisplayName.takeIf { showWorkers },
+            description = "Installs the eula.txt file of server $serverDisplayName",
+            type = WriteFileTask::class.java
+        ) { task ->
+            task.action.set(FileAction.Eula)
+            task.specification.set(specification)
+            task.file.set(serverDirectory.resolve("eula.txt").toFile())
+        }
+    )
 
     /**
      * Registers a `write[ServerSpec.id]Whitelist` task for installing the `whitelist.json` file.
      * Only available on Minecraft servers.
+     *
+     * @return the task that was registered
      */
-    internal fun registerWriteWhitelist() {
-        baseTask.dependsOn(
-            CreeperPlugin.registerTask(
-                project = project,
-                name = "${writeTaskName}Whitelist",
-                group = serverDisplayName.takeIf { showWorkers },
-                description = "Installs the whitelist.json file of server $serverDisplayName",
-                type = WriteFileTask::class.java
-            ) { task ->
-                task.action.set(FileAction.Whitelist)
-                task.specification.set(specification)
-                task.file.set(serverDirectory.resolve("whitelist.json").toFile())
-            }
-        )
-    }
+    internal fun registerWriteWhitelist() = setDependencyHierarchy(
+        CreeperPlugin.registerTask(
+            project = project,
+            name = "${writeTaskName}Whitelist",
+            group = serverDisplayName.takeIf { showWorkers },
+            description = "Installs the whitelist.json file of server $serverDisplayName",
+            type = WriteFileTask::class.java
+        ) { task ->
+            task.action.set(FileAction.Whitelist)
+            task.specification.set(specification)
+            task.file.set(serverDirectory.resolve("whitelist.json").toFile())
+        }
+    )
 
     /**
      * Registers a `write[ServerSpec.id]Operators` task for installing the `ops.json` file.
      * Only available on Minecraft servers.
+     *
+     * @return the task that was registered
      */
-    internal fun registerWriteOperators() {
-        baseTask.dependsOn(
-            CreeperPlugin.registerTask(
-                project = project,
-                name = "${writeTaskName}Operators",
-                group = serverDisplayName.takeIf { showWorkers },
-                description = "Installs the ops.json file of server $serverDisplayName",
-                type = WriteFileTask::class.java
-            ) { task ->
-                task.action.set(FileAction.Operators)
-                task.specification.set(specification)
-                task.file.set(serverDirectory.resolve("ops.json").toFile())
-            }
-        )
-    }
+    internal fun registerWriteOperators() = setDependencyHierarchy(
+        CreeperPlugin.registerTask(
+            project = project,
+            name = "${writeTaskName}Operators",
+            group = serverDisplayName.takeIf { showWorkers },
+            description = "Installs the ops.json file of server $serverDisplayName",
+            type = WriteFileTask::class.java
+        ) { task ->
+            task.action.set(FileAction.Operators)
+            task.specification.set(specification)
+            task.file.set(serverDirectory.resolve("ops.json").toFile())
+        }
+    )
 
     /**
      * [it.fulminazzo.creeper.ServerType.BUKKIT]
@@ -256,21 +258,27 @@ class InstallServerTaskRegistrar private constructor(
     /**
      * Registers a `install[ServerSpec.id]BukkitYml` task for installing the `bukkit.yml` file.
      * Only available on Minecraft servers.
+     *
+     * @return the task that was registered
      */
-    internal fun installBukkitYml() {
-        baseTask.dependsOn(
-            CreeperPlugin.registerTask(
-                project = project,
-                name = "${installTaskName}BukkitYml",
-                group = serverDisplayName.takeIf { showWorkers },
-                description = "Installs the bukkit.yml file of server $serverDisplayName",
-                type = InstallConfigTask::class.java
-            ) { task ->
-                task.action.set(ConfigAction.BukkitConfig)
-                task.specification.set(specification)
-                task.configFile.set(serverDirectory.resolve("bukkit.yml").toFile())
-            }
-        )
+    internal fun installBukkitYml() = setDependencyHierarchy(
+        CreeperPlugin.registerTask(
+            project = project,
+            name = "${installTaskName}BukkitYml",
+            group = serverDisplayName.takeIf { showWorkers },
+            description = "Installs the bukkit.yml file of server $serverDisplayName",
+            type = InstallConfigTask::class.java
+        ) { task ->
+            task.action.set(ConfigAction.BukkitConfig)
+            task.specification.set(specification)
+            task.configFile.set(serverDirectory.resolve("bukkit.yml").toFile())
+        }
+    )
+
+    private fun <T : Task> setDependencyHierarchy(task: TaskProvider<T>): T {
+        val t = task.get()
+        baseTask.dependsOn(t.dependsOn(executableTask))
+        return t
     }
 
     companion object {
