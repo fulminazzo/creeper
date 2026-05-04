@@ -1,3 +1,5 @@
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+
 plugins {
     `java-gradle-plugin`
     jacoco
@@ -6,6 +8,12 @@ plugins {
     alias(libs.plugins.buildconfig)
 
     id("creeper.test-configuration")
+}
+
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(25)
+    }
 }
 
 repositories {
@@ -26,6 +34,17 @@ gradlePlugin {
     plugins.create("creeper") {
         id = "it.fulminazzo.creeper"
         implementationClass = "it.fulminazzo.creeper.CreeperPlugin"
+    }
+}
+
+tasks.named<JavaCompile>("compileJava") {
+    sourceCompatibility = "8"
+    targetCompatibility = "8"
+}
+
+tasks.named<org.jetbrains.kotlin.gradle.tasks.KotlinJvmCompile>("compileKotlin") {
+    compilerOptions {
+        jvmTarget = JvmTarget.JVM_1_8
     }
 }
 

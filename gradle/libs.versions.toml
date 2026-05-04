@@ -4,7 +4,7 @@ kotlin-jvm = "2.3.0"
 buildconfig = "3.1.0"
 
 # DATA FORMAT
-jackson = "3.1.2"
+jackson = "2.21.3"
 
 # TESTING
 mockk = "1.14.9"
@@ -13,10 +13,10 @@ mockk = "1.14.9"
 kotlin-jvm = { module = "org.jetbrains.kotlin:kotlin-gradle-plugin", version.ref = "kotlin-jvm" }
 
 # DATA FORMAT
-json = { module = "tools.jackson.core:jackson-databind", version.ref = "jackson" }
-yaml = { module = "tools.jackson.dataformat:jackson-dataformat-yaml", version.ref = "jackson" }
-properties = { module = "tools.jackson.dataformat:jackson-dataformat-properties", version.ref = "jackson" }
-jackson-kotlin = { module = "tools.jackson.module:jackson-module-kotlin", version.ref = "jackson" }
+json = { module = "com.fasterxml.jackson.core:jackson-databind", version.ref = "jackson" }
+yaml = { module = "com.fasterxml.jackson.dataformat:jackson-dataformat-yaml", version.ref = "jackson" }
+properties = { module = "com.fasterxml.jackson.dataformat:jackson-dataformat-properties", version.ref = "jackson" }
+jackson-kotlin = { module = "com.fasterxml.jackson.module:jackson-module-kotlin", version.ref = "jackson" }
 
 # TESTING
 mockk = { module = "io.mockk:mockk", version.ref = "mockk" }

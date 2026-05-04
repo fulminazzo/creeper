@@ -11,7 +11,7 @@ import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.Internal
 import org.gradle.api.tasks.OutputFile
 import org.gradle.api.tasks.TaskAction
-import tools.jackson.module.kotlin.readValue
+import com.fasterxml.jackson.module.kotlin.readValue
 import kotlin.io.path.extension
 import kotlin.io.path.fileSize
 
@@ -50,7 +50,7 @@ abstract class InstallConfigTask : DefaultTask() {
             if (path.fileSize() > 0) mapper.readValue<MutableMap<String, Any>>(path.toFile())
             else mutableMapOf()
         action.get().apply(currentConfig, spec)
-        mapper.writeValue(path, currentConfig)
+        mapper.writeValue(path.toFile(), currentConfig)
     }
 
 }

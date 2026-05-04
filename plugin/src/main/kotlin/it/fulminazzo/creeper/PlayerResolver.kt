@@ -5,7 +5,7 @@ import it.fulminazzo.creeper.PlayerResolver.Companion.CACHE_FILE
 import it.fulminazzo.creeper.cache.CacheManager
 import it.fulminazzo.creeper.util.HttpUtils
 import org.gradle.api.logging.Logger
-import tools.jackson.module.kotlin.readValue
+import com.fasterxml.jackson.module.kotlin.readValue
 import java.util.*
 import kotlin.uuid.Uuid
 import kotlin.uuid.toJavaUuid

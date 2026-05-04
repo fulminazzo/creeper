@@ -1,5 +1,10 @@
 package it.fulminazzo.creeper
 
+import com.fasterxml.jackson.databind.ObjectMapper
+import com.fasterxml.jackson.dataformat.javaprop.JavaPropsMapper
+import com.fasterxml.jackson.dataformat.yaml.YAMLMapper
+import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
+import com.fasterxml.jackson.module.kotlin.kotlinModule
 import it.fulminazzo.creeper.service.PlayerResolverService
 import it.fulminazzo.creeper.service.downloader.CachedDownloaderService
 import it.fulminazzo.creeper.service.provider.ConfigProviderService
@@ -7,12 +12,7 @@ import it.fulminazzo.creeper.service.provider.JarProviderService
 import it.fulminazzo.creeper.service.provider.plugin.PluginProviderService
 import org.gradle.api.Plugin
 import org.gradle.api.Project
-import tools.jackson.databind.ObjectMapper
-import tools.jackson.dataformat.javaprop.JavaPropsMapper
-import tools.jackson.dataformat.yaml.YAMLMapper
-import tools.jackson.module.kotlin.jacksonObjectMapper
-import tools.jackson.module.kotlin.kotlinModule
-import java.nio.file.Path
+import java.nio.file.Paths
 
 /**
  * A simple 'hello world' plugin.
@@ -54,7 +54,7 @@ class CreeperPlugin : Plugin<Project> {
          * The global cache directory.
          */
         internal val CACHE_DIRECTORY
-            get() = Path.of(System.getProperty("user.home"), ".gradle", "caches", ProjectInfo.NAME)
+            get() = Paths.get(System.getProperty("user.home"), ".gradle", "caches", ProjectInfo.NAME)
 
         internal val JSON_MAPPER = jacksonObjectMapper()
         internal val YAML_MAPPER = YAMLMapper.builder().addModule(kotlinModule()).build()

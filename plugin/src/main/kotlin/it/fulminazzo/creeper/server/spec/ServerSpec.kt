@@ -1,15 +1,12 @@
 package it.fulminazzo.creeper.server.spec
 
-import it.fulminazzo.creeper.provider.plugin.GitHubPluginRequest
-import it.fulminazzo.creeper.provider.plugin.HttpPluginRequest
-import it.fulminazzo.creeper.provider.plugin.LocalPluginRequest
-import it.fulminazzo.creeper.provider.plugin.ModrinthPluginRequest
-import it.fulminazzo.creeper.provider.plugin.PluginRequest
+import it.fulminazzo.creeper.provider.plugin.*
 import it.fulminazzo.creeper.server.ServerType
 import it.fulminazzo.creeper.server.spec.settings.ServerSettings
 import it.fulminazzo.creeper.server.spec.settings.ServerSettingsBuilder
 import java.net.URI
 import java.nio.file.Path
+import java.nio.file.Paths
 
 /**
  * Identifies the general specification of a server to run.
@@ -146,7 +143,7 @@ class PluginRequestsBuilder {
      * @param overwrite if the file should be overwritten if it already exists
      */
     fun local(filepath: String, overwrite: Boolean = true) {
-        local(Path.of(filepath), overwrite)
+        local(Paths.get(filepath), overwrite)
     }
 
     /**

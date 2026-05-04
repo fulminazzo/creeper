@@ -17,9 +17,9 @@
 //import org.junit.jupiter.params.ParameterizedTest
 //import org.junit.jupiter.params.provider.MethodSource
 //import org.gradle.api.logging.Logging
-//import tools.jackson.dataformat.javaprop.JavaPropsMapper
-//import tools.jackson.module.kotlin.kotlinModule
-//import tools.jackson.module.kotlin.readValue
+//import com.fasterxml.jackson.dataformat.javaprop.JavaPropsMapper
+//import com.fasterxml.jackson.module.kotlin.kotlinModule
+//import com.fasterxml.jackson.module.kotlin.readValue
 //import java.nio.file.Path
 //import java.util.concurrent.CompletableFuture
 //import kotlin.io.path.createDirectories
