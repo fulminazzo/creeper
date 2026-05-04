@@ -15,7 +15,7 @@ import kotlin.io.path.exists
  *
  * @param logger the logger to use for logging
  */
-class LocalPluginProvider internal constructor(logger: Logger, ) : PluginProvider<LocalPluginRequest>(logger) {
+class LocalPluginProvider internal constructor(logger: Logger) : PluginProvider<LocalPluginRequest>(logger) {
 
     override fun getName(request: LocalPluginRequest): String = request.file.fileName.toString()
 
@@ -35,12 +35,14 @@ class LocalPluginProvider internal constructor(logger: Logger, ) : PluginProvide
 /**
  * Plugin request for [LocalPluginProvider].
  *
- * @property file the file to install
+ * @property filepath the file to install
  * @property overwrite if `true`, it will overwrite the existing file
  * @constructor Creates a new Local plugin request
  */
-data class LocalPluginRequest(val file: Path, val overwrite: Boolean) : PluginRequest {
+data class LocalPluginRequest(val filepath: String, val overwrite: Boolean) : PluginRequest {
+    internal val file: Path
+        get() = Path.of(filepath)
 
-    override fun toHashString(): String = "$file".sha256()
+    override fun toHashString(): String = filepath.sha256()
 
 }

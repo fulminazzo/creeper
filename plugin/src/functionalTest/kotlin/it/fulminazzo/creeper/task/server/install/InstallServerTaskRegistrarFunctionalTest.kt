@@ -8,6 +8,7 @@ import org.junit.jupiter.api.BeforeEach
 import java.io.File
 import java.nio.file.Path
 import java.util.*
+import kotlin.io.path.absolutePathString
 import kotlin.test.Test
 import kotlin.test.assertContains
 import kotlin.test.assertEquals
@@ -29,7 +30,9 @@ class InstallServerTaskRegistrarFunctionalTest {
         projectDir.deleteRecursively()
         projectDir.mkdirs()
         settingsFile.writeText("")
-        buildFile.writeText(RESOURCE_BUILD_FILE.toFile().readText())
+        buildFile.writeText(RESOURCE_BUILD_FILE.toFile().readText()
+            .replace("<LOCAL_PATH>", Path.of("src/functionalTest/resources/task/server/install/Local-1.0.jar").absolutePathString())
+        )
     }
 
     @Test
@@ -52,9 +55,9 @@ class InstallServerTaskRegistrarFunctionalTest {
 
         val serverProperties = serverDir.resolve("server.properties")
         assertTrue(serverProperties.exists(), "Server properties file does not exist: $serverProperties")
-        val properties = CreeperPlugin.PROPERTIES_MAPPER.readValue<Map<String, String>>(serverProperties)
+        val properties = CreeperPlugin.PROPERTIES_MAPPER.readValue<Map<String, Any>>(serverProperties)
         assertEquals("25567", properties["server-port"], "Server port was not set correctly")
-        assertEquals("22", properties["players"], "Max players was not set correctly")
+        assertEquals("22", properties["max-players"], "Max players was not set correctly")
         assertEquals("true", properties["white-list"], "White list was not set correctly")
         assertEquals("true", properties["hardcore"], "Hardcore mode was not set correctly")
         assertEquals("hard", properties["difficulty"], "Difficulty was not set correctly")
@@ -88,10 +91,10 @@ class InstallServerTaskRegistrarFunctionalTest {
 
         val bukkitFile = serverDir.resolve("bukkit.yml")
         assertTrue(bukkitFile.exists(), "Bukkit config file does not exist: $bukkitFile")
-        val bukkitConfig = CreeperPlugin.PROPERTIES_MAPPER.readValue<Map<String, Any>>(bukkitFile)
+        val bukkitConfig = CreeperPlugin.YAML_MAPPER.readValue<Map<String, Any>>(bukkitFile)
         @Suppress("UNCHECKED_CAST")
         assertEquals(
-            "true",
+            false,
             (bukkitConfig["settings"] as Map<String, Any>)["allow-end"],
             "Allow end was not set correctly"
         )

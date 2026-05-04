@@ -8,7 +8,6 @@ import it.fulminazzo.creeper.provider.plugin.HttpPluginRequest
 import it.fulminazzo.creeper.provider.plugin.LocalPluginRequest
 import it.fulminazzo.creeper.provider.plugin.ModrinthPluginRequest
 import it.fulminazzo.creeper.task.server.install.InstallServerTaskRegistrar
-import java.nio.file.Path
 
 plugins {
     id("it.fulminazzo.creeper")
@@ -38,7 +37,7 @@ val serverSpec = MinecraftServerSpec(
         ModrinthPluginRequest("teleporteffects", "3.0", "TeleportEffects-3.0.jar"),
         GitHubPluginRequest("fulminazzo", "YAGL", "5.2.2", "YAGL-plugin-5.2.2.jar"),
         HttpPluginRequest("https://github.com/fulminazzo/YAGL/releases/download/5.2.2/YAGL-5.2.2.jar"),
-        LocalPluginRequest(Path.of("src/integrationTest/resources/task/server/install/Local-1.0.jar"), true)
+        LocalPluginRequest("<LOCAL_PATH>", true)
     )
 )
 
