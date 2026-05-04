@@ -39,17 +39,33 @@ sealed class ServerSpec<T : ServerType, S : ServerSettings>(
  * @constructor Creates a new Server spec builder
  */
 abstract class ServerSpecBuilder<T : ServerType, B : ServerSettingsBuilder, S : ServerSettings> {
-
     abstract val type: Property<String>
-
     abstract val version: Property<String>
+    abstract val serverConfig: B
 
     @get:Nested
     abstract val plugins: PluginRequestsBuilder
 
-    abstract val serverConfig: B
-
     protected abstract val serverClassType: Class<T>
+
+    /**
+     * PROPERTY VALUES GETTERS
+     */
+    protected val typeValue: T
+        get() {
+            val raw = type.orNull ?: throw GradleException("Invalid server configuration, missing: type =")
+            val type = ServerType.valueOf(raw)
+                ?: throw GradleException("Invalid server configuration, unrecognized: type = $raw")
+            return type.takeIf { serverClassType.isInstance(it) }?.let {
+                @Suppress("UNCHECKED_CAST")
+                it as T
+            } ?: throw GradleException(
+                "Invalid server configuration, type = $raw is not applicable to this configuration. " +
+                        "Expected ${serverClassType.simpleName}"
+            )
+        }
+    protected val versionValue: String
+        get() = version.orNull ?: throw GradleException("Invalid server configuration, missing: version =")
 
     /**
      * Builds the server specification.
@@ -72,31 +88,5 @@ abstract class ServerSpecBuilder<T : ServerType, B : ServerSettingsBuilder, S : 
      * @param action the configuration
      */
     fun plugins(action: Action<PluginRequestsBuilder>) = action.execute(plugins)
-
-    /**
-     * Gets the set type.
-     *
-     * @return the type
-     */
-    protected fun getSetType(): T {
-        val raw = type.orNull ?: throw GradleException("Invalid server configuration, missing: type =")
-        val type =
-            ServerType.valueOf(raw) ?: throw GradleException("Invalid server configuration, unrecognized: type = $raw")
-        return type.takeIf { serverClassType.isInstance(it) }?.let {
-            @Suppress("UNCHECKED_CAST")
-            it as T
-        } ?: throw GradleException(
-            "Invalid server configuration, type = $raw is not applicable to this configuration. " +
-                    "Expected ${serverClassType.simpleName}"
-        )
-    }
-
-    /**
-     * Gets the set version.
-     *
-     * @return the version
-     */
-    protected fun getSetVersion(): String =
-        version.orNull ?: throw GradleException("Invalid server configuration, missing: version =")
 
 }

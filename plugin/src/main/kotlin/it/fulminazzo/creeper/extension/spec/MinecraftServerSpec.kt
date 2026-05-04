@@ -1,9 +1,9 @@
 package it.fulminazzo.creeper.extension.spec
 
+import it.fulminazzo.creeper.ServerType
 import it.fulminazzo.creeper.extension.spec.settings.MinecraftServerSettings
 import it.fulminazzo.creeper.extension.spec.settings.MinecraftServerSettingsBuilder
 import it.fulminazzo.creeper.provider.plugin.PluginRequest
-import it.fulminazzo.creeper.ServerType
 import org.gradle.api.provider.Property
 import org.gradle.api.provider.SetProperty
 import org.gradle.api.tasks.Nested
@@ -41,17 +41,23 @@ class MinecraftServerSpec @JvmOverloads constructor(
  */
 abstract class MinecraftServerSpecBuilder :
     ServerSpecBuilder<ServerType.MinecraftType, MinecraftServerSettingsBuilder, MinecraftServerSettings>() {
+    abstract val whitelist: SetProperty<String>
+    abstract val operators: SetProperty<String>
 
     abstract override val type: Property<String>
 
     @get:Nested
     abstract override val serverConfig: MinecraftServerSettingsBuilder
 
-    abstract val whitelist: SetProperty<String>
-
-    abstract val operators: SetProperty<String>
-
     override val serverClassType: Class<ServerType.MinecraftType> = ServerType.MinecraftType::class.java
+
+    /**
+     * PROPERTY VALUES GETTERS
+     */
+    private val whitelistValue: Set<String>
+        get() = whitelist.getOrElse(emptySet())
+    private val operatorsValue: Set<String>
+        get() = operators.getOrElse(emptySet())
 
     /**
      * Adds players to the whitelist.
@@ -76,17 +82,13 @@ abstract class MinecraftServerSpecBuilder :
 
     override fun build(): MinecraftServerSpec {
         return MinecraftServerSpec(
-            getSetType(),
-            getSetVersion(),
+            typeValue,
+            versionValue,
             serverConfig.build(),
-            getSetWhitelist(),
-            getSetOperators(),
+            whitelistValue,
+            operatorsValue,
             plugins.requests
         )
     }
-
-    private fun getSetWhitelist(): Set<String> = whitelist.getOrElse(emptySet())
-
-    private fun getSetOperators(): Set<String> = operators.getOrElse(emptySet())
 
 }

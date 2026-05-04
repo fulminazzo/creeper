@@ -22,17 +22,28 @@ sealed class ServerSettings(val port: Int, val players: Int, val flags: String)
  * @constructor Creates a new Server settings builder
  */
 abstract class ServerSettingsBuilder : RamConfigurator {
-
     abstract val port: Property<Int>
-
     abstract val maximumPlayers: Property<Int>
 
     @get:Nested
     abstract val flags: JvmFlagsBuilder
 
     override val minimumRam: Property<MemorySize> get() = flags.minimumRam
-
     override val maximumRam: Property<MemorySize> get() = flags.maximumRam
+
+    /**
+     * PROPERTY VALUES GETTERS
+     */
+    protected val portValue: Int
+        get() {
+            val p = port.getOrElse(25565)
+            return p.takeIf { it in 1..65535 }
+                ?: throw GradleException("Invalid port = $p, must be between 1 and 65535")
+        }
+    protected val maximumPlayersValue: Int
+        get() = requirePositive(maximumPlayers.getOrElse(20), "maximumPlayers")
+
+    protected val flagsValue: String get() = flags.build()
 
     /**
      * Builds the server settings.
@@ -48,24 +59,5 @@ abstract class ServerSettingsBuilder : RamConfigurator {
      * @param action the configuration
      */
     fun flags(action: Action<JvmFlagsBuilder>) = action.execute(flags)
-
-    /**
-     * Gets the set port.
-     *
-     * @return the port
-     */
-    protected fun getSetPort(): Int {
-        val p = port.getOrElse(25565)
-        return p.takeIf { it in 1..65535 }
-            ?: throw GradleException("Invalid port = $p, must be between 1 and 65535")
-    }
-
-    /**
-     * Gets the set number of maximum players.
-     *
-     * @return the players
-     */
-    protected fun getSetPlayers(): Int =
-        requirePositive(maximumPlayers.getOrElse(20), "maximumPlayers")
 
 }

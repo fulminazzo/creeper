@@ -58,6 +58,16 @@ abstract class MinecraftServerSettingsBuilder : ServerSettingsBuilder() {
     abstract val viewDistance: Property<Int>
     abstract val simulationDistance: Property<Int>
 
+    /**
+     * PROPERTY VALUES GETTERS
+     */
+    private val spawnProtectionValue: Int
+        get() = requireNatural(spawnProtection.get(), "spawnProtection")
+    private val viewDistanceValue: Int
+        get() = requirePositive(viewDistance.get(), "viewDistance")
+    private val simulationDistanceValue: Int
+        get() = requirePositive(simulationDistance.get(), "simulationDistance")
+
     init {
         eula.convention(false)
         whitelist.convention(false)
@@ -75,9 +85,9 @@ abstract class MinecraftServerSettingsBuilder : ServerSettingsBuilder() {
     override fun build(): MinecraftServerSettings {
         return if (eula.get()) {
             MinecraftServerSettings(
-                getSetPort(),
-                getSetPlayers(),
-                flags.build(),
+                portValue,
+                maximumPlayersValue,
+                flagsValue,
                 true,
                 whitelist.get(),
                 hardcore.get(),
@@ -85,20 +95,14 @@ abstract class MinecraftServerSettingsBuilder : ServerSettingsBuilder() {
                 gamemode.get(),
                 generateStructures.get(),
                 onlineMode.get(),
-                getSpawnProtection(),
-                getViewDistance(),
-                getSimulationDistance()
+                spawnProtectionValue,
+                viewDistanceValue,
+                simulationDistanceValue
             )
         } else throw GradleException(
             "EULA must be accepted to run a Minecraft server. Check https://aka.ms/MinecraftEULA for more information"
         )
     }
-
-    private fun getSpawnProtection(): Int = requireNatural(spawnProtection.get(), "spawnProtection")
-
-    private fun getViewDistance(): Int = requirePositive(viewDistance.get(), "viewDistance")
-
-    private fun getSimulationDistance(): Int = requirePositive(simulationDistance.get(), "simulationDistance")
 
 }
 
