@@ -1,7 +1,6 @@
 package it.fulminazzo.creeper.task.server.install
 
 import it.fulminazzo.creeper.CreeperPlugin
-import it.fulminazzo.creeper.server.spec.ServerSpec
 import it.fulminazzo.creeper.service.provider.ConfigProviderService
 import org.gradle.api.DefaultTask
 import org.gradle.api.file.RegularFileProperty
@@ -12,6 +11,7 @@ import org.gradle.api.tasks.Internal
 import org.gradle.api.tasks.OutputFile
 import org.gradle.api.tasks.TaskAction
 import com.fasterxml.jackson.module.kotlin.readValue
+import it.fulminazzo.creeper.extension.spec.ServerSpec
 import kotlin.io.path.extension
 import kotlin.io.path.fileSize
 

@@ -2,8 +2,8 @@ package it.fulminazzo.creeper.task.server.install
 
 import it.fulminazzo.creeper.CreeperPlugin.Companion.JSON_MAPPER
 import it.fulminazzo.creeper.PlayerResolver
-import it.fulminazzo.creeper.server.spec.MinecraftServerSpec
-import it.fulminazzo.creeper.server.spec.ServerSpec
+import it.fulminazzo.creeper.extension.spec.MinecraftServerSpec
+import it.fulminazzo.creeper.extension.spec.ServerSpec
 import java.nio.file.Path
 import kotlin.io.path.createDirectories
 

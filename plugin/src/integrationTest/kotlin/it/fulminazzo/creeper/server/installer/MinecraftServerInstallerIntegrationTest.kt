@@ -9,8 +9,8 @@
 //import it.fulminazzo.creeper.provider.MinecraftJarProvider
 //import it.fulminazzo.creeper.provider.plugin.LocalPluginRequest
 //import it.fulminazzo.creeper.server.ServerType
-//import it.fulminazzo.creeper.server.spec.MinecraftServerSpec
-//import it.fulminazzo.creeper.server.spec.MinecraftServerSpecBuilder
+//import it.fulminazzo.creeper.extension.spec.MinecraftServerSpec
+//import it.fulminazzo.creeper.extension.spec.MinecraftServerSpecBuilder
 //import it.fulminazzo.creeper.extension.spec.settings.Difficulty
 //import it.fulminazzo.creeper.extension.spec.settings.Gamemode
 //import it.fulminazzo.creeper.extension.spec.settings.MinecraftServerSettingsBuilder

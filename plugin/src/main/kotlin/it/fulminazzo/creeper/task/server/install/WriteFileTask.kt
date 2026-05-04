@@ -1,6 +1,6 @@
 package it.fulminazzo.creeper.task.server.install
 
-import it.fulminazzo.creeper.server.spec.ServerSpec
+import it.fulminazzo.creeper.extension.spec.ServerSpec
 import it.fulminazzo.creeper.service.PlayerResolverService
 import org.gradle.api.DefaultTask
 import org.gradle.api.file.RegularFileProperty

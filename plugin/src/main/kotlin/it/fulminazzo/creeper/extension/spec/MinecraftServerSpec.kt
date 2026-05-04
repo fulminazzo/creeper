@@ -1,9 +1,11 @@
-package it.fulminazzo.creeper.server.spec
+package it.fulminazzo.creeper.extension.spec
 
-import it.fulminazzo.creeper.provider.plugin.PluginRequest
-import it.fulminazzo.creeper.server.ServerType
 import it.fulminazzo.creeper.extension.spec.settings.MinecraftServerSettings
 import it.fulminazzo.creeper.extension.spec.settings.MinecraftServerSettingsBuilder
+import it.fulminazzo.creeper.provider.plugin.PluginRequest
+import it.fulminazzo.creeper.server.ServerType
+import org.gradle.api.provider.SetProperty
+import org.gradle.api.tasks.Nested
 
 /**
  * Identifies the specification of a Minecraft server to run.
@@ -36,47 +38,50 @@ class MinecraftServerSpec(
  *
  * @constructor Creates a new Minecraft server spec builder
  */
-class MinecraftServerSpecBuilder :
+abstract class MinecraftServerSpecBuilder :
     ServerSpecBuilder<ServerType.MinecraftType, MinecraftServerSettingsBuilder, MinecraftServerSettings>() {
-    override val serverConfigBuilder: MinecraftServerSettingsBuilder = TODO("Not yet implemented")
 
-    private val whitelist: MutableSet<String> = mutableSetOf()
-    private val operators: MutableSet<String> = mutableSetOf()
+    @get:Nested
+    abstract override val serverConfig: MinecraftServerSettingsBuilder
 
-    /**
-     * Adds a player to the whitelist.
-     *
-     * @param name the name of the player
-     */
-    fun whitelist(name: String) {
-        whitelist += name
-    }
+    abstract val whitelist: SetProperty<String>
+
+    abstract val operators: SetProperty<String>
 
     /**
-     * Adds a player to the operators' list.
+     * Adds players to the whitelist.
      *
-     * @param name the name of the player
+     * @param names the names of the players to add
      */
-    fun op(name: String) = operator(name)
+    fun whitelist(vararg names: String) = whitelist.addAll(names.toSet())
 
     /**
-     * Adds a player to the operators' list.
+     * Adds players to the operators' list.
      *
-     * @param name the name of the player
+     * @param names the names of the players to add
      */
-    fun operator(name: String) {
-        operators += name
-    }
+    fun op(vararg names: String) = operator(*names)
+
+    /**
+     * Adds players to the operators' list.
+     *
+     * @param names the names of the players to add
+     */
+    fun operator(vararg names: String) = operators.addAll(names.toSet())
 
     override fun build(): MinecraftServerSpec {
         return MinecraftServerSpec(
-            type,
-            version,
-            serverConfigBuilder.build(),
-            whitelist,
-            operators,
+            getSetType(),
+            getSetVersion(),
+            serverConfig.build(),
+            getSetWhitelist(),
+            getSetOperators(),
             plugins.requests
         )
     }
+
+    private fun getSetWhitelist(): Set<String> = whitelist.getOrElse(emptySet())
+
+    private fun getSetOperators(): Set<String> = operators.getOrElse(emptySet())
 
 }

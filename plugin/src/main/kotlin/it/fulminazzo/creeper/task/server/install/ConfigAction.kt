@@ -1,6 +1,6 @@
 package it.fulminazzo.creeper.task.server.install
 
-import it.fulminazzo.creeper.server.spec.ServerSpec
+import it.fulminazzo.creeper.extension.spec.ServerSpec
 import it.fulminazzo.creeper.extension.spec.settings.MinecraftServerSettings
 
 /**

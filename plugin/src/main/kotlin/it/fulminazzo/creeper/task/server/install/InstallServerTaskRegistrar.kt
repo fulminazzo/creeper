@@ -1,8 +1,8 @@
 package it.fulminazzo.creeper.task.server.install
 
 import it.fulminazzo.creeper.server.ServerType
-import it.fulminazzo.creeper.server.spec.MinecraftServerSpec
-import it.fulminazzo.creeper.server.spec.ServerSpec
+import it.fulminazzo.creeper.extension.spec.MinecraftServerSpec
+import it.fulminazzo.creeper.extension.spec.ServerSpec
 import org.gradle.api.Project
 import org.gradle.api.Task
 import org.gradle.api.tasks.TaskProvider
