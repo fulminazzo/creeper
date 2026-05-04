@@ -21,22 +21,20 @@ import kotlin.time.toJavaDuration
 interface Downloader {
 
     /**
-     * Downloads the requested resource in the specified directory.
-     * The name of the resource is derived from the `Content-Disposition` header.
-     * If that is not available, then it will be derived from the URL.
+     * Attempts to get the filename of a resource.
      *
-     * @param resource the resource path on the web
-     * @param directory the directory where the resource will be stored
-     * @return the path of the downloaded resource, or `null` if the resource could not be found
-     * @throws IllegalArgumentException if it could not derive the name of the resource
+     * @param resource the resource
+     * @return the filename, or `null` if it could not be derived
+     * @throws UnrecognizedStatusCodeException in case of an unrecognized response from the server
      */
-    fun downloadIn(resource: String, directory: Path): Path?
+    fun getFileName(resource: String): String?
 
     /**
      * Downloads the requested resource.
      *
      * @param resource the resource path on the web
      * @param destination the destination path where it will be stored
+     * @throws UnrecognizedStatusCodeException in case of an unrecognized response from the server
      */
     fun download(resource: String, destination: Path)
 
@@ -56,23 +54,17 @@ interface Downloader {
      *
      * @constructor Create an empty Http downloader
      */
-    private class HttpDownloader : Downloader {
+    class HttpDownloader : Downloader {
 
-        override fun downloadIn(resource: String, directory: Path): Path? {
-            directory.createDirectories()
-
+        override fun getFileName(resource: String): String? {
             val request = createRequest(resource)
-            val response = CLIENT.send(request, HttpResponse.BodyHandlers.ofInputStream())
-            if (response.statusCode() == 404) return null
-            else if (response.statusCode() != 200) throw UnrecognizedStatusCodeException(response.statusCode(), resource)
-
-            val fileName = computeFileName(resource, response)
-            val destination = directory.resolve(fileName)
-
-            response.body().use { input ->
-                Files.copy(input, destination, StandardCopyOption.REPLACE_EXISTING)
-            }
-            return destination
+            val response = CLIENT.send(request, HttpResponse.BodyHandlers.discarding())
+            return if (response.statusCode() == 404) null
+            else if (response.statusCode() != 200) throw UnrecognizedStatusCodeException(
+                response.statusCode(),
+                resource
+            )
+            else computeFileName(resource, response)
         }
 
         override fun download(resource: String, destination: Path) {

@@ -17,9 +17,11 @@ import java.util.concurrent.Executors
 import kotlin.io.path.createDirectories
 import kotlin.io.path.deleteIfExists
 import kotlin.io.path.exists
+import kotlin.io.path.name
 import kotlin.io.path.readText
 import kotlin.test.Test
 import kotlin.test.assertContains
+import kotlin.test.assertEquals
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
 
@@ -49,14 +51,10 @@ class DownloaderTest {
         }
         requestCatcher.start(port)
         try {
-            downloader.downloadIn("http://localhost:$port$PATH", DESTINATION_PATH.parent)
-            assertTrue(
-                DESTINATION_PATH.exists(),
-                "Destination file does not exist: $DESTINATION_PATH"
-            )
-            assertContains(
-                DESTINATION_PATH.readText(),
-                "Hello world!"
+            assertEquals(
+                DESTINATION_PATH.name,
+                downloader.getFileName("http://localhost:$port$PATH"),
+                "File name is not correct:"
             )
         } finally {
             requestCatcher.stop()
@@ -86,14 +84,10 @@ class DownloaderTest {
         }
         requestCatcher.start(port)
         try {
-            downloader.downloadIn("http://localhost:$port$PATH", DESTINATION_PATH.parent)
-            assertTrue(
-                DESTINATION_PATH.exists(),
-                "Destination file does not exist: $DESTINATION_PATH"
-            )
-            assertContains(
-                DESTINATION_PATH.readText(),
-                "Hello world!"
+            assertEquals(
+                DESTINATION_PATH.name,
+                downloader.getFileName("http://localhost:$port$PATH"),
+                "File name is not correct:"
             )
         } finally {
             requestCatcher.stop()
@@ -112,7 +106,7 @@ class DownloaderTest {
         requestCatcher.start(port)
         try {
             assertThrows<IllegalArgumentException> {
-                downloader.downloadIn("http://localhost:$port/something/invalid/", DESTINATION_PATH.parent)
+                downloader.getFileName("http://localhost:$port/something/invalid/")
             }
         } finally {
             requestCatcher.stop()
@@ -132,7 +126,7 @@ class DownloaderTest {
         }
         requestCatcher.start(port)
         try {
-            val result = downloader.downloadIn("http://localhost:$port$PATH", DESTINATION_PATH.parent)
+            val result = downloader.getFileName("http://localhost:$port$PATH")
             assertNull(result)
         } finally {
             requestCatcher.stop()
@@ -153,7 +147,7 @@ class DownloaderTest {
         requestCatcher.start(port)
         try {
             assertThrows<UnrecognizedStatusCodeException> {
-                downloader.downloadIn("http://localhost:$port$PATH", DESTINATION_PATH.parent)
+                downloader.getFileName("http://localhost:$port$PATH")
             }
         } finally {
             requestCatcher.stop()
