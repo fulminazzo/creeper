@@ -1,7 +1,12 @@
 package it.fulminazzo.creeper
 
-import org.gradle.api.Project
+import it.fulminazzo.creeper.service.PlayerResolverService
+import it.fulminazzo.creeper.service.downloader.CachedDownloaderService
+import it.fulminazzo.creeper.service.provider.ConfigProviderService
+import it.fulminazzo.creeper.service.provider.JarProviderService
+import it.fulminazzo.creeper.service.provider.plugin.PluginProviderService
 import org.gradle.api.Plugin
+import org.gradle.api.Project
 import tools.jackson.databind.ObjectMapper
 import tools.jackson.dataformat.javaprop.JavaPropsMapper
 import tools.jackson.dataformat.yaml.YAMLMapper
@@ -14,6 +19,22 @@ import java.nio.file.Path
  */
 class CreeperPlugin : Plugin<Project> {
     override fun apply(project: Project) {
+        val gradle = project.gradle
+        // SERVICES
+        val sharedServices = gradle.sharedServices
+        val downloadService = sharedServices
+            .registerIfAbsent("downloaderService", CachedDownloaderService::class.java)
+        sharedServices.registerIfAbsent("playerResolverService", PlayerResolverService::class.java)
+        sharedServices.registerIfAbsent("jarProviderService", JarProviderService::class.java) {
+            it.parameters.downloader.set(downloadService)
+        }
+        sharedServices.registerIfAbsent("configProviderService", ConfigProviderService::class.java) {
+            it.parameters.downloader.set(downloadService)
+        }
+        sharedServices.registerIfAbsent("pluginProviderService", PluginProviderService::class.java) {
+            it.parameters.downloader.set(downloadService)
+        }
+
         // Register a task
         project.tasks.register("greeting") { task ->
             task.doLast {
