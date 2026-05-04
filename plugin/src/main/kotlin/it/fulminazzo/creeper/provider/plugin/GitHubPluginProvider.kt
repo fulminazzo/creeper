@@ -110,6 +110,7 @@ data class GitHubPluginRequest(
  * @property digest the SHA-256 digest of the release
  * @constructor Creates a new Release
  */
+@JsonIgnoreProperties(ignoreUnknown = true)
 internal data class Release(
     @JsonProperty("browser_download_url")
     val url: String,
