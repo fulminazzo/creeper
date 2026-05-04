@@ -37,9 +37,9 @@ sealed class MemoryUnit(val jvmUnit: String) {
  * @property unit the unit of the value
  * @constructor Create a new Memory size
  */
-data class MemorySize(val value: Long, val unit: MemoryUnit) {
+data class MemorySize(val value: Int, val unit: MemoryUnit) : Comparable<Int> {
 
-    constructor(value: Int, unit: MemoryUnit) : this(value.toLong(), unit)
+    override operator fun compareTo(other: Int): Int = value.compareTo(other)
 
     override fun toString(): String = "${value}${unit.jvmUnit}"
 
@@ -49,8 +49,3 @@ val Int.b: MemorySize get() = MemorySize(this, MemoryUnit.B)
 val Int.kb: MemorySize get() = MemorySize(this, MemoryUnit.KB)
 val Int.mb: MemorySize get() = MemorySize(this, MemoryUnit.MB)
 val Int.gb: MemorySize get() = MemorySize(this, MemoryUnit.GB)
-
-val Long.b: MemorySize get() = MemorySize(this, MemoryUnit.B)
-val Long.kb: MemorySize get() = MemorySize(this, MemoryUnit.KB)
-val Long.mb: MemorySize get() = MemorySize(this, MemoryUnit.MB)
-val Long.gb: MemorySize get() = MemorySize(this, MemoryUnit.GB)
