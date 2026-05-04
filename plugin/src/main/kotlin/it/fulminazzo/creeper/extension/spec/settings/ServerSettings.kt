@@ -21,7 +21,7 @@ sealed class ServerSettings(val port: Int, val players: Int, val flags: String)
  *
  * @constructor Creates a new Server settings builder
  */
-abstract class ServerSettingsBuilder : RamConfigurator {
+abstract class ServerSettingsBuilder : RamConfigurator() {
     abstract val port: Property<Int>
     abstract val maximumPlayers: Property<Int>
 

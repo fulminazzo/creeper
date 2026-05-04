@@ -6,13 +6,19 @@ import org.gradle.api.GradleException
 import org.gradle.api.provider.Property
 
 /**
- * Marker interface to denote an object capable of configuring RAM settings.
+ * Marker class to denote an object capable of configuring RAM settings.
  */
-interface RamConfigurator {
+abstract class RamConfigurator {
+    abstract val minimumRam: Property<MemorySize>
+    abstract val maximumRam: Property<MemorySize>
 
-    val minimumRam: Property<MemorySize>
-
-    val maximumRam: Property<MemorySize>
+    /**
+     * PROPERTY VALUES GETTERS
+     */
+    protected val minimumRamValue: MemorySize
+        get() = requirePositive(minimumRam.get(), "minimumRam")
+    protected val maximumRamValue: MemorySize
+        get() = requirePositive(maximumRam.get(), "maximumRam")
 
     /**
      * Specifies the minimum memory allocation.

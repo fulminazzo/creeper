@@ -8,7 +8,7 @@ import org.gradle.api.GradleException
 /**
  * Builder for JVM flags.
  */
-abstract class JvmFlagsBuilder : RamConfigurator {
+abstract class JvmFlagsBuilder : RamConfigurator() {
     private val enabledDeveloperFlags = mutableMapOf<String, Boolean>()
     private val valueDeveloperFlags = mutableMapOf<String, String>()
     private val propertyFlags = mutableMapOf<String, String>()
@@ -87,16 +87,12 @@ abstract class JvmFlagsBuilder : RamConfigurator {
      * @throws GradleException if an invalid value has been specified
      */
     fun build(): String {
-        var flags = "-Xms${getMinimumRam()} -Xmx${getMaximumRam()}"
+        var flags = "-Xms${minimumRamValue} -Xmx${maximumRamValue}"
         flags += buildEnabledDeveloperFlags().takeIf { it.isNotEmpty() }?.let { " $it" } ?: ""
         flags += buildValueDeveloperFlags().takeIf { it.isNotEmpty() }?.let { " $it" } ?: ""
         flags += buildPropertyFlags().takeIf { it.isNotEmpty() }?.let { " $it" } ?: ""
         return flags
     }
-
-    private fun getMinimumRam(): MemorySize = requirePositive(minimumRam.get(), "minimumRam")
-
-    private fun getMaximumRam(): MemorySize = requirePositive(maximumRam.get(), "maximumRam")
 
     private fun buildEnabledDeveloperFlags(): String = enabledDeveloperFlags
         .map { (flag, enable) -> "$DEVELOPER_FLAG_PREFIX${if (enable) "+" else "-"}$flag" }
