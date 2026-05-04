@@ -64,7 +64,13 @@ class MinecraftServerSettingsBuilderTest : ExtensionTestHelper() {
                 Arguments.of({ b: MinecraftServerSettingsBuilder -> b.maximumPlayers.set(-1) }),
                 Arguments.of({ b: MinecraftServerSettingsBuilder -> b.maximumPlayers.set(0) }),
                 Arguments.of({ b: MinecraftServerSettingsBuilder -> b.minimumRam.set(0.mb) }),
+                Arguments.of({ b: MinecraftServerSettingsBuilder -> b.minRam(0, "mb") }),
+                Arguments.of({ b: MinecraftServerSettingsBuilder -> b.minRam(10, "jb") }),
+                Arguments.of({ b: MinecraftServerSettingsBuilder -> b.minRam(0, "jb") }),
                 Arguments.of({ b: MinecraftServerSettingsBuilder -> b.maximumRam.set(0.mb) }),
+                Arguments.of({ b: MinecraftServerSettingsBuilder -> b.maxRam(0, "mb") }),
+                Arguments.of({ b: MinecraftServerSettingsBuilder -> b.maxRam(10, "jb") }),
+                Arguments.of({ b: MinecraftServerSettingsBuilder -> b.maxRam(0, "jb") }),
                 // MinecraftServerSettingsBuilder
                 Arguments.of({ b: MinecraftServerSettingsBuilder -> b.eula.set(false) }),
                 Arguments.of({ b: MinecraftServerSettingsBuilder -> b.spawnProtection.set(Int.MIN_VALUE) }),

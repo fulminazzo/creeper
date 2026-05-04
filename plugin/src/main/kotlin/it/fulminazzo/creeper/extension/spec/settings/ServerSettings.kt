@@ -21,7 +21,7 @@ sealed class ServerSettings(val port: Int, val players: Int, val flags: String)
  *
  * @constructor Creates a new Server settings builder
  */
-abstract class ServerSettingsBuilder {
+abstract class ServerSettingsBuilder : RamConfigurator {
 
     abstract val port: Property<Int>
 
@@ -30,9 +30,9 @@ abstract class ServerSettingsBuilder {
     @get:Nested
     abstract val flags: JvmFlagsBuilder
 
-    val minimumRam: Property<MemorySize> get() = flags.minimumRam
+    override val minimumRam: Property<MemorySize> get() = flags.minimumRam
 
-    val maximumRam: Property<MemorySize> get() = flags.maximumRam
+    override val maximumRam: Property<MemorySize> get() = flags.maximumRam
 
     /**
      * Builds the server settings.
