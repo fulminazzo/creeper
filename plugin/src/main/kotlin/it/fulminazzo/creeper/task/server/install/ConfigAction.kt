@@ -1,7 +1,7 @@
 package it.fulminazzo.creeper.task.server.install
 
 import it.fulminazzo.creeper.server.spec.ServerSpec
-import it.fulminazzo.creeper.server.spec.settings.MinecraftServerSettings
+import it.fulminazzo.creeper.extension.spec.settings.MinecraftServerSettings
 
 /**
  * Represents an action to be performed on the server configuration file.

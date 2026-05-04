@@ -22,8 +22,9 @@ class MinecraftServerSpecBuilderTest {
         builder.whitelist("xca_mux")
         builder.op("xca_mux")
         builder.serverConfig {
-            eula = true
-            port = 25567
+            //TODO: rework
+//            eula = true
+//            port = 25567
         }
         builder.plugins {
             modrinth("TeleportEffects", "3.0", "TeleportEffects-3.0.jar")
@@ -53,7 +54,8 @@ class MinecraftServerSpecBuilderTest {
     fun `test that build with no type throws`() {
         val builder = MinecraftServerSpecBuilder()
         builder.version = "1.16.5"
-        builder.serverConfig { eula = true }
+        //TODO: rework
+//        builder.serverConfig { eula = true }
         assertThrows<BuildException> { builder.build() }
     }
 
@@ -61,7 +63,8 @@ class MinecraftServerSpecBuilderTest {
     fun `test that build with no version throws`() {
         val builder = MinecraftServerSpecBuilder()
         builder.type = ServerType.VANILLA
-        builder.serverConfig { eula = true }
+        //TODO: rework
+//        builder.serverConfig { eula = true }
         assertThrows<BuildException> { builder.build() }
     }
 

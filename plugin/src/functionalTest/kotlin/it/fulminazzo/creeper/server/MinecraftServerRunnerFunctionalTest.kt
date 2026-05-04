@@ -7,7 +7,7 @@
 //import it.fulminazzo.creeper.server.installer.MinecraftServerInstaller
 //import it.fulminazzo.creeper.server.runner.MinecraftServerRunner
 //import it.fulminazzo.creeper.server.spec.MinecraftServerSpecBuilder
-//import it.fulminazzo.creeper.server.spec.settings.Difficulty
+//import it.fulminazzo.creeper.extension.spec.settings.Difficulty
 //import it.fulminazzo.creeper.util.VersionUtils
 //import org.gradle.jvm.toolchain.JavaLanguageVersion
 //import org.gradle.jvm.toolchain.JavaToolchainService

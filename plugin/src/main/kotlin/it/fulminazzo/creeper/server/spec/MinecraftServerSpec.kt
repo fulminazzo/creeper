@@ -2,8 +2,8 @@ package it.fulminazzo.creeper.server.spec
 
 import it.fulminazzo.creeper.provider.plugin.PluginRequest
 import it.fulminazzo.creeper.server.ServerType
-import it.fulminazzo.creeper.server.spec.settings.MinecraftServerSettings
-import it.fulminazzo.creeper.server.spec.settings.MinecraftServerSettingsBuilder
+import it.fulminazzo.creeper.extension.spec.settings.MinecraftServerSettings
+import it.fulminazzo.creeper.extension.spec.settings.MinecraftServerSettingsBuilder
 
 /**
  * Identifies the specification of a Minecraft server to run.
@@ -38,7 +38,7 @@ class MinecraftServerSpec(
  */
 class MinecraftServerSpecBuilder :
     ServerSpecBuilder<ServerType.MinecraftType, MinecraftServerSettingsBuilder, MinecraftServerSettings>() {
-    override val serverConfigBuilder: MinecraftServerSettingsBuilder = MinecraftServerSettingsBuilder()
+    override val serverConfigBuilder: MinecraftServerSettingsBuilder = TODO("Not yet implemented")
 
     private val whitelist: MutableSet<String> = mutableSetOf()
     private val operators: MutableSet<String> = mutableSetOf()

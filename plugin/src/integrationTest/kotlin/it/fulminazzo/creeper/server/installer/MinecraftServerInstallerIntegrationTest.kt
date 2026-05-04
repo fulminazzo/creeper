@@ -11,9 +11,9 @@
 //import it.fulminazzo.creeper.server.ServerType
 //import it.fulminazzo.creeper.server.spec.MinecraftServerSpec
 //import it.fulminazzo.creeper.server.spec.MinecraftServerSpecBuilder
-//import it.fulminazzo.creeper.server.spec.settings.Difficulty
-//import it.fulminazzo.creeper.server.spec.settings.Gamemode
-//import it.fulminazzo.creeper.server.spec.settings.MinecraftServerSettingsBuilder
+//import it.fulminazzo.creeper.extension.spec.settings.Difficulty
+//import it.fulminazzo.creeper.extension.spec.settings.Gamemode
+//import it.fulminazzo.creeper.extension.spec.settings.MinecraftServerSettingsBuilder
 //import org.junit.jupiter.params.ParameterizedTest
 //import org.junit.jupiter.params.provider.MethodSource
 //import org.gradle.api.logging.Logging

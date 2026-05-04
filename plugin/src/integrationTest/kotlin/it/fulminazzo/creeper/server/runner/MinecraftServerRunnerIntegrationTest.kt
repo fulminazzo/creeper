@@ -5,8 +5,8 @@ import io.mockk.mockk
 import io.mockk.spyk
 import it.fulminazzo.creeper.server.ServerType
 import it.fulminazzo.creeper.server.spec.MinecraftServerSpec
-import it.fulminazzo.creeper.server.spec.settings.MinecraftServerSettings
-import it.fulminazzo.creeper.server.spec.settings.MinecraftServerSettingsBuilder
+import it.fulminazzo.creeper.extension.spec.settings.MinecraftServerSettings
+import it.fulminazzo.creeper.extension.spec.settings.MinecraftServerSettingsBuilder
 import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.assertThrows
 import org.gradle.api.logging.Logger

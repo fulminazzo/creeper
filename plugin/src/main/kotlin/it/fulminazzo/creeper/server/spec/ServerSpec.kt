@@ -2,8 +2,8 @@ package it.fulminazzo.creeper.server.spec
 
 import it.fulminazzo.creeper.provider.plugin.*
 import it.fulminazzo.creeper.server.ServerType
-import it.fulminazzo.creeper.server.spec.settings.ServerSettings
-import it.fulminazzo.creeper.server.spec.settings.ServerSettingsBuilder
+import it.fulminazzo.creeper.extension.spec.settings.ServerSettings
+import it.fulminazzo.creeper.extension.spec.settings.ServerSettingsBuilder
 import java.net.URI
 import java.nio.file.Path
 import java.nio.file.Paths
