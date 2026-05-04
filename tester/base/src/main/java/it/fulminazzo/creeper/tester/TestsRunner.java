@@ -28,22 +28,37 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 /**
- * A runner for executing tests from the {@link #TEST_CLASSES_PACKAGE}.
+ * A runner for executing tests from the {@link #testClassesPackage}.
  * Check {@link #runTests(ClassLoader)} to understand how reports are computed.
  */
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 @RequiredArgsConstructor
 public final class TestsRunner {
-    private static final @NotNull String TEST_CLASSES_PACKAGE = TestsRunner.class.getPackage().getName() + ".tests";
+    /**
+     * The Test results filename.
+     */
     static final @NotNull String TEST_RESULTS_FILENAME = "test-results.json";
 
     private static final @NotNull Gson GSON = new Gson();
 
+    @NotNull String testClassesPackage;
     @NotNull File workDir;
     @NotNull Logger logger;
 
     /**
-     * Executes the classes in the {@link #TEST_CLASSES_PACKAGE} package with the <b>JUnit</b> test launcher.
+     * Instantiates a new Tests runner.
+     *
+     * @param workDir the work dir
+     * @param logger  the logger
+     */
+    public TestsRunner(final @NotNull File workDir, final @NotNull Logger logger) {
+        this.testClassesPackage = TestsRunner.class.getPackage().getName() + ".tests";
+        this.workDir = workDir;
+        this.logger = logger;
+    }
+
+    /**
+     * Executes the classes in the {@link #testClassesPackage} package with the <b>JUnit</b> test launcher.
      * Then, it writes the results under {@link #workDir}/{@link #TEST_RESULTS_FILENAME}.
      * <br>
      * The results are represented by {@link TestsResult}:
@@ -69,7 +84,7 @@ public final class TestsRunner {
                 Files.createDirectories(resultsFile.getParent());
 
                 LauncherDiscoveryRequest request = LauncherDiscoveryRequestBuilder.request()
-                        .selectors(ResourceUtils.loadClasses(classLoader, TEST_CLASSES_PACKAGE).stream()
+                        .selectors(ResourceUtils.loadClasses(classLoader, testClassesPackage).stream()
                                 .map(DiscoverySelectors::selectClass)
                                 .collect(Collectors.toList()))
                         .build();
