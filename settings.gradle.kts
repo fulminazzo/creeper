@@ -1,3 +1,7 @@
 rootProject.name = "creeper"
 
-include("plugin")
+include(
+    "server-runner",
+
+    "plugin"
+)
