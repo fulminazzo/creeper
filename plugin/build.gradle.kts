@@ -2,12 +2,9 @@ import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 plugins {
     `java-gradle-plugin`
-    jacoco
 
     id("org.jetbrains.kotlin.jvm")
     alias(libs.plugins.buildconfig)
-
-    id("creeper.test-configuration")
 }
 
 java {
@@ -16,18 +13,14 @@ java {
     }
 }
 
-repositories {
-    mavenCentral()
-}
-
 dependencies {
     implementation(libs.bundles.jackson)
 
     testImplementation("org.jetbrains.kotlin:kotlin-test")
     testImplementation("org.junit.jupiter:junit-jupiter-params")
 
-    testImplementation(libs.mockk)
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
+    testImplementation(libs.mockk)
 }
 
 gradlePlugin {
@@ -57,33 +50,6 @@ kotlin {
     }
 }
 
-testConfiguration {
-    testType("functional")
-    testType("integration")
-}
-
-tasks.withType<Test>().configureEach {
-    useJUnitPlatform()
-    jvmArgs = listOf("-XX:+EnableDynamicAgentLoading")
-    testLogging {
-        exceptionFormat = org.gradle.api.tasks.testing.logging.TestExceptionFormat.FULL
-    }
-}
-
-tasks.jacocoTestReport {
-    dependsOn(tasks.check)
-
-    val testTasks = tasks.withType<Test>()
-    executionData.setFrom(testTasks.map { testTask ->
-        testTask.extensions.getByType<JacocoTaskExtension>().destinationFile
-    })
-
-    reports {
-        xml.required = true
-        csv.required = false
-    }
-}
-
 configure<com.github.gmazzo.gradle.plugins.BuildConfigExtension> {
     val group = rootProject.group
     val name = rootProject.name
@@ -101,12 +67,4 @@ configure<com.github.gmazzo.gradle.plugins.BuildConfigExtension> {
         "\"\\u00a72                 \$NAME\\u00a7r test server\\n\" + \n" +
                 "\" Check out\\u00a7a https://github.com/fulminazzo/\$NAME\\u00a7f!\""
     )
-}
-
-afterEvaluate {
-
-    tasks.named<Test>("functionalTest") {
-        mustRunAfter("test", "integrationTest")
-    }
-
 }
