@@ -6,8 +6,12 @@ buildconfig = "3.1.0"
 # DATA FORMAT
 jackson = "2.21.3"
 
+junit-launcher = "1.14.4"
+
 # TESTING
 mockk = "1.14.9"
+
+spock = "2.4-groovy-4.0"
 
 [libraries]
 kotlin-jvm = { module = "org.jetbrains.kotlin:kotlin-gradle-plugin", version.ref = "kotlin-jvm" }
@@ -18,8 +22,12 @@ yaml = { module = "com.fasterxml.jackson.dataformat:jackson-dataformat-yaml", ve
 properties = { module = "com.fasterxml.jackson.dataformat:jackson-dataformat-properties", version.ref = "jackson" }
 jackson-kotlin = { module = "com.fasterxml.jackson.module:jackson-module-kotlin", version.ref = "jackson" }
 
+junit-launcher = { module = "org.junit.platform:junit-platform-launcher", version.ref = "junit-launcher" }
+
 # TESTING
 mockk = { module = "io.mockk:mockk", version.ref = "mockk" }
+
+spock = { module = "org.spockframework:spock-core", version.ref = "spock" }
 
 [bundles]
 jackson = ["json", "yaml", "properties", "jackson-kotlin"]
