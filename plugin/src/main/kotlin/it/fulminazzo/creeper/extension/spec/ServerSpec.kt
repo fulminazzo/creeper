@@ -29,6 +29,14 @@ sealed class ServerSpec<T : ServerType, S : ServerSettings>(
 ) : Serializable {
     val id: String = "${type.id}-$version"
 
+    /**
+     * Checks if the specified line is the line indicating the end of the boot process.
+     *
+     * @param line the line to check
+     * @return `true` if the server has completed the boot process, `false` otherwise
+     */
+    abstract fun isBootCompleteLine(line: String): Boolean
+
 }
 
 /**

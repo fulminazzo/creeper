@@ -32,7 +32,16 @@ class MinecraftServerSpec @JvmOverloads constructor(
     version,
     config,
     plugins
-)
+) {
+
+    override fun isBootCompleteLine(line: String): Boolean = COMPLETE_LINE_PATTERN.matches(line)
+
+    private companion object {
+        val COMPLETE_LINE_PATTERN =
+            ".*\\[[0-9]{2}:[0-9]{2}:[0-9]{2}[^]]*INFO[^]]*]:.*Done \\([0-9]+\\.[0-9]+s\\)!.*".toRegex()
+    }
+
+}
 
 /**
  * Builder for [MinecraftServerSpec].
