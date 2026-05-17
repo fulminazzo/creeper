@@ -50,6 +50,7 @@ abstract class AwaitBootCompleteTask : DefaultTask() {
             {
                 if (!verified.get())
                     verified.set(log.exists() && log.readLines().any { spec.isBootCompleteLine(it) })
+                else latch.countDown()
             }, 0, 1, TimeUnit.SECONDS
         )
 
