@@ -11,6 +11,47 @@ class RunServerTaskRegistrarTest : RegistrarTestHelper() {
 
     @ParameterizedTest
     @ValueSource(booleans = [true, false])
+    fun `test that registerCheckServerStatusTask correctly registers task`(showWorkers: Boolean) {
+        val registrar = createRegistrar(showWorkers = showWorkers)
+        registrar.registerCheckServerStatusTask()
+
+        val (taskName, task) = testTaskMetadata<CheckServerStatusTask>(
+            "checkServer$taskBaseName",
+            showWorkers
+        )
+
+        assertEquals(
+            specification,
+            task.specification.orNull,
+            "Task $taskName should have specification $specification"
+        )
+        assertEquals(
+            RunServerTaskRegistrar.DEFAULT_TCP_SERVER_PORT,
+            task.port.orNull,
+            "Task $taskName should have port ${RunServerTaskRegistrar.DEFAULT_TCP_SERVER_PORT}"
+        )
+        val statusFile = project.projectDir.toPath()
+            .resolve(SERVER_DIRECTORY)
+            .resolve(RunServerTaskRegistrar.STATUS_FILE_NAME)
+        assertEquals(
+            statusFile.toFile(),
+            task.statusFile.orNull?.asFile,
+            "Task $taskName should have statusFile pointing to $statusFile"
+        )
+        val stopFile = project.projectDir.toPath()
+            .resolve(SERVER_DIRECTORY)
+            .resolve(RunServerTaskRegistrar.STOP_REQUIRED_FILE_NAME)
+        assertEquals(
+            stopFile.toFile(),
+            task.stopRequiredFile.orNull?.asFile,
+            "Task $taskName should have stopRequiredFile pointing to $stopFile"
+        )
+
+        testFinalizedByStopServerTask(registrar, task)
+    }
+
+    @ParameterizedTest
+    @ValueSource(booleans = [true, false])
     fun `test that registerStartServerTask correctly registers task`(showWorkers: Boolean) {
         val registrar = createRegistrar(showWorkers = showWorkers)
         registrar.registerStartServerTask()
