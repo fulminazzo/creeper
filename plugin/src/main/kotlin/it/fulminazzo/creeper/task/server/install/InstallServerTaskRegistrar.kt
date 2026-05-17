@@ -166,8 +166,16 @@ class InstallServerTaskRegistrar internal constructor(
         type = InstallPluginTask::class.java
     ) { task ->
         task.request.set(pluginRequest)
-        task.pluginMetadata.set(getPluginMetadataFile(pluginRequest))
+        val metadataFile = getPluginMetadataFile(pluginRequest)
+        task.pluginMetadata.set(metadataFile)
         task.pluginsDirectory.set(pluginsDirectory.toFile())
+
+        task.doFirst {
+            if (!metadataFile.exists()) {
+                metadataFile.parentFile.mkdirs()
+                metadataFile.createNewFile()
+            }
+        }
     }.get()
 
     /**

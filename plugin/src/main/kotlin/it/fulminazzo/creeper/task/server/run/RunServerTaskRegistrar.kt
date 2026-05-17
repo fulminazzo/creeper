@@ -76,7 +76,8 @@ class RunServerTaskRegistrar internal constructor(
             group = serverDisplayName,
             description = "Stops the server $serverDisplayName"
         ) { task ->
-            task.doLast { stopRequiredFile.toFile().createNewFile() }
+            val stopFile = stopRequiredFile
+            task.doLast { stopFile.toFile().createNewFile() }
 
             task.finalizedBy(stopServerTask)
         }
@@ -101,6 +102,8 @@ class RunServerTaskRegistrar internal constructor(
         task.stopRequiredFile.set(stopRequiredFile.toFile())
 
         task.finalizedBy(stopServerTask)
+
+        task.onlyIf { statFile.exists() }
     }
 
     /**
@@ -136,14 +139,15 @@ class RunServerTaskRegistrar internal constructor(
         type = AwaitBootCompleteTask::class.java
     ) { task ->
         task.specification.set(specification)
-        task.statusFile.set(statusFile.toFile())
-        val logFile = serverDirectory.resolve("logs/latest.log").toFile()
-        logFile.createNewFile()
-        task.logFile.set(logFile)
+        val statFile = statusFile.toFile()
+        task.statusFile.set(statFile)
+        task.logFile.set(serverDirectory.resolve("logs/latest.log").toFile())
         task.awaitTimeout.set(DEFAULT_BOOT_AWAIT_TIMEOUT)
         task.stopRequiredFile.set(stopRequiredFile.toFile())
 
         task.finalizedBy(stopServerTask)
+
+        task.onlyIf { statFile.exists() }
     }
 
     /**
@@ -158,11 +162,12 @@ class RunServerTaskRegistrar internal constructor(
         description = "Stops the server $serverDisplayName",
         type = StopServerTask::class.java
     ) { task ->
-        task.stopRequiredFile.set(stopRequiredFile.toFile())
+        val stopFile = stopRequiredFile.toFile()
+        task.stopRequiredFile.set(stopFile)
         task.awaitTimeout.set(DEFAULT_STOP_TIMEOUT)
         task.statusFile.set(statusFile.toFile())
 
-        task.onlyIf { stopRequiredFile.toFile().exists() }
+        task.onlyIf { stopFile.exists() }
     }
 
     companion object {
