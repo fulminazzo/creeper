@@ -136,6 +136,8 @@ class RunServerTaskRegistrar internal constructor(
         task.stopRequiredFile.set(stopRequiredFile.toFile())
         task.awaitTimeout.set(DEFAULT_STOP_TIMEOUT)
         task.statusFile.set(statusFile.toFile())
+
+        task.onlyIf { stopRequiredFile.toFile().exists() }
     }
 
     companion object {
