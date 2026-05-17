@@ -89,7 +89,7 @@ class ServerRunnerFunctionalTest extends Specification {
     def 'step 3: test that client is able to stop Minecraft server'() {
         when:
         def output = client.outputStream
-        output.write('stop\n'.bytes)
+        output.write('stopprocess\n'.bytes)
         output.flush()
 
         then:

@@ -109,7 +109,7 @@ public final class ProcessHandler implements InputProcessor, OutputEmitter {
 
     @Override
     public void emit(final @NotNull String output) throws IOException {
-        if (output.trim().equalsIgnoreCase("stop")) stop();
+        if (output.trim().equalsIgnoreCase("stopprocess")) stop();
         else {
             this.output.write(output + "\n");
             this.output.flush();
