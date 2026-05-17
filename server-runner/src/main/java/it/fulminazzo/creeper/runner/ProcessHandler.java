@@ -5,9 +5,8 @@ import org.jetbrains.annotations.NotNull;
 
 import java.io.*;
 import java.util.Collection;
-import java.util.Collections;
-import java.util.HashSet;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.concurrent.Future;
 import java.util.logging.Level;
 
@@ -20,7 +19,7 @@ import java.util.logging.Level;
  */
 @Log
 public final class ProcessHandler implements InputProcessor, OutputEmitter {
-    private final @NotNull Collection<InputListener> listeners = Collections.synchronizedSet(new HashSet<>());
+    private final @NotNull Collection<InputListener> listeners = new CopyOnWriteArraySet<>();
     private final @NotNull Process process;
 
     private final @NotNull BufferedWriter output;
