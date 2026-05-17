@@ -27,7 +27,7 @@ abstract class AwaitBootCompleteTask : DefaultTask() {
     @get:InputFile
     abstract val statusFile: RegularFileProperty
 
-    @get:InputFile
+    @get:Internal
     abstract val logFile: RegularFileProperty
 
     @get:Internal
