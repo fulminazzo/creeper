@@ -54,6 +54,7 @@ public final class TcpServer extends Thread implements InputProcessor, InputList
     @Override
     public void run() {
         try {
+            inputProcessor.register(this);
             while (!server.isClosed())
                 try {
                     Socket clientSocket = server.accept();
