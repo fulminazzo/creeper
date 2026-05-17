@@ -9,15 +9,17 @@ java {
     }
 }
 
-dependencies {
-    compileOnly(libs.lombok)
-    annotationProcessor(libs.lombok)
-    compileOnly(libs.jetbrains)
-}
+afterEvaluate {
+    val functionalTestImplementation: Configuration by configurations
+    val functionalTestRuntimeOnly: Configuration by configurations
 
-tasks.withType<Test>().configureEach {
     dependencies {
-        implementation(libs.spock)
-        runtimeOnly(libs.junit.launcher)
+        compileOnly(libs.lombok)
+        annotationProcessor(libs.lombok)
+        compileOnly(libs.jetbrains)
+
+        functionalTestImplementation(libs.spock)
+        functionalTestRuntimeOnly(libs.junit.launcher)
     }
+
 }
