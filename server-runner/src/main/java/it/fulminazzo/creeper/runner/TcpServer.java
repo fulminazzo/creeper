@@ -19,6 +19,8 @@ import java.util.logging.Logger;
  * @see TcpServerClient
  */
 public final class TcpServer extends Thread implements InputProcessor, InputListener, Closeable {
+    private static final boolean DEBUG = false;
+
     private static long counter = 0;
 
     private final @NotNull Collection<InputListener> clients = Collections.synchronizedSet(new HashSet<>());
@@ -80,12 +82,12 @@ public final class TcpServer extends Thread implements InputProcessor, InputList
 
     @Override
     public void processInput(final @NotNull String input) {
-        log.info(input);
+        if (DEBUG) log.info(input);
     }
 
     @Override
     public void close(final @Nullable String reason) {
-        if (reason != null) log.info(reason);
+        if (reason != null && DEBUG) log.info(reason);
         close();
     }
 
@@ -108,9 +110,13 @@ public final class TcpServer extends Thread implements InputProcessor, InputList
 
     @Override
     public void close() {
-        closeAll();
         interrupt();
         inputProcessor.unregister(this);
+        try {
+            server.close();
+        } catch (IOException ignored) {
+            // do not log any error
+        }
     }
 
     @Override
