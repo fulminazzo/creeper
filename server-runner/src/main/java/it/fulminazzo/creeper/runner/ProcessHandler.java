@@ -19,7 +19,7 @@ import java.util.logging.Level;
  */
 @Log
 public final class ProcessHandler implements InputProcessor, OutputEmitter {
-    private static boolean DEBUG = false;
+    private static boolean DEBUG = true;
 
     private final @NotNull Collection<InputListener> listeners = new CopyOnWriteArraySet<>();
     private final @NotNull Process process;
