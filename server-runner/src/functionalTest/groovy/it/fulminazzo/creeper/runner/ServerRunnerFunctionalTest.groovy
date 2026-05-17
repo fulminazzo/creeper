@@ -11,6 +11,7 @@ import java.util.concurrent.TimeUnit
 @Stepwise
 class ServerRunnerFunctionalTest extends Specification {
     private static final int PORT = 17526
+    private static final long WAIT_TIME = 2_000L
 
     @Shared
     private Thread runnerThread
@@ -55,7 +56,7 @@ class ServerRunnerFunctionalTest extends Specification {
         runnerThread.start()
 
         when:
-        sleep(1_000)
+        sleep(WAIT_TIME)
         client = new Socket('0.0.0.0', PORT)
 
         then:
@@ -94,7 +95,7 @@ class ServerRunnerFunctionalTest extends Specification {
         noExceptionThrown()
 
         when:
-        sleep(1_000)
+        sleep(WAIT_TIME)
 
         then:
         !serverAlive
