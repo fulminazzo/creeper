@@ -69,7 +69,7 @@ class StartServerTaskIntegrationTest : TaskIntegrationTestHelper() {
 
         val client = Socket("0.0.0.0", port)
         val output = client.outputStream
-        output.write("stop\n".toByteArray())
+        output.write("stopprocess\n".toByteArray())
         output.flush()
         client.close()
     }
