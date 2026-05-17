@@ -5,7 +5,6 @@ import it.fulminazzo.creeper.CreeperPlugin
 import org.gradle.api.DefaultTask
 import org.gradle.api.file.RegularFileProperty
 import org.gradle.api.provider.Property
-import org.gradle.api.tasks.InputFile
 import org.gradle.api.tasks.Internal
 import org.gradle.api.tasks.TaskAction
 import java.io.IOException
@@ -22,7 +21,7 @@ import java.net.Socket
  */
 abstract class StopServerTask : DefaultTask() {
 
-    @get:InputFile
+    @get:Internal
     abstract val stopRequiredFile: RegularFileProperty
 
     @get:Internal
