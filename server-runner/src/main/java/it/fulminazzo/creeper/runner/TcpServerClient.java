@@ -85,7 +85,7 @@ final class TcpServerClient extends Thread implements InputListener, Closeable {
 
     @Override
     public void close() {
-        log.info("Client disconnecting");
+        if (!client.isClosed()) log.info("Client disconnecting");
         interrupt();
         inputProcessor.unregister(this);
         try {

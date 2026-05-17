@@ -42,12 +42,12 @@ public final class ServerRunner {
             server = TcpServer.of(handler, handler, port);
             server.start();
             handler.await();
-            log.info("Process terminated, goodbye.");
         } catch (IOException e) {
             log.log(Level.SEVERE, "Error during execution", e);
         } finally {
             if (handler != null) handler.stop();
             if (server != null) server.close();
+            log.info("Process terminated, goodbye.");
         }
     }
 
