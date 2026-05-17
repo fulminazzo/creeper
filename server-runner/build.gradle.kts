@@ -22,4 +22,10 @@ afterEvaluate {
         functionalTestRuntimeOnly(libs.junit.launcher)
     }
 
+    tasks.withType<Test>().configureEach {
+        testLogging {
+            showStandardStreams = true
+        }
+    }
+
 }
