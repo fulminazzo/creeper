@@ -34,6 +34,7 @@ abstract class AwaitBootCompleteTask : DefaultTask() {
 
     @TaskAction
     fun run() {
+        logger.lifecycle("Awaiting server boot completion. Timeout: ${timeout.get()} seconds")
         val verified = AtomicBoolean(false)
         val latch = CountDownLatch(1)
 
@@ -58,6 +59,7 @@ abstract class AwaitBootCompleteTask : DefaultTask() {
                         + "This could either be a problem with the process or the server might require a bigger timeout. "
                         + "Check the server log for more information: ${log.absolutePath}"
             )
+        else logger.lifecycle("Server booted successfully")
     }
 
 }

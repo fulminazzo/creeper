@@ -52,6 +52,8 @@ abstract class StartServerTask : DefaultTask() {
 
         val tcpServerPort = port.get()
 
+        logger.lifecycle("Starting server ${spec.type.name} ${spec.version}. "
+                + "TCP server on port $tcpServerPort (use any TCP client to connect, e.g. telnet localhost $tcpServerPort)")
         val process = ProcessBuilder(
             "java", "-jar", runnerJarFile.name,
             tcpServerPort.toString(),
@@ -72,6 +74,7 @@ abstract class StartServerTask : DefaultTask() {
                 }"
             )
         } catch (_: IllegalThreadStateException) {
+            logger.lifecycle("Server process started with PID ${process.pid()}")
             val data = mapOf(
                 "pid" to process.pid(),
                 "port" to tcpServerPort,
