@@ -3,6 +3,7 @@ package it.fulminazzo.creeper.runner;
 import lombok.extern.java.Log;
 import org.jetbrains.annotations.NotNull;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.logging.Level;
@@ -18,8 +19,9 @@ public final class ServerRunner {
     }
 
     public static void main(final @NotNull String @NotNull ... args) {
-        if (args.length < 2) {
-            log.severe("Not enough arguments. Usage: ServerRunner <port> <command> <command_arguments...>");
+        if (args.length < 3) {
+            log.severe("Not enough arguments. "
+                    + "Usage: ServerRunner <port> <work_dir> <command> <command_arguments...>");
             return;
         }
         final String rawPort = args[0];
@@ -35,7 +37,8 @@ public final class ServerRunner {
         ProcessHandler handler = null;
         TcpServer server = null;
         try {
-            ProcessBuilder builder = new ProcessBuilder(Arrays.copyOfRange(args, 1, args.length));
+            ProcessBuilder builder = new ProcessBuilder(Arrays.copyOfRange(args, 2, args.length))
+                    .directory(new File(args[1]));
             log.info("Starting process: " + String.join(" ", builder.command()));
             handler = ProcessHandler.of(builder);
             log.info(String.format("Starting server on port %d", port));
