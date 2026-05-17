@@ -52,11 +52,6 @@ class StartServerTaskIntegrationTest : TaskIntegrationTestHelper() {
             data["port"],
             "The port should have been set in the status file"
         )
-        assertEquals(
-            specification.id,
-            data["serverId"],
-            "The ID should have been set in the status file"
-        )
 
         val optProcessHandle = ProcessHandle.of(pid.toString().toLong())
         assertTrue(optProcessHandle.isPresent, "The process should be present")

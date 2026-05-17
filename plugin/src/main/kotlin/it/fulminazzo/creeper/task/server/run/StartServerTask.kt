@@ -80,8 +80,7 @@ abstract class StartServerTask : DefaultTask() {
             logger.lifecycle("Server process started with PID ${process.pid()}")
             val data = mapOf(
                 "pid" to process.pid(),
-                "port" to tcpServerPort,
-                "serverId" to spec.id
+                "port" to tcpServerPort
             )
             CreeperPlugin.PROPERTIES_MAPPER.writeValue(statusFile.get().asFile, data)
         }
