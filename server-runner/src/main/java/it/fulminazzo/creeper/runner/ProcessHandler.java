@@ -102,7 +102,7 @@ public final class ProcessHandler implements InputProcessor, OutputEmitter {
 
     @Override
     public void emit(final @NotNull String output) throws IOException {
-        this.output.write(output);
+        this.output.write(output + "\n");
         this.output.flush();
     }
 
