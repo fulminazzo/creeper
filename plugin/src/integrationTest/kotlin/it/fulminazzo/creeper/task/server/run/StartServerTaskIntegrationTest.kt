@@ -31,15 +31,11 @@ class StartServerTaskIntegrationTest : TaskIntegrationTestHelper() {
             task.statusFile.set(STATUS_FILE)
         }
 
-        val runnerJar = task.runnerJar.get().asFile
-        val workDir = runnerJar.parentFile
-        File("build/resources/main/${ProjectInfo.NAME}/server-runner.jar").copyTo(runnerJar, overwrite = true)
-        listOf("paper-1.8.8.jar", "eula.txt").forEach {
-            File(WORK_DIR, "${specification.id}/$it").copyTo(
-                File(workDir, "${specification.id}/$it"),
-                overwrite = true
-            )
-        }
+        RunTaskUtils.copyRunFilesToTaskWorkDir(
+            WORK_DIR,
+            task.statusFile.get().asFile.parentFile,
+            specification
+        )
 
         val statusFile = task.statusFile.get().asFile
 
@@ -75,7 +71,7 @@ class StartServerTaskIntegrationTest : TaskIntegrationTestHelper() {
     }
 
     private companion object {
-        private val WORK_DIR = File("build/resources/integrationTest/task/server/run/start_server_task")
+        private val WORK_DIR = File("build/resources/integrationTest/task/server/run")
 
         private val RUNNER_JAR = File(WORK_DIR, "server-runner.jar")
 
