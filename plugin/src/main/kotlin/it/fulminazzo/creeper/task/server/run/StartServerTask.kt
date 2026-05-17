@@ -7,6 +7,7 @@ import org.gradle.api.GradleException
 import org.gradle.api.file.RegularFileProperty
 import org.gradle.api.provider.Property
 import org.gradle.api.tasks.Input
+import org.gradle.api.tasks.InputFile
 import org.gradle.api.tasks.OutputFile
 import org.gradle.api.tasks.TaskAction
 import java.io.File
@@ -36,7 +37,7 @@ abstract class StartServerTask : DefaultTask() {
     @get:Input
     abstract val port: Property<Int>
 
-    @get:Input
+    @get:InputFile
     abstract val runnerJar: RegularFileProperty
 
     @get:OutputFile
@@ -52,8 +53,10 @@ abstract class StartServerTask : DefaultTask() {
 
         val tcpServerPort = port.get()
 
-        logger.lifecycle("Starting server ${spec.type.name} ${spec.version}. "
-                + "TCP server on port $tcpServerPort (use any TCP client to connect, e.g. telnet localhost $tcpServerPort)")
+        logger.lifecycle(
+            "Starting server ${spec.type.name} ${spec.version}. "
+                    + "TCP server on port $tcpServerPort (use any TCP client to connect, e.g. telnet localhost $tcpServerPort)"
+        )
         val process = ProcessBuilder(
             "java", "-jar", runnerJarFile.name,
             tcpServerPort.toString(),
