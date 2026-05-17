@@ -82,6 +82,7 @@ public final class ProcessHandler implements InputProcessor, OutputEmitter {
      */
     public synchronized void stop() {
         if (process.isAlive()) log.info("Terminating process");
+        process.destroy();
         closeAll();
         inputReader.cancel(true);
         try {
@@ -89,7 +90,6 @@ public final class ProcessHandler implements InputProcessor, OutputEmitter {
         } catch (IOException ignored) {
             // do not log any closing error
         }
-        process.destroy();
     }
 
     @Override
@@ -109,8 +109,11 @@ public final class ProcessHandler implements InputProcessor, OutputEmitter {
 
     @Override
     public void emit(final @NotNull String output) throws IOException {
-        this.output.write(output + "\n");
-        this.output.flush();
+        if (output.trim().equalsIgnoreCase("stop")) stop();
+        else {
+            this.output.write(output + "\n");
+            this.output.flush();
+        }
     }
 
     /**

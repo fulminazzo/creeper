@@ -57,7 +57,7 @@ class ServerRunnerFunctionalTest extends Specification {
         runnerThread.start()
 
         when:
-        sleep(WAIT_TIME)
+        sleep(1_000)
         client = new Socket('0.0.0.0', PORT)
 
         then:
@@ -97,10 +97,10 @@ class ServerRunnerFunctionalTest extends Specification {
 
         when:
         sleep(WAIT_TIME)
-        def line = readClientStream('Stopping server')
+        def line = readClientStream('Internal process terminated')
 
         then:
-        line =~ /\[[0-9]{2}:[0-9]{2}:[0-9]{2}[^]]*INFO[^]]*]: Stopping server/
+        line == 'Internal process terminated'
 
         and:
         !serverAlive
@@ -112,7 +112,7 @@ class ServerRunnerFunctionalTest extends Specification {
             String line
             while ((line = reader.readLine()) != null)
                 if (line.contains(until)) return line
-            return null
+            return line
         }
         return future.get(30, TimeUnit.SECONDS)
     }
