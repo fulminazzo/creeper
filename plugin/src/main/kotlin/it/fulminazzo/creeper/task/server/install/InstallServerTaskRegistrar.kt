@@ -197,6 +197,8 @@ class InstallServerTaskRegistrar internal constructor(
     /**
      * Registers a `write[ServerSpec.id]Eula` task for writing the `eula.txt` file.
      * Only available on Minecraft servers.
+     *
+     * @return the task that was registered
      */
     internal fun registerWriteEula() = setDependencyHierarchy(
         CreeperPlugin.registerTask(
