@@ -17,7 +17,7 @@ public final class ServerRunner {
         System.setProperty("java.util.logging.SimpleFormatter.format", "[%1$tT %4$-7s] %3$s - %5$s%6$s%n");
     }
 
-    public static void main(final @NotNull String @NotNull [] args) {
+    public static void main(final @NotNull String @NotNull ... args) {
         if (args.length < 2) {
             log.severe("Not enough arguments. Usage: ServerRunner <port> <command> <command_arguments...>");
             return;

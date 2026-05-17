@@ -5,6 +5,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.io.*;
 import java.net.Socket;
+import java.util.concurrent.atomic.AtomicLong;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -14,7 +15,7 @@ import java.util.logging.Logger;
  * @see TcpServer
  */
 final class TcpServerClient extends Thread implements InputListener, Closeable {
-    private static long counter = 0;
+    private static final @NotNull AtomicLong COUNTER = new AtomicLong();
 
     private final @NotNull Logger log;
 
@@ -36,7 +37,7 @@ final class TcpServerClient extends Thread implements InputListener, Closeable {
     ) throws IOException {
         super(String.format("%s-%s (%s)",
                 TcpServerClient.class.getSimpleName(),
-                counter++,
+                COUNTER.incrementAndGet(),
                 client.getInetAddress().getHostAddress() + ":" + client.getPort()
         ));
         this.log = Logger.getLogger(getName());
@@ -68,7 +69,7 @@ final class TcpServerClient extends Thread implements InputListener, Closeable {
 
     @Override
     public void processInput(final @NotNull String input) throws IOException {
-        output.write(input + "\n");
+        output.write(input + "\r\n");
         output.flush();
     }
 
@@ -85,18 +86,20 @@ final class TcpServerClient extends Thread implements InputListener, Closeable {
 
     @Override
     public void close() {
-        if (!client.isClosed()) log.info("Client disconnecting");
         interrupt();
-        inputProcessor.unregister(this);
-        try {
-            output.close();
-        } catch (IOException ignored) {
-            // do not log any error
-        }
-        try {
-            client.close();
-        } catch (IOException ignored) {
-            // do not log any error
+        if (!client.isClosed()) {
+            log.info("Client disconnecting");
+            inputProcessor.unregister(this);
+            try {
+                output.close();
+            } catch (IOException ignored) {
+                // do not log any error
+            }
+            try {
+                client.close();
+            } catch (IOException ignored) {
+                // do not log any error
+            }
         }
     }
 

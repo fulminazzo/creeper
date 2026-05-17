@@ -7,9 +7,7 @@ import java.io.Closeable;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashSet;
+import java.util.concurrent.atomic.AtomicLong;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -18,12 +16,10 @@ import java.util.logging.Logger;
  *
  * @see TcpServerClient
  */
-public final class TcpServer extends Thread implements InputProcessor, InputListener, Closeable {
+public final class TcpServer extends Thread implements InputListener, Closeable {
     private static final boolean DEBUG = false;
 
-    private static long counter = 0;
-
-    private final @NotNull Collection<InputListener> clients = Collections.synchronizedSet(new HashSet<>());
+    private static final @NotNull AtomicLong COUNTER = new AtomicLong();
 
     private final @NotNull Logger log;
 
@@ -44,7 +40,7 @@ public final class TcpServer extends Thread implements InputProcessor, InputList
             final @NotNull OutputEmitter outputEmitter,
             final @NotNull ServerSocket server
     ) {
-        super(String.format("%s-%s", TcpServer.class.getSimpleName(), counter++));
+        super(String.format("%s-%s", TcpServer.class.getSimpleName(), COUNTER.incrementAndGet()));
         this.log = Logger.getLogger(getName());
 
         this.inputProcessor = inputProcessor;
@@ -66,7 +62,7 @@ public final class TcpServer extends Thread implements InputProcessor, InputList
                             clientSocket.getPort())
                     );
                     TcpServerClient client = TcpServerClient.of(
-                            this,
+                            inputProcessor,
                             outputEmitter,
                             clientSocket
                     );
@@ -92,30 +88,16 @@ public final class TcpServer extends Thread implements InputProcessor, InputList
     }
 
     @Override
-    public void register(final @NotNull InputListener listener) {
-        clients.add(listener);
-        inputProcessor.register(listener);
-    }
-
-    @Override
-    public void unregister(final @NotNull InputListener listener) {
-        clients.remove(listener);
-        inputProcessor.unregister(listener);
-    }
-
-    @Override
-    public void closeAll() {
-        inputProcessor.closeAll();
-    }
-
-    @Override
     public void close() {
         interrupt();
-        inputProcessor.unregister(this);
-        try {
-            server.close();
-        } catch (IOException ignored) {
-            // do not log any error
+        if (!server.isClosed()) {
+            log.info("Server closing");
+            inputProcessor.unregister(this);
+            try {
+                server.close();
+            } catch (IOException ignored) {
+                // do not log any error
+            }
         }
     }
 
