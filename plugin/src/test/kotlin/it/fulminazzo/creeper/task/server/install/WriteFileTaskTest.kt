@@ -4,10 +4,11 @@ import io.mockk.*
 import it.fulminazzo.creeper.PlayerResolver
 import it.fulminazzo.creeper.extension.spec.ServerSpec
 import it.fulminazzo.creeper.service.PlayerResolverService
+import it.fulminazzo.creeper.task.TaskTestHelper
 import java.io.File
 import kotlin.test.Test
 
-class WriteFileTaskTest : InstallTaskTestHelper() {
+class WriteFileTaskTest : TaskTestHelper() {
 
     @Test
     fun `test that WriteFileTask calls on action#apply`() {

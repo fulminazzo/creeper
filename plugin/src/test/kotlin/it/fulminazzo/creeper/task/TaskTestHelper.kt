@@ -1,4 +1,4 @@
-package it.fulminazzo.creeper.task.server.install
+package it.fulminazzo.creeper.task
 
 import io.mockk.mockk
 import org.gradle.api.Action
@@ -6,7 +6,7 @@ import org.gradle.api.Task
 import org.gradle.api.services.BuildService
 import org.gradle.testfixtures.ProjectBuilder
 
-abstract class InstallTaskTestHelper {
+abstract class TaskTestHelper {
     protected val project = ProjectBuilder.builder().build()
 
     protected fun <T : Task> createTask(type: Class<T>, configurationAction: Action<T> = {}): T =

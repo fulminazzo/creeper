@@ -7,10 +7,11 @@ import it.fulminazzo.creeper.ServerType
 import it.fulminazzo.creeper.extension.spec.ServerSpec
 import it.fulminazzo.creeper.provider.JarProvider
 import it.fulminazzo.creeper.service.provider.JarProviderService
+import it.fulminazzo.creeper.task.TaskTestHelper
 import java.io.File
 import kotlin.test.Test
 
-class InstallExecutableTaskTest : InstallTaskTestHelper() {
+class InstallExecutableTaskTest : TaskTestHelper() {
 
     @Test
     fun `test that InstallExecutableTask calls provider#get`() {

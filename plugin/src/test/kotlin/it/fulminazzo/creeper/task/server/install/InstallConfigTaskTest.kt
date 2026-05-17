@@ -9,11 +9,12 @@ import it.fulminazzo.creeper.ServerType
 import it.fulminazzo.creeper.extension.spec.ServerSpec
 import it.fulminazzo.creeper.provider.ConfigProvider
 import it.fulminazzo.creeper.service.provider.ConfigProviderService
+import it.fulminazzo.creeper.task.TaskTestHelper
 import java.io.File
 import java.nio.file.Files
 import kotlin.test.Test
 
-class InstallConfigTaskTest : InstallTaskTestHelper() {
+class InstallConfigTaskTest : TaskTestHelper() {
 
     @Test
     fun `test that InstallConfigTask calls provider#get and action#apply`() {

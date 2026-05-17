@@ -6,10 +6,11 @@ import io.mockk.verify
 import it.fulminazzo.creeper.provider.plugin.PluginProvider
 import it.fulminazzo.creeper.provider.plugin.PluginRequest
 import it.fulminazzo.creeper.service.provider.plugin.PluginProviderService
+import it.fulminazzo.creeper.task.TaskTestHelper
 import java.io.File
 import kotlin.test.Test
 
-class InstallPluginTaskTest : InstallTaskTestHelper() {
+class InstallPluginTaskTest : TaskTestHelper() {
 
     @Test
     fun `test that InstallPluginTask calls provider#handleRequest`() {
