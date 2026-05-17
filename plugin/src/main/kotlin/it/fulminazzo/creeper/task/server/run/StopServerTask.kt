@@ -35,28 +35,30 @@ abstract class StopServerTask : DefaultTask() {
     fun run() {
         logger.lifecycle("Stopping server")
         val statFile = statusFile.get().asFile
-        val data = CreeperPlugin.PROPERTIES_MAPPER.readValue<Map<String, Any>>(statFile)
+        if (statFile.exists()) {
+            val data = CreeperPlugin.PROPERTIES_MAPPER.readValue<Map<String, Any>>(statFile)
 
-        data["port"]?.toString()?.toInt()?.let { port ->
-            try {
-                logger.lifecycle("Attempting to stop server via TCP connection on port $port")
-                val client = Socket("0.0.0.0", port)
-                val output = client.outputStream
-                output.write("$STOP_COMMAND\n".toByteArray())
-                output.flush()
-                client.close()
-                val waitTime = awaitTimeout.get()
-                logger.lifecycle("Awaiting $waitTime seconds for server to stop gracefully...")
-                Thread.sleep(waitTime * 1000L)
-            } catch (_: IOException) {
-                // ignore any errors
+            data["port"]?.toString()?.toInt()?.let { port ->
+                try {
+                    logger.lifecycle("Attempting to stop server via TCP connection on port $port")
+                    val client = Socket("0.0.0.0", port)
+                    val output = client.outputStream
+                    output.write("$STOP_COMMAND\n".toByteArray())
+                    output.flush()
+                    client.close()
+                    val waitTime = awaitTimeout.get()
+                    logger.lifecycle("Awaiting $waitTime seconds for server to stop gracefully...")
+                    Thread.sleep(waitTime * 1000L)
+                } catch (_: IOException) {
+                    // ignore any errors
+                }
             }
+
+            logger.lifecycle("Killing server process")
+            data["pid"]?.toString()?.toLong()?.let { pid -> ProcessHandle.of(pid).ifPresent { it.destroyForcibly() } }
+
+            statFile.delete()
         }
-
-        logger.lifecycle("Killing server process")
-        data["pid"]?.toString()?.toLong()?.let { pid -> ProcessHandle.of(pid).ifPresent { it.destroyForcibly() } }
-
-        statFile.delete()
         logger.lifecycle("Server stopped")
 
         stopRequiredFile.get().asFile.delete()
