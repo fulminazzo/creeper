@@ -30,7 +30,7 @@ abstract class AwaitBootCompleteTask : DefaultTask() {
     @get:InputFile
     abstract val logFile: RegularFileProperty
 
-    @get:Input
+    @get:Internal
     abstract val awaitTimeout: Property<Long>
 
     @get:Internal

@@ -22,6 +22,7 @@ class StopServerTaskIntegrationTest : TaskIntegrationTestHelper() {
 
         val task = createTask(StopServerTask::class.java) { task ->
             task.statusFile.set(STATUS_FILE)
+            task.awaitTimeout.set(5L)
             task.stopRequiredFile.set(File(WORK_DIR, "stopRequired"))
         }
 

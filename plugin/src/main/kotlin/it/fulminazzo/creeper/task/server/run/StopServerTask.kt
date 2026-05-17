@@ -4,6 +4,7 @@ import com.fasterxml.jackson.module.kotlin.readValue
 import it.fulminazzo.creeper.CreeperPlugin
 import org.gradle.api.DefaultTask
 import org.gradle.api.file.RegularFileProperty
+import org.gradle.api.provider.Property
 import org.gradle.api.tasks.InputFile
 import org.gradle.api.tasks.Internal
 import org.gradle.api.tasks.TaskAction
@@ -25,6 +26,9 @@ abstract class StopServerTask : DefaultTask() {
     abstract val stopRequiredFile: RegularFileProperty
 
     @get:Internal
+    abstract val awaitTimeout: Property<Long>
+
+    @get:Internal
     abstract val statusFile: RegularFileProperty
 
     @TaskAction
@@ -41,8 +45,9 @@ abstract class StopServerTask : DefaultTask() {
                 output.write("$STOP_COMMAND\n".toByteArray())
                 output.flush()
                 client.close()
-                logger.lifecycle("Awaiting $WAIT_TIME seconds for server to stop gracefully...")
-                Thread.sleep(WAIT_TIME * 1000L)
+                val waitTime = awaitTimeout.get()
+                logger.lifecycle("Awaiting $waitTime seconds for server to stop gracefully...")
+                Thread.sleep(waitTime * 1000L)
             } catch (_: IOException) {
                 // ignore any errors
             }
@@ -59,7 +64,6 @@ abstract class StopServerTask : DefaultTask() {
 
     private companion object {
         private const val STOP_COMMAND = "stopprocess"
-        private const val WAIT_TIME = 5
 
     }
 
