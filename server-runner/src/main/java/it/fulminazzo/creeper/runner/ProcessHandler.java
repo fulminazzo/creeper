@@ -53,7 +53,10 @@ public final class ProcessHandler implements InputProcessor, OutputEmitter {
                                 }
                         }
                     } catch (IOException e) {
-                        log.log(Level.SEVERE, "Error reading from process", e);
+                        if (IOExceptionUtils.isValidException(e))
+                            log.log(Level.SEVERE, "Error reading from process", e);
+                    } finally {
+                        stop();
                     }
                 }
         );

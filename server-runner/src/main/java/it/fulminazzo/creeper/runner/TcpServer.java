@@ -69,7 +69,8 @@ public final class TcpServer extends Thread implements InputProcessor, InputList
                     );
                     client.start();
                 } catch (IOException e) {
-                    log.log(Level.SEVERE, "Error accepting client connection", e);
+                    if (IOExceptionUtils.isValidException(e))
+                        log.log(Level.SEVERE, "Error accepting client connection", e);
                 }
         } finally {
             close();

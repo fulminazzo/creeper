@@ -59,8 +59,8 @@ final class TcpServerClient extends Thread implements InputListener, Closeable {
             String line;
             while ((line = input.readLine()) != null) outputEmitter.emit(line);
         } catch (IOException e) {
-            if (e.getMessage() != null && !e.getMessage().contains("Socket closed")) return;
-            log.log(Level.SEVERE, "Error reading from process", e);
+            if (IOExceptionUtils.isValidException(e))
+                log.log(Level.SEVERE, "Error reading from process", e);
         } finally {
             close();
         }
