@@ -20,6 +20,7 @@ class ServerRunnerFunctionalTest extends Specification {
     private Socket client
 
     void setupSpec() {
+        ProcessHandler.enableDebug()
         def workDir = new File('build/resources/functionalTest')
 
         def eulaFile = new File(workDir, 'eula.txt')

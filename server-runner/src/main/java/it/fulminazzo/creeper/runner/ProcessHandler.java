@@ -19,6 +19,8 @@ import java.util.logging.Level;
  */
 @Log
 public final class ProcessHandler implements InputProcessor, OutputEmitter {
+    private static boolean DEBUG = false;
+
     private final @NotNull Collection<InputListener> listeners = new CopyOnWriteArraySet<>();
     private final @NotNull Process process;
 
@@ -44,6 +46,7 @@ public final class ProcessHandler implements InputProcessor, OutputEmitter {
                     ) {
                         String line;
                         while ((line = input.readLine()) != null) {
+                            if (DEBUG) log.info(line);
                             for (InputListener listener : listeners)
                                 try {
                                     listener.processInput(line);
@@ -123,6 +126,13 @@ public final class ProcessHandler implements InputProcessor, OutputEmitter {
                         .redirectErrorStream(true)
                         .start()
         );
+    }
+
+    /**
+     * Enables debug mode for testing purposes.
+     */
+    static void enableDebug() {
+        DEBUG = true;
     }
 
 }
