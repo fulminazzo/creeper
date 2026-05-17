@@ -9,6 +9,12 @@ java {
     }
 }
 
+dependencies {
+    compileOnly(libs.lombok)
+    annotationProcessor(libs.lombok)
+    compileOnly(libs.jetbrains)
+}
+
 tasks.withType<Test>().configureEach {
     dependencies {
         implementation(libs.spock)
