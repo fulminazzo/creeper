@@ -10,6 +10,7 @@ import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.OutputFile
 import org.gradle.api.tasks.TaskAction
 import java.io.File
+import java.util.concurrent.TimeUnit
 
 /**
  * Task to start a server from its specification.
@@ -62,19 +63,21 @@ abstract class StartServerTask : DefaultTask() {
             "nogui"
         ).directory(workDir).redirectErrorStream(true).start()
 
-        if (process.isAlive) {
+        try {
+            process.waitFor(1, TimeUnit.SECONDS)
+            process.exitValue()
+            throw GradleException(
+                "Could not create server process: ${
+                    process.inputStream.readAllBytes().decodeToString()
+                }"
+            )
+        } catch (_: IllegalThreadStateException) {
             val data = mapOf(
                 "pid" to process.pid(),
                 "port" to tcpServerPort,
                 "serverId" to spec.id
             )
             CreeperPlugin.PROPERTIES_MAPPER.writeValue(statusFile.get().asFile, data)
-        } else {
-            throw GradleException(
-                "Could not create server process: ${
-                    process.inputStream.readAllBytes().decodeToString()
-                }"
-            )
         }
     }
 
