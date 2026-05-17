@@ -12,10 +12,6 @@ allprojects {
 
     apply { plugin("creeper.test-configuration") }
 
-    repositories {
-        mavenCentral()
-    }
-
     testConfiguration {
         testType("functional")
         testType("integration")
