@@ -53,23 +53,27 @@ public final class TcpServer extends Thread implements InputProcessor, InputList
 
     @Override
     public void run() {
-        while (!server.isClosed())
-            try {
-                Socket clientSocket = server.accept();
-                log.info(String.format(
-                        "New client connected: %s:%s",
-                        clientSocket.getInetAddress().getHostAddress(),
-                        clientSocket.getPort())
-                );
-                TcpServerClient client = TcpServerClient.of(
-                        this,
-                        outputEmitter,
-                        clientSocket
-                );
-                client.start();
-            } catch (IOException e) {
-                log.log(Level.SEVERE, "Error accepting client connection", e);
-            }
+        try {
+            while (!server.isClosed())
+                try {
+                    Socket clientSocket = server.accept();
+                    log.info(String.format(
+                            "New client connected: %s:%s",
+                            clientSocket.getInetAddress().getHostAddress(),
+                            clientSocket.getPort())
+                    );
+                    TcpServerClient client = TcpServerClient.of(
+                            this,
+                            outputEmitter,
+                            clientSocket
+                    );
+                    client.start();
+                } catch (IOException e) {
+                    log.log(Level.SEVERE, "Error accepting client connection", e);
+                }
+        } finally {
+            close();
+        }
     }
 
     @Override
