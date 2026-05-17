@@ -7,32 +7,18 @@ import it.fulminazzo.creeper.ProjectInfo
 import it.fulminazzo.creeper.ServerType
 import it.fulminazzo.creeper.extension.spec.MinecraftServerSpec
 import it.fulminazzo.creeper.provider.plugin.PluginRequest
+import it.fulminazzo.creeper.task.server.RegistrarTestHelper
 import org.gradle.api.Task
-import org.gradle.testfixtures.ProjectBuilder
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.ValueSource
 import java.nio.file.Path
 import kotlin.test.Test
-import kotlin.test.assertContains
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 import kotlin.test.assertNull
 
-class InstallServerTaskRegistrarTest {
-    private val specification = mockk<MinecraftServerSpec>()
-
-    private val project = ProjectBuilder.builder().build()
-
-    private val taskBaseName = "Bukkit26_1"
-    private val serverDisplayName = "Bukkit 26.1"
-
-    @BeforeEach
-    fun setup() {
-        every { specification.id } returns SERVER_ID
-        every { specification.type.name } returns SERVER_NAME
-        every { specification.version } returns SERVER_VERSION
-    }
+class InstallServerTaskRegistrarTest : RegistrarTestHelper() {
 
     @Test
     fun `test that register correctly registers all tasks and dependency hierarchy`() {
@@ -44,6 +30,7 @@ class InstallServerTaskRegistrarTest {
         every { specification.type } returns ServerType.BUKKIT
         every { specification.version } returns SERVER_VERSION
         every { specification.plugins } returns listOf(pluginRequest, pluginRequest)
+
         InstallServerTaskRegistrar.register(project, specification, SERVER_DIRECTORY.parent)
 
         val (_, baseTask) = testTaskMetadata<Task>("install${taskBaseName}", true)
@@ -351,38 +338,9 @@ class InstallServerTaskRegistrarTest {
         testDependencyHierarchy(registrar, task, taskName)
     }
 
-    @Suppress("UNCHECKED_CAST")
-    private fun <T : Task> testTaskMetadata(taskName: String, shown: Boolean): Pair<String, T> {
-        val t = project.tasks.findByName(taskName)
-        assertNotNull(t, "Could not find task $taskName")
-        val task = t as T
-        val taskGroup = task.group
-        if (shown) assertEquals(
-            serverDisplayName,
-            taskGroup,
-            "Task $taskName should have group $serverDisplayName ($taskGroup)"
-        )
-        else assertNull(taskGroup, "Task $taskName should not have a group ($taskGroup)")
-        assertNotNull(task.description, "Task $taskName should have a description")
-        return Pair(taskName, task)
-    }
-
     private fun testDependencyHierarchy(registrar: InstallServerTaskRegistrar, task: Task, taskName: String) {
         verify(exactly = 1) { registrar.baseTask.dependsOn(task) }
         testDependency(task, registrar.executableTask)
-    }
-
-    private fun testDependency(first: Task, second: Task) =
-        assertContains(
-            first.taskDependencies.getDependencies(first),
-            second,
-            "Task ${first.name} should depend on ${second.name}"
-        )
-
-    private fun getTask(taskName: String): Task {
-        val task = project.tasks.findByName(taskName)
-        assertNotNull(task, "Could not find task $taskName")
-        return task
     }
 
     private fun createRegistrar(
@@ -398,22 +356,6 @@ class InstallServerTaskRegistrarTest {
         if (setupExecutableTask) registrar.executableTask = setupTask()
         if (setupPluginTask) registrar.pluginsTask = setupTask()
         return registrar
-    }
-
-    private fun setupTask(): Task {
-        val task = mockk<Task>()
-        every { task.dependsOn(any()) } returns task
-        every { task.name } returns "mock"
-        return task
-    }
-
-    private companion object {
-        private const val SERVER_ID = "bukkit-26.1"
-        private const val SERVER_NAME = "Bukkit"
-        private const val SERVER_VERSION = "26.1"
-
-        private val SERVER_DIRECTORY = Path.of("build/server/bukkit-26.1")
-
     }
 
 }
