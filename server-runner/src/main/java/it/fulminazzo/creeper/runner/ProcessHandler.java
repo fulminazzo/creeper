@@ -50,6 +50,7 @@ public final class ProcessHandler implements InputProcessor, OutputEmitter {
                                     listener.processInput(line);
                                 } catch (IOException e) {
                                     log.log(Level.WARNING, "Error processing input for listener " + listener, e);
+                                    unregister(listener);
                                 }
                         }
                     } catch (IOException e) {
