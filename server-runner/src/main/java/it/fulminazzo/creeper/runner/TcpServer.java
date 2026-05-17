@@ -56,6 +56,11 @@ public final class TcpServer extends Thread implements InputProcessor, InputList
         while (!server.isClosed())
             try {
                 Socket clientSocket = server.accept();
+                log.info(String.format(
+                        "New client connected: %s:%s",
+                        clientSocket.getInetAddress().getHostAddress(),
+                        clientSocket.getPort())
+                );
                 TcpServerClient client = TcpServerClient.of(
                         this,
                         outputEmitter,
@@ -100,6 +105,11 @@ public final class TcpServer extends Thread implements InputProcessor, InputList
         closeAll();
         interrupt();
         inputProcessor.unregister(this);
+    }
+
+    @Override
+    public String toString() {
+        return getName();
     }
 
     /**

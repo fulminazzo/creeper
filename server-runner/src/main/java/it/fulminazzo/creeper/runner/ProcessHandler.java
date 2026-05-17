@@ -74,6 +74,7 @@ public final class ProcessHandler implements InputProcessor, OutputEmitter {
      * Forcibly stops the internal process and closes all the listeners.
      */
     public synchronized void stop() {
+        if (process.isAlive()) log.info("Terminating process");
         closeAll();
         inputReader.cancel(true);
         try {

@@ -14,7 +14,7 @@ import java.util.logging.Level;
 public final class ServerRunner {
 
     static {
-        System.setProperty("java.util.logging.SimpleFormatter.format", "[%1$tT %4$-7s] %5$s%6$s%n");
+        System.setProperty("java.util.logging.SimpleFormatter.format", "[%1$tT %4$-7s] %3$s - %5$s%6$s%n");
     }
 
     public static void main(final @NotNull String @NotNull [] args) {
@@ -36,7 +36,7 @@ public final class ServerRunner {
         TcpServer server = null;
         try {
             ProcessBuilder builder = new ProcessBuilder(Arrays.copyOfRange(args, 1, args.length));
-            log.info("Starting process: " + builder.command());
+            log.info("Starting process: " + String.join(" ", builder.command()));
             handler = ProcessHandler.of(builder);
             log.info(String.format("Starting server on port %d", port));
             server = TcpServer.of(handler, handler, port);
