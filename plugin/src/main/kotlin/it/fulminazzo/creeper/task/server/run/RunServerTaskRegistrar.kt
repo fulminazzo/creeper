@@ -50,8 +50,8 @@ class RunServerTaskRegistrar internal constructor(
         this.project = project
         this.serverDirectory = directory.resolve(serverId)
 
-        this.statusFile = serverDirectory.resolve("${ProjectInfo.NAME}-status.properties")
-        this.stopRequiredFile = serverDirectory.resolve("stop-required")
+        this.statusFile = serverDirectory.resolve(STATUS_FILE_NAME)
+        this.stopRequiredFile = serverDirectory.resolve(STOP_REQUIRED_FILE_NAME)
 
         stopServerTask = registerStopServerTask().get()
 
@@ -171,9 +171,11 @@ class RunServerTaskRegistrar internal constructor(
     }
 
     companion object {
-        private const val DEFAULT_TCP_SERVER_PORT = 10602
-        private const val DEFAULT_BOOT_AWAIT_TIMEOUT = 30L
-        private const val DEFAULT_STOP_TIMEOUT = 5L
+        internal const val DEFAULT_TCP_SERVER_PORT = 10602
+        internal const val DEFAULT_BOOT_AWAIT_TIMEOUT = 30L
+        internal const val DEFAULT_STOP_TIMEOUT = 5L
+        internal const val STATUS_FILE_NAME = "${ProjectInfo.NAME}-status.properties"
+        internal const val STOP_REQUIRED_FILE_NAME = "stop-required"
 
         /**
          * Registers a new task to run the requested server.
