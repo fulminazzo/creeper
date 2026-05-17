@@ -13,7 +13,8 @@ final class IOExceptionUtils {
     private static final @NotNull List<String> INVALID_MESSAGES = Arrays.asList(
             "Socket closed",
             "Connection reset",
-            "Broken pipe"
+            "Broken pipe",
+            "Stream closed"
     );
 
     public static boolean isValidException(final @NotNull IOException e) {
