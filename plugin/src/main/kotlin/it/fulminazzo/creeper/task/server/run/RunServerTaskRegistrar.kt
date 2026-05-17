@@ -12,11 +12,15 @@ import java.nio.file.Path
  *
  * @property specification the specification of the server to run
  * @property runnerExecutable the executable for running the server in a controlled environment
+ * @property showWorkers if `true`, all tasks will be shown by default when running `gradle tasks`
+ * meaning they will show up when executing `gradle tasks`.
+ * Although convenient, this can be noisy, so it should only be used for debugging.
  * @constructor Creates a new Run server task registrar
  */
 class RunServerTaskRegistrar internal constructor(
     private val specification: ServerSpec<*, *>,
-    private val runnerExecutable: Path
+    private val runnerExecutable: Path,
+    private val showWorkers: Boolean = false
 ) {
     private val serverId = specification.id
 
@@ -34,7 +38,7 @@ class RunServerTaskRegistrar internal constructor(
     internal lateinit var statusFile: Path
     internal lateinit var stopRequiredFile: Path
 
-    internal lateinit var stopTask: Task
+    internal lateinit var stopServerTask: Task
 
     /**
      * Registers the tasks for running the server.
@@ -49,13 +53,33 @@ class RunServerTaskRegistrar internal constructor(
         this.statusFile = serverDirectory.resolve("${ProjectInfo.NAME}-status.properties")
         this.stopRequiredFile = serverDirectory.resolve("stop-required")
 
-        stopTask = registerStopServerTask().get()
+        stopServerTask = registerStopServerTask().get()
 
         val check = registerCheckServerStatusTask()
-        val start = registerStartServerTask()
+        val startServer = registerStartServerTask()
         val await = registerAwaitBootCompleteTask()
-        start.get().dependsOn(check)
-        await.get().dependsOn(start)
+        startServer.get().dependsOn(check)
+        await.get().dependsOn(startServer)
+
+        CreeperPlugin.registerTask<Task>(
+            project = project,
+            name = "run$taskBaseName",
+            group = serverDisplayName,
+            description = "Runs the server $serverDisplayName"
+        ) { task ->
+            task.dependsOn(await)
+        }
+
+        CreeperPlugin.registerTask<Task>(
+            project = project,
+            name = "stop$taskBaseName",
+            group = serverDisplayName,
+            description = "Stops the server $serverDisplayName"
+        ) { task ->
+            task.doLast { stopRequiredFile.toFile().createNewFile() }
+
+            task.finalizedBy(stopServerTask)
+        }
     }
 
     /**
@@ -65,17 +89,18 @@ class RunServerTaskRegistrar internal constructor(
      */
     internal fun registerCheckServerStatusTask() = CreeperPlugin.registerTask(
         project = project,
-        name = "checkServer${taskBaseName}",
-        group = serverDisplayName,
+        name = "checkServer$taskBaseName",
+        group = serverDisplayName.takeIf { showWorkers },
         description = "Checks the status of the server $serverDisplayName",
         type = CheckServerStatusTask::class.java
     ) { task ->
         task.specification.set(specification)
         task.port.set(DEFAULT_TCP_SERVER_PORT)
-        task.statusFile.set(statusFile.toFile())
+        val statFile = statusFile.toFile()
+        task.statusFile.set(statFile)
         task.stopRequiredFile.set(stopRequiredFile.toFile())
 
-        task.finalizedBy(stopTask)
+        task.finalizedBy(stopServerTask)
     }
 
     /**
@@ -85,8 +110,8 @@ class RunServerTaskRegistrar internal constructor(
      */
     internal fun registerStartServerTask() = CreeperPlugin.registerTask(
         project = project,
-        name = "startServer${taskBaseName}",
-        group = serverDisplayName,
+        name = "startServer$taskBaseName",
+        group = serverDisplayName.takeIf { showWorkers },
         description = "Starts the server $serverDisplayName",
         type = StartServerTask::class.java
     ) { task ->
@@ -95,7 +120,7 @@ class RunServerTaskRegistrar internal constructor(
         task.runnerJar.set(runnerExecutable.toFile())
         task.statusFile.set(statusFile.toFile())
 
-        task.finalizedBy(stopTask)
+        task.finalizedBy(stopServerTask)
     }
 
     /**
@@ -105,8 +130,8 @@ class RunServerTaskRegistrar internal constructor(
      */
     internal fun registerAwaitBootCompleteTask() = CreeperPlugin.registerTask(
         project = project,
-        name = "awaitBootComplete${taskBaseName}",
-        group = serverDisplayName,
+        name = "awaitBootComplete$taskBaseName",
+        group = serverDisplayName.takeIf { showWorkers },
         description = "Waits for the server $serverDisplayName to complete the boot process",
         type = AwaitBootCompleteTask::class.java
     ) { task ->
@@ -118,7 +143,7 @@ class RunServerTaskRegistrar internal constructor(
         task.awaitTimeout.set(DEFAULT_BOOT_AWAIT_TIMEOUT)
         task.stopRequiredFile.set(stopRequiredFile.toFile())
 
-        task.finalizedBy(stopTask)
+        task.finalizedBy(stopServerTask)
     }
 
     /**
@@ -128,8 +153,8 @@ class RunServerTaskRegistrar internal constructor(
      */
     internal fun registerStopServerTask() = CreeperPlugin.registerTask(
         project = project,
-        name = "stopServer${taskBaseName}",
-        group = serverDisplayName,
+        name = "stopServer$taskBaseName",
+        group = serverDisplayName.takeIf { showWorkers },
         description = "Stops the server $serverDisplayName",
         type = StopServerTask::class.java
     ) { task ->
