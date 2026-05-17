@@ -57,7 +57,7 @@ abstract class StartServerTask : DefaultTask() {
             tcpServerPort.toString(),
             serverDir.absolutePath,
             //TODO: change version according to specification
-            "java", "jar",
+            "java", "-jar",
             *spec.settings.flags.split(" ").toTypedArray(),
             "${spec.id}.jar",
             "nogui"
