@@ -30,11 +30,11 @@ abstract class AwaitBootCompleteTask : DefaultTask() {
     abstract val logFile: RegularFileProperty
 
     @get:Input
-    abstract val timeout: Property<Long>
+    abstract val awaitTimeout: Property<Long>
 
     @TaskAction
     fun run() {
-        logger.lifecycle("Awaiting server boot completion. Timeout: ${timeout.get()} seconds")
+        logger.lifecycle("Awaiting server boot completion. Timeout: ${awaitTimeout.get()} seconds")
         val verified = AtomicBoolean(false)
         val latch = CountDownLatch(1)
 
@@ -49,13 +49,13 @@ abstract class AwaitBootCompleteTask : DefaultTask() {
             }, 0, 1, TimeUnit.SECONDS
         )
 
-        latch.await(timeout.get(), TimeUnit.SECONDS)
+        latch.await(awaitTimeout.get(), TimeUnit.SECONDS)
         scheduler.shutdownNow()
 
         if (!verified.get())
             //TODO: handle stop
             throw GradleException(
-                "Server could not boot within ${timeout.get()} seconds. "
+                "Server could not boot within ${awaitTimeout.get()} seconds. "
                         + "This could either be a problem with the process or the server might require a bigger timeout. "
                         + "Check the server log for more information: ${log.absolutePath}"
             )
