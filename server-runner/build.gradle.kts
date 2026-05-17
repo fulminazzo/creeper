@@ -9,6 +9,12 @@ java {
     }
 }
 
+tasks.jar {
+    manifest {
+        attributes["Main-Class"] = "${rootProject.group}.${rootProject.name}.runner.ServerRunner"
+    }
+}
+
 afterEvaluate {
     val functionalTestImplementation: Configuration by configurations
     val functionalTestRuntimeOnly: Configuration by configurations
