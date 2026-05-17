@@ -97,8 +97,12 @@ class ServerRunnerFunctionalTest extends Specification {
 
         when:
         sleep(WAIT_TIME)
+        def line = readClientStream('Stopping server')
 
         then:
+        line =~ /\[[0-9]{2}:[0-9]{2}:[0-9]{2}[^]]*INFO[^]]*]: Stopping server/
+
+        and:
         !serverAlive
     }
 
