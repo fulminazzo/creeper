@@ -11,7 +11,7 @@ java {
 
 tasks.jar {
     manifest {
-        attributes["Main-Class"] = "${group}.${rootProject.name}.runner.ServerRunner"
+        attributes["Main-Class"] = "${rootProject.group}.${rootProject.name}.runner.ServerRunner"
     }
 }
 
