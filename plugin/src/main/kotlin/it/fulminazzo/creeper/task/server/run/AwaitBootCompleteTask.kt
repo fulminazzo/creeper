@@ -7,6 +7,7 @@ import org.gradle.api.file.RegularFileProperty
 import org.gradle.api.provider.Property
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.InputFile
+import org.gradle.api.tasks.Internal
 import org.gradle.api.tasks.TaskAction
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.Executors
@@ -32,6 +33,9 @@ abstract class AwaitBootCompleteTask : DefaultTask() {
     @get:Input
     abstract val awaitTimeout: Property<Long>
 
+    @get:Internal
+    abstract val stopRequiredFile: RegularFileProperty
+
     @TaskAction
     fun run() {
         logger.lifecycle("Awaiting server boot completion. Timeout: ${awaitTimeout.get()} seconds")
@@ -52,14 +56,14 @@ abstract class AwaitBootCompleteTask : DefaultTask() {
         latch.await(awaitTimeout.get(), TimeUnit.SECONDS)
         scheduler.shutdownNow()
 
-        if (!verified.get())
-            //TODO: handle stop
+        if (!verified.get()) {
+            stopRequiredFile.get().asFile.createNewFile()
             throw GradleException(
                 "Server could not boot within ${awaitTimeout.get()} seconds. "
                         + "This could either be a problem with the process or the server might require a bigger timeout. "
                         + "Check the server log for more information: ${log.absolutePath}"
             )
-        else logger.lifecycle("Server booted successfully")
+        } else logger.lifecycle("Server booted successfully")
     }
 
 }

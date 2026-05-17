@@ -4,7 +4,8 @@ import com.fasterxml.jackson.module.kotlin.readValue
 import it.fulminazzo.creeper.CreeperPlugin
 import org.gradle.api.DefaultTask
 import org.gradle.api.file.RegularFileProperty
-import org.gradle.api.tasks.OutputFile
+import org.gradle.api.tasks.InputFile
+import org.gradle.api.tasks.Internal
 import org.gradle.api.tasks.TaskAction
 import java.io.IOException
 import java.net.Socket
@@ -20,7 +21,10 @@ import java.net.Socket
  */
 abstract class StopServerTask : DefaultTask() {
 
-    @get:OutputFile
+    @get:InputFile
+    abstract val stopRequiredFile: RegularFileProperty
+
+    @get:Internal
     abstract val statusFile: RegularFileProperty
 
     @TaskAction
@@ -49,6 +53,8 @@ abstract class StopServerTask : DefaultTask() {
 
         statFile.delete()
         logger.lifecycle("Server stopped")
+
+        stopRequiredFile.get().asFile.delete()
     }
 
     private companion object {
