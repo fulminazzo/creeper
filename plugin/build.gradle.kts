@@ -7,6 +7,8 @@ plugins {
     alias(libs.plugins.buildconfig)
 }
 
+val serverRunner by configurations.creating
+
 java {
     toolchain {
         languageVersion = JavaLanguageVersion.of(25)
@@ -15,6 +17,7 @@ java {
 
 dependencies {
     implementation(libs.bundles.jackson)
+    serverRunner(project.projects.serverRunner)
 
     testImplementation("org.jetbrains.kotlin:kotlin-test")
     testImplementation("org.junit.jupiter:junit-jupiter-params")
@@ -47,6 +50,12 @@ kotlin {
             "-opt-in=kotlin.uuid.ExperimentalUuidApi",
             "-Xannotation-default-target=param-property"
         )
+    }
+}
+
+tasks.processResources {
+    from(serverRunner) {
+        into(rootProject.name)
     }
 }
 
