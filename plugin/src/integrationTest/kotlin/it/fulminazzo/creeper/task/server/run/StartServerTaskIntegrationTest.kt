@@ -7,6 +7,7 @@ import it.fulminazzo.creeper.ServerType
 import it.fulminazzo.creeper.extension.spec.MinecraftServerSpec
 import it.fulminazzo.creeper.task.TaskIntegrationTestHelper
 import java.io.File
+import java.net.Socket
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
@@ -33,8 +34,11 @@ class StartServerTaskIntegrationTest : TaskIntegrationTestHelper() {
         val runnerJar = task.runnerJar.get().asFile
         val workDir = runnerJar.parentFile
         File("build/resources/main/${ProjectInfo.NAME}/server-runner.jar").copyTo(runnerJar, overwrite = true)
-        listOf("paper-1.8.8-445.jar", "eula.txt").forEach {
-            File(WORK_DIR, it).copyTo(File(workDir, it), overwrite = true)
+        listOf("paper-1.8.8.jar", "eula.txt").forEach {
+            File(WORK_DIR, "${specification.id}/$it").copyTo(
+                File(workDir, "${specification.id}/$it"),
+                overwrite = true
+            )
         }
 
         val statusFile = task.statusFile.get().asFile
@@ -63,7 +67,11 @@ class StartServerTaskIntegrationTest : TaskIntegrationTestHelper() {
         val processHandle = optProcessHandle.get()
         assertTrue(processHandle.isAlive, "The process should be alive")
 
-        processHandle.destroy()
+        val client = Socket("0.0.0.0", port)
+        val output = client.outputStream
+        output.write("stop\n".toByteArray())
+        output.flush()
+        client.close()
     }
 
     private companion object {
