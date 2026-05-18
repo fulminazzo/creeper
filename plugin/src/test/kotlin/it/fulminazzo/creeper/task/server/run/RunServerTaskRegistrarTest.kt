@@ -1,13 +1,49 @@
 package it.fulminazzo.creeper.task.server.run
 
+import io.mockk.every
+import io.mockk.mockk
+import it.fulminazzo.creeper.ServerType
+import it.fulminazzo.creeper.extension.spec.MinecraftServerSpec
 import it.fulminazzo.creeper.task.server.RegistrarTestHelper
 import org.gradle.api.Task
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.ValueSource
+import kotlin.test.Test
 import kotlin.test.assertContains
 import kotlin.test.assertEquals
 
 class RunServerTaskRegistrarTest : RegistrarTestHelper() {
+
+    @Test
+    fun `test that register correctly registers all tasks and dependency hierarchy`() {
+        val specification = mockk<MinecraftServerSpec>()
+        every { specification.id } returns SERVER_ID
+        every { specification.type } returns ServerType.BUKKIT
+        every { specification.version } returns SERVER_VERSION
+
+        RunServerTaskRegistrar.register(
+            project,
+            specification,
+            SERVER_DIRECTORY.resolve("server-runner.jar"),
+            SERVER_DIRECTORY.parent
+        )
+
+        val checkTask = getTask("checkServer${taskBaseName}")
+
+        val startTask = getTask("startServer${taskBaseName}")
+        testDependency(startTask, checkTask)
+
+        val awaitTask = getTask("awaitBootComplete${taskBaseName}")
+        testDependency(awaitTask, startTask)
+
+        val (_, runTask) = testTaskMetadata<Task>("run${taskBaseName}", true)
+        testDependency(runTask, awaitTask)
+
+        val stopServerTask = getTask("stopServer${taskBaseName}")
+
+        val (_, stopTask) = testTaskMetadata<Task>("stop${taskBaseName}", true)
+        testFinalizedBy(stopTask, stopServerTask)
+    }
 
     @ParameterizedTest
     @ValueSource(booleans = [true, false])
@@ -176,10 +212,14 @@ class RunServerTaskRegistrarTest : RegistrarTestHelper() {
 
     private fun testFinalizedByStopServerTask(registrar: RunServerTaskRegistrar, task: Task) {
         val stopServerTask = registrar.stopServerTask
+        testFinalizedBy(task, stopServerTask)
+    }
+
+    private fun testFinalizedBy(first: Task, second: Task) {
         assertContains(
-            task.finalizedBy.getDependencies(task),
-            stopServerTask,
-            "Task ${task.name} should be finalized by ${stopServerTask.name}"
+            first.finalizedBy.getDependencies(first),
+            second,
+            "Task ${first.name} should be finalized by ${second.name}"
         )
     }
 
