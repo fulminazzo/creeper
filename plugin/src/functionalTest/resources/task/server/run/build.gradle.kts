@@ -3,6 +3,8 @@ import it.fulminazzo.creeper.extension.spec.MinecraftServerSpec
 import it.fulminazzo.creeper.extension.spec.settings.MinecraftServerSettings
 import it.fulminazzo.creeper.provider.plugin.PluginRequest
 import it.fulminazzo.creeper.task.server.run.RunServerTaskRegistrar
+import it.fulminazzo.creeper.task.server.run.AwaitBootCompleteTask
+import it.fulminazzo.creeper.task.server.run.StopServerTask
 
 plugins {
     id("it.fulminazzo.creeper")
@@ -27,3 +29,11 @@ RunServerTaskRegistrar.register(
     project.projectDir.toPath().resolve("server-runner.jar"),
     project.projectDir.toPath()
 )
+
+tasks.named<AwaitBootCompleteTask>("awaitBootCompletePaper1_21") {
+    awaitTimeout = 5 * 60L
+}
+
+tasks.named<StopServerTask>("stopServerPaper1_21") {
+    awaitTimeout = 60L
+}
