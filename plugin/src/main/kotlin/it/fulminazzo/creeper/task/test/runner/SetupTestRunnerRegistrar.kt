@@ -54,7 +54,7 @@ class SetupTestRunnerRegistrar(
             description = "Builds the test runner project",
             type = BuildTestRunnerTask::class.java
         ) { task ->
-            task.projectDirectory.set(repositoryDirectory.toFile())
+            task.projectDirectory.set(buildDirectory.toFile())
         }.get()
 
     /**
