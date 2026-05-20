@@ -66,10 +66,7 @@ abstract class WriteTestRunnerMetadataTask : DefaultTask() {
     }
 
     private companion object {
-        private val REQUIRED_CONFIGURATIONS = setOf(
-            "implementation", "runtimeOnly",
-            "integrationTestImplementation", "integrationTestRuntimeOnly"
-        )
+        private val REQUIRED_CONFIGURATIONS = setOf("runtimeClasspath", "integrationTestRuntimeClasspath")
 
     }
 
