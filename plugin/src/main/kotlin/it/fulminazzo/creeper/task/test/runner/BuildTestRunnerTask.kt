@@ -27,6 +27,7 @@ abstract class BuildTestRunnerTask : DefaultTask() {
             .use { connection ->
                 connection.newBuild()
                     .forTasks("build")
+                    .withArguments("-x", "test", "-x", "check")
                     .setStandardOutput(System.out)
                     .setStandardError(System.err)
                     .run()
