@@ -4,6 +4,7 @@ import be.seeseemelk.mockbukkit.MockBukkit;
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
+import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -21,6 +22,9 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 class CreeperTesterIntegrationTest {
+    private static final @NotNull String TEST_BUILD_DIRECTORY = new File("").getAbsoluteFile().getParentFile().toPath()
+            .resolve("integration-test").resolve("build").toString();
+
     private CreeperTester plugin;
 
     @BeforeEach
@@ -62,7 +66,7 @@ class CreeperTesterIntegrationTest {
         Command command = mock(Command.class);
         when(command.getName()).thenReturn("creepertest");
 
-        assertTrue(plugin.onCommand(sender, command, command.getName(), new String[0]));
+        assertTrue(plugin.onCommand(sender, command, command.getName(), new String[]{TEST_BUILD_DIRECTORY}));
 
         File resultsFile = new File(directory, TestsRunner.TEST_RESULTS_FILENAME);
         assertTrue(resultsFile.exists(), "Results file should have been created");
@@ -74,7 +78,7 @@ class CreeperTesterIntegrationTest {
         Command command = mock(Command.class);
         when(command.getName()).thenReturn("somethingelse");
 
-        assertFalse(plugin.onCommand(sender, command, command.getName(), new String[0]));
+        assertFalse(plugin.onCommand(sender, command, command.getName(), new String[]{TEST_BUILD_DIRECTORY}));
     }
 
     @Test
@@ -86,7 +90,7 @@ class CreeperTesterIntegrationTest {
         Command command = mock(Command.class);
         when(command.getName()).thenReturn("creepertest");
 
-        List<String> completions = plugin.onTabComplete(sender, command, command.getName(), new String[0]);
+        List<String> completions = plugin.onTabComplete(sender, command, command.getName(), new String[]{TEST_BUILD_DIRECTORY});
         assertNotNull(completions, "Tab completions should not be null");
         assertTrue(completions.isEmpty(), "Tab completions should be empty");
     }
@@ -97,7 +101,7 @@ class CreeperTesterIntegrationTest {
         Command command = mock(Command.class);
         when(command.getName()).thenReturn("somethingelse");
 
-        List<String> completions = plugin.onTabComplete(sender, command, command.getName(), new String[0]);
+        List<String> completions = plugin.onTabComplete(sender, command, command.getName(), new String[]{TEST_BUILD_DIRECTORY});
         assertNull(completions, "Tab completions should be null");
     }
 

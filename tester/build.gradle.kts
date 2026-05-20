@@ -11,7 +11,6 @@ val implementationDependencies = listOf<String>()
 val parentGroup = "it.fulminazzo.creeper"
 val parentVersion = "0.0.1-SNAPSHOT"
 val projectName = "Creeper${project.name.replaceFirstChar { if (it.isLowerCase()) it.titlecase() else it.toString() }}"
-val buildFolderLocation = project.projectDir.resolve("integration-test").resolve("build").absolutePath
 // VARIABLES END
 
 val compileJavaVersionInt = compileJavaVersion.asInt()
@@ -175,8 +174,7 @@ allprojects {
                             "WARNING: to ensure maximum compatibility, these tests will be run synchronously " +
                             "when possible. Be ready to lag spikes and other undesirable effects.",
                     "command_usage" to "/$commandName",
-                    "command_aliases" to listOf(rootProjectName, "${rootProjectName}test"),
-                    "build_directory" to buildFolderLocation
+                    "command_aliases" to listOf(rootProjectName, "${rootProjectName}test")
                 )
             )
         }

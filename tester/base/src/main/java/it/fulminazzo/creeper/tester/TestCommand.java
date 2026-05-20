@@ -24,14 +24,14 @@ public final class TestCommand {
     /**
      * Executes the tests.
      */
-    public void execute() {
+    public void execute(final @NotNull String buildDirectoryPath) {
         try {
-            messageSender.accept("Preparing tests execution.");
+            messageSender.accept(String.format("Preparing tests execution for directory: %s.", buildDirectoryPath));
             messageSender.accept("WARNING: to ensure maximum compatibility, the tests will be run synchronously.");
             messageSender.accept("Be prepared for lag spikes and server halts.");
 
             ClassLoader classLoader = TestCommand.class.getClassLoader();
-            File buildDirectory = new File(ResourceUtils.readResource(classLoader, "METADATA.creeper"));
+            File buildDirectory = new File(buildDirectoryPath).getAbsoluteFile();
             @NotNull List<File> mainSources = FileUtils.findCompiledSources(buildDirectory, "main");
             @NotNull List<File> integrationTestSources = FileUtils.findCompiledSources(buildDirectory, "integrationTest");
             String testsPackage = FileUtils.findMainPackage(integrationTestSources);

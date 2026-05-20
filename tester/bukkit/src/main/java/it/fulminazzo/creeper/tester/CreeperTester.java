@@ -62,7 +62,7 @@ public final class CreeperTester extends JavaPlugin implements TesterApplication
                              final @NotNull String label,
                              final @NotNull String[] args) {
         if (command.getName().equalsIgnoreCase(getCommandName())) {
-            new TestCommand(this, sender::sendMessage).execute();
+            new TestCommand(this, sender::sendMessage).execute(String.join(" ", args));
             return true;
         } else return super.onCommand(sender, command, label, args);
     }
