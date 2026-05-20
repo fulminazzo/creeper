@@ -1,0 +1,18 @@
+name: '$name'
+description: '$name Bukkit plugin.'
+version: $version
+authors: ['Fulminazzo']
+main: ${group}.tester.$name
+api-version: 1.13
+
+commands:
+  $command_name:
+    description: '$command_description'
+    permission: $name_lower.$command_name
+    usage: '$command_usage'
+    aliases: $command_aliases
+
+permissions:
+  $name_lower.$command_name:
+    description: 'Permission to execute command /$command_name'
+    default: op
