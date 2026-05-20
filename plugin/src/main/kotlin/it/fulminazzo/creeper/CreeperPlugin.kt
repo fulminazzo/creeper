@@ -8,6 +8,7 @@ import com.fasterxml.jackson.module.kotlin.kotlinModule
 import it.fulminazzo.creeper.extension.ServersConfigurationExtension
 import it.fulminazzo.creeper.service.PlayerResolverService
 import it.fulminazzo.creeper.service.downloader.CachedDownloaderService
+import it.fulminazzo.creeper.service.downloader.DownloaderService
 import it.fulminazzo.creeper.service.provider.ConfigProviderService
 import it.fulminazzo.creeper.service.provider.JarProviderService
 import it.fulminazzo.creeper.service.provider.plugin.PluginProviderService
@@ -27,8 +28,12 @@ class CreeperPlugin : Plugin<Project> {
         val gradle = project.gradle
         // SERVICES
         val sharedServices = gradle.sharedServices
+        val simpleDownloaderService = sharedServices
+            .registerIfAbsent("simpleDownloaderService", DownloaderService::class.java)
         val downloadService = sharedServices
-            .registerIfAbsent("downloaderService", CachedDownloaderService::class.java)
+            .registerIfAbsent("downloaderService", CachedDownloaderService::class.java) {
+                it.parameters.downloader.set(simpleDownloaderService)
+            }
         sharedServices.registerIfAbsent("playerResolverService", PlayerResolverService::class.java)
         sharedServices.registerIfAbsent("jarProviderService", JarProviderService::class.java) {
             it.parameters.downloader.set(downloadService)

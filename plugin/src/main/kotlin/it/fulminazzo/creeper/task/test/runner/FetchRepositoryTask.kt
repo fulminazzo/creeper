@@ -1,7 +1,7 @@
 package it.fulminazzo.creeper.task.test.runner
 
 import it.fulminazzo.creeper.ProjectInfo
-import it.fulminazzo.creeper.download.Downloader
+import it.fulminazzo.creeper.service.downloader.DownloaderService
 import it.fulminazzo.creeper.util.ZipUtils
 import org.gradle.api.DefaultTask
 import org.gradle.api.file.RegularFileProperty
@@ -20,8 +20,8 @@ import java.io.File
  */
 abstract class FetchRepositoryTask : DefaultTask() {
 
-    @get:ServiceReference("baseDownloader")
-    abstract val downloader: Property<Downloader>
+    @get:ServiceReference("simpleDownloaderService")
+    abstract val downloader: Property<DownloaderService>
 
     @get:OutputDirectory
     abstract val repositoryDirectory: RegularFileProperty
@@ -32,7 +32,7 @@ abstract class FetchRepositoryTask : DefaultTask() {
         logger.lifecycle("Fetching repository from $REPOSITORY_URL into ${repository.path}")
         val parentFile = repository.parentFile
         val output = File(parentFile, "tmp.zip")
-        downloader.get().download(REPOSITORY_URL, output.toPath())
+        downloader.get().downloader.download(REPOSITORY_URL, output.toPath())
         ZipUtils.unzip(output.toPath(), parentFile.toPath())
         output.delete()
         parentFile.resolve("${ProjectInfo.NAME}-master").renameTo(repository)
