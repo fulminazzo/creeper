@@ -42,14 +42,15 @@ abstract class WriteTestRunnerMetadataTask : DefaultTask() {
 
         val build = buildFile.get().asFile
         val lines = build.readLines().map { line ->
-            if (line.startsWith("val compileJavaVersion"))
+            if (line.startsWith("val compileJavaVersion ="))
                 "val compileJavaVersion = JavaLanguageVersion.of($javaVersion)"
-            else if (line.startsWith("val gradleJavaVersion"))
+            else if (line.startsWith("val gradleJavaVersion ="))
                 "val gradleJavaVersion = JavaLanguageVersion.of($javaVersion)"
-            else if (line.startsWith("val implementationDependencies"))
-                "val implementationDependencies = listOf(${dependencies.joinToString(", ") { "\"$it\"" }})"
-            else if (line.startsWith("val parentGroup")) "val parentGroup = \"${ProjectInfo.GROUP}.${ProjectInfo.NAME}\""
-            else if (line.startsWith("val parentVersion")) "val parentVersion = \"${ProjectInfo.VERSION}\""
+            else if (line.startsWith("val implementationDependencies ="))
+                if (dependencies.isEmpty()) "val implementationDependencies = emptyList<String>()"
+                else "val implementationDependencies = listOf(${dependencies.joinToString(", ") { "\"$it\"" }})"
+            else if (line.startsWith("val parentGroup =")) "val parentGroup = \"${ProjectInfo.GROUP}.${ProjectInfo.NAME}\""
+            else if (line.startsWith("val parentVersion =")) "val parentVersion = \"${ProjectInfo.VERSION}\""
             else line
         }
         build.writeText(lines.joinToString("\n"))
