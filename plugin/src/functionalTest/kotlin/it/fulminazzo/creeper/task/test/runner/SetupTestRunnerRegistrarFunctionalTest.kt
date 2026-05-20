@@ -31,7 +31,7 @@ class SetupTestRunnerRegistrarFunctionalTest {
     fun `test that buildTestRunner task correctly builds test runner`() {
         runner.withArguments("buildTestRunner").build()
 
-        val runnerJar = projectDir.resolve("build/${ProjectInfo.NAME}/repository/base/build/libs/${ProjectInfo.NAME}-${ProjectInfo.VERSION}.jar")
+        val runnerJar = projectDir.resolve("build/${ProjectInfo.NAME}/repository/tester/base/build/libs/base-${ProjectInfo.VERSION}.jar")
         assertTrue(runnerJar.exists(), "Runner jar does not exist: $runnerJar")
     }
 

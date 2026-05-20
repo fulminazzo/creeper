@@ -1,6 +1,8 @@
 package it.fulminazzo.creeper.task.test.runner
 
+import io.mockk.every
 import it.fulminazzo.creeper.download.Downloader
+import it.fulminazzo.creeper.service.downloader.DownloaderService
 import it.fulminazzo.creeper.task.TaskIntegrationTestHelper
 import java.io.File
 import kotlin.test.Test
@@ -11,7 +13,7 @@ class FetchRepositoryTaskIntegrationTest : TaskIntegrationTestHelper() {
     @Test
     fun `test that FetchRepositoryTask correctly downloads and extracts repository`() {
         val task = createTask(FetchRepositoryTask::class.java) { task ->
-            task.downloader.set(Downloader.http())
+            task.downloader.set(createService<DownloaderService> { every { it.downloader } returns Downloader.http() })
             task.repositoryDirectory.set(WORK_DIR)
         }
 
