@@ -7,6 +7,7 @@ import org.gradle.api.DefaultTask
 import org.gradle.api.file.RegularFileProperty
 import org.gradle.api.provider.Property
 import org.gradle.api.services.ServiceReference
+import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.OutputDirectory
 import org.gradle.api.tasks.TaskAction
 import java.io.File
@@ -23,8 +24,15 @@ abstract class FetchRepositoryTask : DefaultTask() {
     @get:ServiceReference("simpleDownloaderService")
     abstract val downloader: Property<DownloaderService>
 
+    @get:Input
+    abstract val branch: Property<String>
+
     @get:OutputDirectory
     abstract val repositoryDirectory: RegularFileProperty
+
+    init {
+        branch.convention("master")
+    }
 
     @TaskAction
     fun run() {
@@ -32,15 +40,15 @@ abstract class FetchRepositoryTask : DefaultTask() {
         logger.lifecycle("Fetching repository from $REPOSITORY_URL into ${repository.path}")
         val parentFile = repository.parentFile
         val output = File(parentFile, "tmp.zip")
-        downloader.get().downloader.download(REPOSITORY_URL, output.toPath())
+        val actualBranch = branch.get()
+        downloader.get().downloader.download("$REPOSITORY_URL/$actualBranch", output.toPath())
         ZipUtils.unzip(output.toPath(), parentFile.toPath())
         output.delete()
-        parentFile.resolve("${ProjectInfo.NAME}-master").renameTo(repository)
+        parentFile.resolve("${ProjectInfo.NAME}-$actualBranch").renameTo(repository)
     }
 
     private companion object {
-        private const val REPOSITORY_URL =
-            "https://codeload.github.com/fulminazzo/${ProjectInfo.NAME}/zip/refs/heads/master"
+        private const val REPOSITORY_URL = "https://codeload.github.com/fulminazzo/${ProjectInfo.NAME}/zip/refs/heads"
 
     }
 
