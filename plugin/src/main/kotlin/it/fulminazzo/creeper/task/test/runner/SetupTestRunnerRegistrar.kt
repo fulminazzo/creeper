@@ -17,11 +17,11 @@ import java.nio.file.Path
 class SetupTestRunnerRegistrar(
     private val showWorkers: Boolean = false
 ) {
-    internal lateinit var buildDirectory: Path
+    internal lateinit var repositoryDirectory: Path
 
     internal lateinit var project: Project
 
-    internal lateinit var repositoryDirectory: Path
+    internal lateinit var buildDirectory: Path
 
     /**
      * Registers the tasks for setting up the test runner project.
@@ -31,8 +31,8 @@ class SetupTestRunnerRegistrar(
      */
     internal fun register(project: Project, buildDirectory: Path) {
         this.project = project
-        this.buildDirectory = buildDirectory
-        this.repositoryDirectory = buildDirectory.resolve(ProjectInfo.NAME)
+        this.repositoryDirectory = buildDirectory.resolve(ProjectInfo.NAME).resolve("repository")
+        this.buildDirectory = repositoryDirectory.resolve("tester")
 
         val fetch = registerFetchRepositoryTask()
         val write = registerWriteTestRunnerMetadataTask()
