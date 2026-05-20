@@ -7,7 +7,7 @@ import org.gradle.api.tasks.TaskAction
 import org.gradle.tooling.GradleConnector
 
 /**
- * A task to build the test runner.
+ * Facade task to call `gradle build` in the `tester` module project.
  *
  * @constructor Creates a new Build test runner task
  */
