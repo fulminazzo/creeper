@@ -26,15 +26,19 @@ public final class TestCommand {
      */
     public void execute(final @NotNull String buildDirectoryPath) {
         try {
-            messageSender.accept(String.format("Preparing tests execution for directory: %s.", buildDirectoryPath));
-            messageSender.accept("WARNING: to ensure maximum compatibility, the tests will be run synchronously.");
-            messageSender.accept("Be prepared for lag spikes and server halts.");
-
             ClassLoader classLoader = TestCommand.class.getClassLoader();
             File buildDirectory = new File(buildDirectoryPath).getAbsoluteFile();
+
+            messageSender.accept(String.format("Preparing tests execution for directory: %s.", buildDirectory.getPath()));
+            messageSender.accept("WARNING: to ensure maximum compatibility, the tests will be run synchronously.");
+            messageSender.accept("Be prepared for lag spikes and server halts.");
+            
             @NotNull List<File> mainSources = FileUtils.findCompiledSources(buildDirectory, "main");
+            messageSender.accept("Found " + mainSources.size() + " main sources.");
             @NotNull List<File> integrationTestSources = FileUtils.findCompiledSources(buildDirectory, "integrationTest");
+            messageSender.accept("Found " + integrationTestSources.size() + " integration test sources.");
             String testsPackage = FileUtils.findMainPackage(integrationTestSources);
+            messageSender.accept("Tests package: " + testsPackage);
 
             try (URLClassLoader tmpClassLoader = new URLClassLoader(
                     Stream.concat(mainSources.stream(), integrationTestSources.stream()).map(File::toURI).map(f -> {
@@ -46,6 +50,7 @@ public final class TestCommand {
                     }).distinct().toArray(URL[]::new),
                     classLoader
             )) {
+                messageSender.accept("Running tests...");
                 new TestsRunner(
                         testsPackage,
                         application.dataDirectory(),
