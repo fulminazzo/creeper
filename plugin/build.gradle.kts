@@ -70,3 +70,20 @@ configure<BuildConfigExtension> {
                 "\" Check out\\u00a7a https://github.com/fulminazzo/\$NAME\\u00a7f!\""
     )
 }
+
+afterEvaluate {
+
+    val testerShadow by configurations.creating {
+        isCanBeConsumed = false
+        isCanBeResolved = true
+    }
+
+    val integrationTestImplementation by configurations.getting {}
+
+    dependencies {
+        testerShadow(project(path = ":tester", configuration = "shadow"))
+
+        integrationTestImplementation(files(testerShadow))
+    }
+
+}
