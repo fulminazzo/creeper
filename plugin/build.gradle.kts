@@ -1,4 +1,4 @@
-import com.github.gmazzo.buildconfig.BuildConfigExtension
+import com.github.gmazzo.gradle.plugins.BuildConfigExtension
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import org.jetbrains.kotlin.gradle.tasks.KotlinJvmCompile
 
