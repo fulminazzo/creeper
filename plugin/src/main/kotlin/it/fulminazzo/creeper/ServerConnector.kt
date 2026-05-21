@@ -40,6 +40,7 @@ class ServerConnector(
      * @return `true` if the input was read at least once
      */
     fun awaitInput(regex: Regex, timeout: Duration, interval: Duration = 1.seconds): Boolean {
+        checkConnected()
         // Going back of one in case the requested input is already present.
         val start = (lines.size - 2).takeIf { it >= 0 } ?: 0
         return VerifyUtils.awaitVerified(
@@ -57,7 +58,7 @@ class ServerConnector(
      * @param data the data to send
      */
     fun send(data: String) {
-        check(!connected) { "Server connector is not connected to the server" }
+        checkConnected()
         socket?.outputStream?.bufferedWriter()?.use { writer ->
             writer.write(data)
             writer.newLine()
@@ -70,7 +71,7 @@ class ServerConnector(
      * Users should ALWAYS check with [connected] if the connection was successful.
      */
     fun connect() {
-        check(connected) { "Server connector is already connected to the server" }
+        check(!connected) { "Server connector is already connected to the server" }
         try {
             socket = Socket(host, port)
             lineReader = CompletableFuture.runAsync {
@@ -90,7 +91,7 @@ class ServerConnector(
      * Disconnects from the TCP server.
      */
     fun disconnect() {
-        check(!connected) { "Server connector is not connected to the server" }
+        checkConnected()
         lineReader?.cancel(true)
         try {
             socket?.close()
@@ -98,6 +99,10 @@ class ServerConnector(
             // ignore errors
         }
         socket = null
+    }
+
+    private fun checkConnected() {
+        check(connected) { "Server connector is not connected to the server" }
     }
 
     companion object {
