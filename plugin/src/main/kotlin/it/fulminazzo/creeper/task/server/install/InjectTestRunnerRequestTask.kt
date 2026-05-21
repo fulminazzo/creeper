@@ -9,9 +9,12 @@ import it.fulminazzo.creeper.provider.plugin.PluginRequest
 import it.fulminazzo.creeper.task.server.install.InjectTestRunnerRequestTask.Companion.PLUGIN_REQUEST
 import org.gradle.api.DefaultTask
 import org.gradle.api.artifacts.Configuration
+import org.gradle.api.file.DirectoryProperty
 import org.gradle.api.file.RegularFileProperty
 import org.gradle.api.provider.Property
 import org.gradle.api.tasks.Input
+import org.gradle.api.tasks.InputDirectory
+import org.gradle.api.tasks.Internal
 import org.gradle.api.tasks.OutputFile
 import org.gradle.api.tasks.TaskAction
 import java.io.File
@@ -29,6 +32,9 @@ import java.io.File
 //TODO: This class is not completely tested yet, since it requires the actual release of the `test-runner` module
 abstract class InjectTestRunnerRequestTask : DefaultTask() {
 
+    @get:Internal
+    abstract val buildDirectory: DirectoryProperty
+
     @get:Input
     abstract val specification: Property<ServerSpec<*, *>>
 
@@ -45,7 +51,7 @@ abstract class InjectTestRunnerRequestTask : DefaultTask() {
         configurationFile.parentFile.mkdirs()
         configurationFile.createNewFile()
 
-        val buildDir = project.layout.buildDirectory.get().asFile
+        val buildDir = buildDirectory.get().asFile
         val dependencies = CONFIGURATIONS
             .map { project.configurations.getByName(it) }
             .flatMap { getResolvedArtifacts(it) }

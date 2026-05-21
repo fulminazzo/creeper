@@ -78,6 +78,7 @@ class CreeperPlugin : Plugin<Project> {
                     InjectTestRunnerRequestTask::class.java
                 ) { task ->
                     task.specification.set(spec)
+                    task.buildDirectory.set(project.layout.buildDirectory.get().asFile)
                     task.pluginConfigurationFile.set {
                         serverDir.resolve("plugins")
                             .resolve("${ProjectInfo.NAME}Tester")

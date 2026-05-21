@@ -56,6 +56,7 @@ class InjectTestRunnerTaskIntegrationTestRequest : TaskIntegrationTestHelper() {
 
         val task = createTask(InjectTestRunnerRequestTask::class.java) { task ->
             task.specification.set(spec)
+            task.buildDirectory.set(project.layout.buildDirectory.get().asFile)
             task.pluginConfigurationFile.set { configFile }
         }
         task.run()
