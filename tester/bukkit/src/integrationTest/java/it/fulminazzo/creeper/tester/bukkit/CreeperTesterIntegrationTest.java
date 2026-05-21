@@ -78,7 +78,7 @@ class CreeperTesterIntegrationTest {
 
         CommandSender sender = mock(CommandSender.class);
         Command command = mock(Command.class);
-        when(command.getName()).thenReturn("creepertest");
+        when(command.getName()).thenReturn("runcreepertests");
 
         assertTrue(plugin.onCommand(sender, command, command.getName(), new String[0]));
 
@@ -99,7 +99,7 @@ class CreeperTesterIntegrationTest {
     void testThatOnTabCompleteWorks() {
         CommandSender sender = mock(CommandSender.class);
         Command command = mock(Command.class);
-        when(command.getName()).thenReturn("creepertest");
+        when(command.getName()).thenReturn("runcreepertests");
 
         List<String> completions = plugin.onTabComplete(sender, command, command.getName(), new String[0]);
         assertNotNull(completions, "Tab completions should not be null");

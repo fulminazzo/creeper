@@ -12,12 +12,10 @@ val projectName = "${
 
 allprojects {
     val libs = rootProject.libs
-    val baseProject = project(":base")
+    val baseProject = project(":tester:base")
 
     apply { plugin("java") }
     apply { plugin(libs.plugins.shadow.get().pluginId) }
-
-    group = "${rootProject.group}.${rootProject.name}"
 
     java {
         toolchain {
@@ -121,21 +119,30 @@ allprojects {
     }
 
     tasks.processResources {
-        val rootProjectName = rootProject.name.lowercase()
-        val commandName = projectName.lowercase().replace(rootProjectName, "test")
+        val module = project(":tester")
+        val group = module.group
+        val rootProjectName = rootProject.name
+        val projectName = module.name
+        val version = module.version
+        val commandName = "run${rootProjectName}tests"
+        val pluginName = "${
+            rootProjectName.replaceFirstChar { if (it.isLowerCase()) it.titlecase() else it.toString() }
+        }${
+            projectName.replaceFirstChar { if (it.isLowerCase()) it.titlecase() else it.toString() }
+        }"
         filesMatching(listOf("*.yml")) {
             expand(
                 mapOf(
-                    "group" to rootProject.group,
-                    "version" to rootProject.version,
-                    "name" to projectName,
-                    "name_lower" to projectName.lowercase(),
+                    "group" to "${group}.${rootProjectName}",
+                    "version" to version,
+                    "name" to pluginName,
+                    "name_lower" to pluginName.lowercase(),
                     "command_name" to commandName,
                     "command_description" to "Runs all the tests contained in the plugin. " +
                             "WARNING: to ensure maximum compatibility, these tests will be run synchronously " +
                             "when possible. Be ready to lag spikes and other undesirable effects.",
                     "command_usage" to "/$commandName",
-                    "command_aliases" to listOf(rootProjectName, "${rootProjectName}test")
+                    "command_aliases" to emptyList<String>()
                 )
             )
         }

@@ -6,10 +6,6 @@ plugins {
     alias(libs.plugins.buildconfig)
 }
 
-repositories {
-    mavenCentral()
-}
-
 dependencies {
     testImplementation("org.jetbrains.kotlin:kotlin-test")
     testImplementation(libs.mockk)
