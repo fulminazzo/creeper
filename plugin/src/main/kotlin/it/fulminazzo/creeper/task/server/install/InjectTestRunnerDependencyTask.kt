@@ -4,6 +4,7 @@ import it.fulminazzo.creeper.CreeperPlugin
 import it.fulminazzo.creeper.ProjectInfo
 import it.fulminazzo.creeper.extension.spec.ServerSpec
 import it.fulminazzo.creeper.provider.plugin.GitHubPluginRequest
+import it.fulminazzo.creeper.provider.plugin.PluginRequest
 import org.gradle.api.DefaultTask
 import org.gradle.api.Project
 import org.gradle.api.artifacts.Configuration
@@ -24,7 +25,7 @@ import org.gradle.api.tasks.TaskAction
  *
  * @constructor Creates a new Inject test runner dependency
  */
-//TODO: This class is not tested yet, since it requires the actual release of the `tester` module
+//TODO: This class is not completely tested yet, since it requires the actual release of the `tester` module
 abstract class InjectTestRunnerDependencyTask : DefaultTask() {
 
     @get:Internal
@@ -39,14 +40,7 @@ abstract class InjectTestRunnerDependencyTask : DefaultTask() {
     @TaskAction
     fun run() {
         logger.info("Injecting Tests runner JAR as a plugin request")
-        specification.get().plugins.add(GitHubPluginRequest(
-            ProjectInfo.GROUP.substringAfterLast("."),
-            ProjectInfo.NAME,
-            ProjectInfo.VERSION,
-            "${
-                ProjectInfo.NAME.lowercase().replaceFirstChar { it.uppercase() }
-            }Tester-${ProjectInfo.VERSION}.jar"
-        ))
+        specification.get().plugins.add(PLUGIN_REQUEST)
 
         logger.info("Writing plugin configuration file")
         val configurationFile = pluginConfigurationFile.get().asFile
@@ -65,7 +59,19 @@ abstract class InjectTestRunnerDependencyTask : DefaultTask() {
         CreeperPlugin.YAML_MAPPER.writeValue(configurationFile, data)
     }
 
-    private companion object {
+    internal companion object {
+        /**
+         * The plugin request for installing the `tester` runner in the `plugins` directory.
+         */
+        internal var PLUGIN_REQUEST: PluginRequest = GitHubPluginRequest(
+            ProjectInfo.GROUP.substringAfterLast("."),
+            ProjectInfo.NAME,
+            ProjectInfo.VERSION,
+            "${
+                ProjectInfo.NAME.lowercase().replaceFirstChar { it.uppercase() }
+            }Tester-${ProjectInfo.VERSION}.jar"
+        )
+
         private val CONFIGURATIONS = listOf("runtimeClasspath", "integrationTestRuntimeClasspath")
 
         private fun getResolvedArtifacts(configuration: Configuration) =
