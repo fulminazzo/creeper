@@ -8,6 +8,7 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.ValueSource
+import java.io.IOException
 import java.net.ServerSocket
 import java.net.Socket
 import kotlin.test.assertEquals
@@ -27,7 +28,11 @@ class ServerConnectorTest {
 
         thread = Thread {
             client = server.accept()
-            client.inputStream.bufferedReader().forEachLine { clientLines.add(it) }
+            try {
+                client.inputStream.bufferedReader().forEachLine { clientLines.add(it) }
+            } catch (_: IOException) {
+                // ignore
+            }
         }
         thread.start()
 
@@ -62,6 +67,7 @@ class ServerConnectorTest {
     fun `test that send works`() {
         connector.connect()
         connector.send("Hello")
+        Thread.sleep(500)
         assertTrue(clientLines.contains("Hello"), "Client did not receive message")
     }
 

@@ -75,8 +75,12 @@ class ServerConnector(
         try {
             socket = Socket(host, port)
             lineReader = CompletableFuture.runAsync {
-                socket?.inputStream?.bufferedReader()?.use { reader ->
-                    reader.forEachLine { lines += it }
+                try {
+                    socket?.inputStream?.bufferedReader()?.use { reader ->
+                        reader.forEachLine { lines += it }
+                    }
+                } catch (_: IOException) {
+                    // ignore errors
                 }
             }
         } catch (_: IOException) {
