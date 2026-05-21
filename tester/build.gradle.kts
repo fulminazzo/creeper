@@ -4,18 +4,11 @@ plugins {
     alias(libs.plugins.shadow)
 }
 
-// VARIABLES START
-val compileJavaVersion = JavaLanguageVersion.of(8)
-val gradleJavaVersion = JavaLanguageVersion.of(8)
-val implementationDependencies = listOf<String>()
-val parentGroup = "it.fulminazzo.creeper"
-val parentVersion = "0.0.1-SNAPSHOT"
-val projectName = "Creeper${project.name.replaceFirstChar { if (it.isLowerCase()) it.titlecase() else it.toString() }}"
-// VARIABLES END
-
-val compileJavaVersionInt = compileJavaVersion.asInt()
-
-extra["implementationDependencies"] = implementationDependencies
+val projectName = "${
+    rootProject.name.replaceFirstChar { if (it.isLowerCase()) it.titlecase() else it.toString() } 
+}${
+    project.name.replaceFirstChar { if (it.isLowerCase()) it.titlecase() else it.toString() }
+}"
 
 allprojects {
     val libs = rootProject.libs
@@ -24,12 +17,11 @@ allprojects {
     apply { plugin("java") }
     apply { plugin(libs.plugins.shadow.get().pluginId) }
 
-    group = parentGroup
-    version = parentVersion
+    group = "${rootProject.group}.${rootProject.name}"
 
     java {
         toolchain {
-            languageVersion.set(gradleJavaVersion)
+            languageVersion.set(JavaLanguageVersion.of(8))
         }
     }
 
@@ -88,15 +80,8 @@ allprojects {
         integrationTestCompileOnly(libs.jetbrains)
     }
 
-    tasks.compileJava {
-        // compile to the required Java version
-        javaCompiler = javaToolchains.compilerFor { languageVersion = compileJavaVersion }
-        compileJavaVersionInt.takeIf { it > 8 }?.let { options.release = it }
-    }
-
     tasks.test {
         useJUnitPlatform()
-        compileJavaVersionInt.takeIf { it > 21 }?.let { jvmArgs = listOf("-XX:+EnableDynamicAgentLoading") }
     }
 
     tasks.jar {
