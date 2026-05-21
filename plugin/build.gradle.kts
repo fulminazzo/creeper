@@ -65,7 +65,12 @@ configure<BuildConfigExtension> {
     )
 }
 
-val testerShadow by configurations.creating {
+val serverRunnerJar by configurations.creating {
+    isCanBeConsumed = false
+    isCanBeResolved = true
+}
+
+val testRunnerShadow by configurations.creating {
     isCanBeConsumed = false
     isCanBeResolved = true
 }
@@ -75,9 +80,11 @@ afterEvaluate {
     val integrationTestCompileOnly by configurations.getting {}
 
     dependencies {
-        testerShadow(project(path = ":test-runner", configuration = "shadow"))
+        serverRunnerJar(project(path = ":server-runner", configuration = "runtimeElements"))
+        testRunnerShadow(project(path = ":test-runner", configuration = "shadow"))
 
-        integrationTestCompileOnly(files(testerShadow))
+        integrationTestCompileOnly(files(serverRunnerJar))
+        integrationTestCompileOnly(files(testRunnerShadow))
     }
 
 }
