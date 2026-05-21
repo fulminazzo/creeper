@@ -37,6 +37,11 @@ abstract class InstallServerRunnerTask : DefaultTask() {
 
     internal companion object {
         internal const val FILE_NAME = "${ProjectInfo.NAME}-server-runner-${ProjectInfo.VERSION}.jar"
+        internal val FILE_PATH = File("").absoluteFile.toPath().parent
+            .resolve("server-runner")
+            .resolve("build")
+            .resolve("libs")
+            .resolve(FILE_NAME)
 
         /**
          * The plugin request for installing the `server-runner` module in the `plugins` directory.
@@ -52,12 +57,7 @@ abstract class InstallServerRunnerTask : DefaultTask() {
          * Updates the [PLUGIN_REQUEST] for tests.
          */
         internal fun testMode() {
-            val testRunnerJar = File("").absoluteFile.toPath().parent
-                .resolve("server-runner")
-                .resolve("build")
-                .resolve("libs")
-                .resolve(FILE_NAME)
-            PLUGIN_REQUEST = LocalPluginRequest(testRunnerJar, true)
+            PLUGIN_REQUEST = LocalPluginRequest(FILE_PATH, true)
         }
 
     }
