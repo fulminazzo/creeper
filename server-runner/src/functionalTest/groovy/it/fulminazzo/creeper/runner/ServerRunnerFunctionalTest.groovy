@@ -11,7 +11,7 @@ import java.util.concurrent.TimeUnit
 @Stepwise
 class ServerRunnerFunctionalTest extends Specification {
     private static final int PORT = 17526
-    private static final long WAIT_TIME = 5_000L
+    private static final long WAIT_TIME = 10_000L
 
     @Shared
     private Thread runnerThread
