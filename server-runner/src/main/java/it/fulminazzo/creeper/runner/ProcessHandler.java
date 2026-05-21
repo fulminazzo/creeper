@@ -82,7 +82,7 @@ public final class ProcessHandler implements InputProcessor, OutputEmitter {
      */
     public synchronized void stop() {
         if (process.isAlive()) log.info("Terminating process");
-        process.destroy();
+        process.destroyForcibly();
         closeAll();
         inputReader.cancel(true);
         try {
