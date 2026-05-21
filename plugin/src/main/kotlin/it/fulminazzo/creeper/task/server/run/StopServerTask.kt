@@ -2,6 +2,7 @@ package it.fulminazzo.creeper.task.server.run
 
 import com.fasterxml.jackson.module.kotlin.readValue
 import it.fulminazzo.creeper.CreeperPlugin
+import it.fulminazzo.creeper.ServerConnector
 import org.gradle.api.DefaultTask
 import org.gradle.api.file.RegularFileProperty
 import org.gradle.api.provider.Property
@@ -9,6 +10,7 @@ import org.gradle.api.tasks.Internal
 import org.gradle.api.tasks.TaskAction
 import java.io.IOException
 import java.net.Socket
+import kotlin.time.Duration.Companion.seconds
 
 /**
  * Task to stop a server.
@@ -37,24 +39,28 @@ abstract class StopServerTask : DefaultTask() {
         if (statFile.exists()) {
             val data = CreeperPlugin.PROPERTIES_MAPPER.readValue<Map<String, Any>>(statFile)
 
-            data["port"]?.toString()?.toInt()?.let { port ->
+            val port = data["port"]?.toString()?.toIntOrNull()
+            if (port != null) {
+                logger.lifecycle("Attempting to stop server via TCP connection on port $port")
                 try {
-                    logger.lifecycle("Attempting to stop server via TCP connection on port $port")
-                    val client = Socket("0.0.0.0", port)
-                    val output = client.outputStream
-                    output.write("$STOP_COMMAND\n".toByteArray())
-                    output.flush()
-                    client.close()
-                    val waitTime = awaitTimeout.get()
-                    logger.lifecycle("Awaiting $waitTime seconds for server to stop gracefully...")
-                    Thread.sleep(waitTime * 1000L)
-                } catch (_: IOException) {
-                    // ignore any errors
+                    val connector = ServerConnector(port)
+                    connector.connect()
+                    if (connector.connected) {
+                        connector.send(STOP_COMMAND)
+                        connector.awaitInput(
+                            ".*Internal process terminated.*".toRegex(),
+                            awaitTimeout.get().seconds
+                        )
+                        if (connector.connected) connector.disconnect()
+                    }
+                } catch (_: Exception) {
+                    // ignore errors
                 }
             }
 
             logger.lifecycle("Killing server process")
-            data["pid"]?.toString()?.toLong()?.let { pid -> ProcessHandle.of(pid).ifPresent { it.destroyForcibly() } }
+            val pid = data["pid"]?.toString()?.toLongOrNull()
+            if (pid != null) ProcessHandle.of(pid).ifPresent { it.destroyForcibly() }
 
             statFile.delete()
         }
