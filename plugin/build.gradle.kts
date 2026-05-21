@@ -9,12 +9,6 @@ plugins {
     alias(libs.plugins.buildconfig)
 }
 
-java {
-    toolchain {
-        languageVersion = JavaLanguageVersion.of(25)
-    }
-}
-
 dependencies {
     implementation(libs.bundles.jackson)
 

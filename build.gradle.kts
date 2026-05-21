@@ -12,6 +12,12 @@ allprojects {
     group = "it.fulminazzo"
     version = "0.0.1-SNAPSHOT"
 
+    java {
+        toolchain {
+            languageVersion = JavaLanguageVersion.of(25)
+        }
+    }
+
     testConfiguration {
         testType("functional")
         testType("integration")

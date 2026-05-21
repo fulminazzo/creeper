@@ -17,12 +17,6 @@ allprojects {
     apply { plugin("java") }
     apply { plugin(libs.plugins.shadow.get().pluginId) }
 
-    java {
-        toolchain {
-            languageVersion = JavaLanguageVersion.of(25)
-        }
-    }
-
     afterEvaluate {
         val integrationTestCompileOnly by configurations.getting {}
         val integrationTestAnnotationProcessor by configurations.getting {}
