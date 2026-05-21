@@ -182,6 +182,10 @@ allprojects {
 
 }
 
+dependencies {
+    subprojects.filter { !it.name.contains("test") }.forEach { implementation(it) }
+}
+
 tasks.check {
     dependsOn(subprojects.map { it.tasks.check })
 }
