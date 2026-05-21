@@ -3,8 +3,10 @@ package it.fulminazzo.creeper.tester;
 import it.fulminazzo.creeper.tester.util.FileUtils;
 import lombok.RequiredArgsConstructor;
 import org.jetbrains.annotations.NotNull;
+import org.yaml.snakeyaml.Yaml;
 
 import java.io.File;
+import java.io.FileReader;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
@@ -23,16 +25,16 @@ public final class TestCommand {
 
     /**
      * Executes the tests.
-     *
-     * @param configuration the configuration to extract necessary data from.
-     *                      Mainly two keys are used:
-     *                      <ul>
-     *                          <li>{@code build-directory-path}: where the {@code build/} directory is located;</li>
-     *                          <li>{@code dependencies}: a list of JAR dependencies necessary for the tests to work.</li>
-     *                      </ul>
      */
-    public void execute(final @NotNull Map<String, Object> configuration) {
+    public void execute() {
         try {
+            File configurationFile = application.configuration();
+            Map<String, Object> configuration = new HashMap<>();
+            if (configurationFile.exists())
+                try (FileReader fileReader = new FileReader(configurationFile)) {
+                    configuration = new Yaml().loadAs(fileReader, Map.class);
+                }
+            
             final String buildDirectoryPath = Objects.requireNonNull(
                     configuration.get("build-directory-path"),
                     "Could not find 'build-directory-path' from configuration"
