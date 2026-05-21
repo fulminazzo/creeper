@@ -59,7 +59,7 @@ class ServerConnector(
      */
     fun send(data: String) {
         checkConnected()
-        socket?.outputStream?.bufferedWriter()?.use { writer ->
+        socket?.outputStream?.bufferedWriter()?.let { writer ->
             writer.write(data)
             writer.newLine()
             writer.flush()
