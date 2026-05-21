@@ -118,7 +118,7 @@ class ServerConnector(
             val connector = ServerConnector(port, host)
             connector.connect()
             val isOnline = connector.connected
-            connector.disconnect()
+            if (isOnline) connector.disconnect()
             return isOnline
         }
 
