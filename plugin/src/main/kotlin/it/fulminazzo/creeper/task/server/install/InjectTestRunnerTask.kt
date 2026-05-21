@@ -6,7 +6,7 @@ import it.fulminazzo.creeper.extension.spec.ServerSpec
 import it.fulminazzo.creeper.provider.plugin.GitHubPluginRequest
 import it.fulminazzo.creeper.provider.plugin.LocalPluginRequest
 import it.fulminazzo.creeper.provider.plugin.PluginRequest
-import it.fulminazzo.creeper.task.server.install.InjectTestRunnerDependencyTask.Companion.PLUGIN_REQUEST
+import it.fulminazzo.creeper.task.server.install.InjectTestRunnerTask.Companion.PLUGIN_REQUEST
 import org.gradle.api.DefaultTask
 import org.gradle.api.artifacts.Configuration
 import org.gradle.api.file.RegularFileProperty
@@ -27,7 +27,7 @@ import java.io.File
  * @constructor Creates a new Inject test runner dependency
  */
 //TODO: This class is not completely tested yet, since it requires the actual release of the `tester` module
-abstract class InjectTestRunnerDependencyTask : DefaultTask() {
+abstract class InjectTestRunnerTask : DefaultTask() {
 
     @get:Input
     abstract val specification: Property<ServerSpec<*, *>>
