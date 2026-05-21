@@ -43,7 +43,7 @@ scalatest = "3.2.20"
 munit = "1.3.0"
 
 [libraries]
-kotlin-jvm = { module = "org.jetbrains.kotlin:kotlin-gradle-plugin", version.ref = "kotlin-jvm" }
+kotlin = { module = "org.jetbrains.kotlin:kotlin-gradle-plugin", version.ref = "kotlin" }
 
 # ANNOTATIONS
 lombok = { module = "org.projectlombok:lombok", version.ref = "lombok" }
