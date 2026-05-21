@@ -1,6 +1,6 @@
 [versions]
 # PLUGINS
-kotlin_jvm = "2.3.0"
+kotlin = "2.3.0"
 buildconfig = "6.0.9"
 
 # TESTING
@@ -10,5 +10,5 @@ mockk = "1.14.9"
 mockk = { module = "io.mockk:mockk", version.ref = "mockk" }
 
 [plugins]
-kotlin_jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin_jvm" }
+kotlin = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
 buildconfig = { id = "com.github.gmazzo.buildconfig", version.ref = "buildconfig" }

@@ -2,7 +2,7 @@ plugins {
     `java-gradle-plugin`
     jacoco
 
-    alias(libs.plugins.kotlin.jvm)
+    alias(libs.plugins.kotlin)
     alias(libs.plugins.buildconfig)
 }
 
