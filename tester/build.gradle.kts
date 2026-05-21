@@ -93,30 +93,6 @@ allprojects {
         archiveClassifier = ""
         archiveBaseName = if (project.name == baseProject.name) project.name else projectName
 
-        val basePackage = "${rootProject.group}.${rootProject.name}.libs"
-        mapOf(
-            "kotlin" to "kotlin",
-            "org.junit" to "junit",
-            "org.opentest4j" to "opentest4j",
-            "com.beust" to "beust",
-            "org.testng" to "testng",
-            "io.kotest" to "kotest",
-            "io.github.classgraph" to "classgraph",
-            "nonapi.io.github.classgraph" to "nonapi.classgraph",
-            "com.github.difflib" to "difflib",
-            "com.github.ajalt" to "ajalt",
-            "net.bytebuddy" to "bytebuddy",
-            "_COROUTINE" to "_COROUTINE",
-//            "junit" to "vintage.junit", // not relocating for issues
-            "org.hamcrest" to "hamcrest",
-            "scala" to "scala",
-            "org.scalactic" to "scalactic",
-            "org.scalatest" to "scalatest",
-            "org.scalatestplus" to "scalatestplus"
-        ).forEach { (from, to) ->
-//            relocate(from, "$basePackage.$to")
-        }
-
         dependencies {
             val jetbrainsAnnotations = libs.jetbrains.get().module
             exclude(dependency(jetbrainsAnnotations.group + ":" + jetbrainsAnnotations.name))
@@ -147,7 +123,7 @@ allprojects {
     tasks.processResources {
         val rootProjectName = rootProject.name.lowercase()
         val commandName = projectName.lowercase().replace(rootProjectName, "test")
-        filesMatching(listOf("*.yml", "*.creeper")) {
+        filesMatching(listOf("*.yml")) {
             expand(
                 mapOf(
                     "group" to rootProject.group,
