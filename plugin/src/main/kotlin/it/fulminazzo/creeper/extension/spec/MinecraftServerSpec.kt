@@ -26,7 +26,7 @@ class MinecraftServerSpec @JvmOverloads constructor(
     config: MinecraftServerSettings = MinecraftServerSettings(),
     val whitelist: Set<String> = emptySet(),
     val operators: Set<String> = emptySet(),
-    plugins: List<PluginRequest> = emptyList()
+    plugins: MutableList<PluginRequest> = mutableListOf()
 ) : ServerSpec<ServerType.MinecraftType, MinecraftServerSettings>(
     type,
     version,

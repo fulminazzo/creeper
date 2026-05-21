@@ -25,7 +25,7 @@ sealed class ServerSpec<T : ServerType, S : ServerSettings>(
     val type: T,
     val version: String,
     val settings: S,
-    val plugins: List<PluginRequest>
+    val plugins: MutableList<PluginRequest>
 ) : Serializable {
     val id: String = "${type.id}-$version"
 
