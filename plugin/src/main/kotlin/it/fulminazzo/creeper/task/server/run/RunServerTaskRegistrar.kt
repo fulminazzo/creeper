@@ -45,8 +45,9 @@ class RunServerTaskRegistrar internal constructor(
      *
      * @param project the project to register the tasks for
      * @param directory the directory where the server files are located
+     * @return the `checkServer[ServerSpec.id]` and `run[ServerSpec.id]` tasks
      */
-    internal fun register(project: Project, directory: Path) {
+    internal fun register(project: Project, directory: Path): Pair<Task, Task> {
         this.project = project
         this.serverDirectory = directory.resolve(serverId)
 
@@ -61,7 +62,7 @@ class RunServerTaskRegistrar internal constructor(
         startServer.get().dependsOn(check)
         await.get().dependsOn(startServer)
 
-        CreeperPlugin.registerTask<Task>(
+        val runServer = CreeperPlugin.registerTask<Task>(
             project = project,
             name = "run$taskBaseName",
             group = serverDisplayName,
@@ -81,6 +82,8 @@ class RunServerTaskRegistrar internal constructor(
 
             task.finalizedBy(stopServerTask)
         }
+
+        return check.get() to runServer.get()
     }
 
     /**
@@ -191,6 +194,7 @@ class RunServerTaskRegistrar internal constructor(
          * @param specification the specification of the server to install
          * @param runnerExecutable the executable for running the server in a controlled environment
          * @param directory the directory where the server files are stored
+         * @return the `checkServer[ServerSpec.id]` and `run[ServerSpec.id]` tasks
          */
         fun register(
             project: Project,
