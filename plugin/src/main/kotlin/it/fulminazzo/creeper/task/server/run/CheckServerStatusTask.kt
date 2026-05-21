@@ -2,6 +2,7 @@ package it.fulminazzo.creeper.task.server.run
 
 import com.fasterxml.jackson.module.kotlin.readValue
 import it.fulminazzo.creeper.CreeperPlugin
+import it.fulminazzo.creeper.ServerConnector
 import it.fulminazzo.creeper.extension.spec.ServerSpec
 import org.gradle.api.DefaultTask
 import org.gradle.api.file.RegularFileProperty
@@ -49,15 +50,11 @@ abstract class CheckServerStatusTask : DefaultTask() {
 
         val data = CreeperPlugin.PROPERTIES_MAPPER.readValue<Map<String, Any>>(statFile)
 
-        val pid = data["pid"]?.toString()?.toLong() ?: return writeStopRequiredFile()
+        val pid = data["pid"]?.toString()?.toLongOrNull() ?: return writeStopRequiredFile()
         ProcessHandle.of(pid).orElse(null)?.takeIf { it.isAlive } ?: return writeStopRequiredFile()
 
-        val port = data["port"]?.toString()?.toInt() ?: return writeStopRequiredFile()
-        try {
-            Socket("0.0.0.0", port).close()
-        } catch (_: IOException) {
-            return writeStopRequiredFile()
-        }
+        val port = data["port"]?.toString()?.toIntOrNull()
+        if (port == null || !ServerConnector.isServerOnline(port)) return writeStopRequiredFile()
     }
 
     private fun writeStopRequiredFile() {
