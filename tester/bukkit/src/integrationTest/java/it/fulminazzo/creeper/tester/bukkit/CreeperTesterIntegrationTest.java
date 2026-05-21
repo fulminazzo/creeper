@@ -1,6 +1,7 @@
-package it.fulminazzo.creeper.tester;
+package it.fulminazzo.creeper.tester.bukkit;
 
 import be.seeseemelk.mockbukkit.MockBukkit;
+import it.fulminazzo.creeper.tester.TestsRunner;
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;

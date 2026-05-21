@@ -2,7 +2,7 @@ name: '$name'
 description: '$name Bukkit plugin.'
 version: $version
 authors: ['Fulminazzo']
-main: ${group}.tester.$name
+main: ${group}.tester.bukkit.$name
 api-version: 1.13
 
 commands:
