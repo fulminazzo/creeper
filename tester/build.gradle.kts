@@ -5,7 +5,7 @@ plugins {
 }
 
 val projectName = "${
-    rootProject.name.replaceFirstChar { if (it.isLowerCase()) it.titlecase() else it.toString() } 
+    rootProject.name.replaceFirstChar { if (it.isLowerCase()) it.titlecase() else it.toString() }
 }${
     project.name.replaceFirstChar { if (it.isLowerCase()) it.titlecase() else it.toString() }
 }"
@@ -23,63 +23,33 @@ allprojects {
         }
     }
 
-    /**
-     * INTEGRATION TESTS CONFIGURATION
-     */
-    val integrationTestSourceSet = sourceSets.create("integrationTest") {
-    }
+    afterEvaluate {
+        val integrationTestCompileOnly by configurations.getting {}
+        val integrationTestAnnotationProcessor by configurations.getting {}
 
-    val mainSourceSet = sourceSets.getByName("main")
+        dependencies {
+            compileOnly(libs.lombok)
+            annotationProcessor(libs.lombok)
+            compileOnly(libs.jetbrains)
 
-    integrationTestSourceSet.compileClasspath += mainSourceSet.output
-    integrationTestSourceSet.runtimeClasspath += mainSourceSet.output
+            if (project.path != baseProject.path) implementation(baseProject)
 
-    configurations["integrationTestCompileOnly"].extendsFrom(configurations["testCompileOnly"])
-    configurations["integrationTestImplementation"].extendsFrom(configurations["testImplementation"])
-    configurations["integrationTestAnnotationProcessor"].extendsFrom(configurations["testAnnotationProcessor"])
-    configurations["integrationTestRuntimeOnly"].extendsFrom(configurations["testRuntimeOnly"])
+            testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine")
+            testImplementation(libs.junit.launcher)
+            testImplementation(libs.bundles.junit)
+            testImplementation(libs.mockito)
 
-    val integrationTestCompileOnly by configurations.getting {}
-    val integrationTestAnnotationProcessor by configurations.getting {}
+            testCompileOnly(libs.lombok)
+            testAnnotationProcessor(libs.lombok)
+            testCompileOnly(libs.jetbrains)
 
-    val integrationTest by tasks.registering(Test::class) {
-        description = "Runs the integration test suite."
-        testClassesDirs = integrationTestSourceSet.output.classesDirs
-        classpath = integrationTestSourceSet.runtimeClasspath
-        useJUnitPlatform()
-    }
+            testImplementation(libs.slf4j.simple)
+            testImplementation(libs.gson)
 
-    tasks.check {
-        // Run the integration tests as part of `check`
-        dependsOn(integrationTest)
-    }
-
-    dependencies {
-        compileOnly(libs.lombok)
-        annotationProcessor(libs.lombok)
-        compileOnly(libs.jetbrains)
-
-        if (project.path != baseProject.path) implementation(baseProject)
-
-        testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine")
-        testImplementation(libs.junit.launcher)
-        testImplementation(libs.bundles.junit)
-        testImplementation(libs.mockito)
-
-        testCompileOnly(libs.lombok)
-        testAnnotationProcessor(libs.lombok)
-        testCompileOnly(libs.jetbrains)
-
-        testImplementation(libs.slf4j.simple)
-        testImplementation(libs.gson)
-
-        integrationTestCompileOnly(libs.lombok)
-        integrationTestAnnotationProcessor(libs.lombok)
-        integrationTestCompileOnly(libs.jetbrains)
-    }
-
-    tasks.test {
-        useJUnitPlatform()
+            integrationTestCompileOnly(libs.lombok)
+            integrationTestAnnotationProcessor(libs.lombok)
+            integrationTestCompileOnly(libs.jetbrains)
+        }
     }
 
     tasks.jar {

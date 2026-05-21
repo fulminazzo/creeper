@@ -1,19 +1,22 @@
 plugins {
     `java-library`
     groovy
-    alias(libs.plugins.kotlin)
+    id("org.jetbrains.kotlin.jvm")
     scala
 }
 
-val integrationTestImplementation by configurations.getting {}
+afterEvaluate {
+    val integrationTestImplementation by configurations.getting {}
 
-dependencies {
-    compileOnly(libs.slf4j)
-    compileOnly(libs.gson)
-    compileOnly(libs.yaml)
+    dependencies {
+        compileOnly(libs.slf4j)
+        compileOnly(libs.gson)
+        compileOnly(libs.yaml)
 
-    api(libs.junit.launcher)
-    api(libs.bundles.test.engines)
+        api(libs.junit.launcher)
+        api(libs.bundles.test.engines)
 
-    integrationTestImplementation(libs.bundles.test.frameworks)
+        integrationTestImplementation(libs.bundles.test.frameworks)
+    }
+
 }
