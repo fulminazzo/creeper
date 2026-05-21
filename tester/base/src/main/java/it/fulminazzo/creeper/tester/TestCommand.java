@@ -1,7 +1,6 @@
 package it.fulminazzo.creeper.tester;
 
 import it.fulminazzo.creeper.tester.util.FileUtils;
-import it.fulminazzo.creeper.tester.util.ResourceUtils;
 import lombok.RequiredArgsConstructor;
 import org.jetbrains.annotations.NotNull;
 
@@ -9,8 +8,9 @@ import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
-import java.util.List;
+import java.util.*;
 import java.util.function.Consumer;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
@@ -23,16 +23,30 @@ public final class TestCommand {
 
     /**
      * Executes the tests.
+     *
+     * @param configuration the configuration to extract necessary data from.
+     *                      Mainly two keys are used:
+     *                      <ul>
+     *                          <li>{@code build-directory-path}: where the {@code build/} directory is located;</li>
+     *                          <li>{@code dependencies}: a list of JAR dependencies necessary for the tests to work.</li>
+     *                      </ul>
      */
-    public void execute(final @NotNull String buildDirectoryPath) {
+    public void execute(final @NotNull Map<String, Object> configuration) {
         try {
+            final String buildDirectoryPath = Objects.requireNonNull(
+                    configuration.get("build-directory-path"),
+                    "Could not find 'build-directory-path' from configuration"
+            ).toString();
+            final List<String> dependencies = extractDependencies(configuration);
+
             ClassLoader classLoader = TestCommand.class.getClassLoader();
             File buildDirectory = new File(buildDirectoryPath).getAbsoluteFile();
 
             messageSender.accept(String.format("Preparing tests execution for directory: %s.", buildDirectory.getPath()));
+            messageSender.accept(String.format("Using %s dependencies.", dependencies.size()));
             messageSender.accept("WARNING: to ensure maximum compatibility, the tests will be run synchronously.");
             messageSender.accept("Be prepared for lag spikes and server halts.");
-            
+
             @NotNull List<File> mainSources = FileUtils.findCompiledSources(buildDirectory, "main");
             messageSender.accept("Found " + mainSources.size() + " main sources.");
             @NotNull List<File> integrationTestSources = FileUtils.findCompiledSources(buildDirectory, "integrationTest");
@@ -41,7 +55,10 @@ public final class TestCommand {
             messageSender.accept("Tests package: " + testsPackage);
 
             try (URLClassLoader tmpClassLoader = new URLClassLoader(
-                    Stream.concat(mainSources.stream(), integrationTestSources.stream()).map(File::toURI).map(f -> {
+                    Stream.concat(
+                            Stream.concat(mainSources.stream(), integrationTestSources.stream()),
+                            dependencies.stream().map(File::new)
+                    ).map(File::toURI).map(f -> {
                         try {
                             return f.toURL();
                         } catch (MalformedURLException e) {
@@ -66,6 +83,16 @@ public final class TestCommand {
             messageSender.accept("Error while running tests: " + e.getMessage());
             application.logger().warn("Error while running tests: {}", e.getMessage(), e);
         }
+    }
+
+    private static @NotNull List<String> extractDependencies(final @NotNull Map<String, Object> configuration) {
+        Object rawDependencies = configuration.get("dependencies");
+        if (rawDependencies instanceof Collection)
+            return ((Collection<?>) rawDependencies).stream()
+                    .filter(Objects::nonNull)
+                    .map(Object::toString)
+                    .collect(Collectors.toList());
+        else return Collections.emptyList();
     }
 
 }
