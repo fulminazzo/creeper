@@ -60,6 +60,12 @@ abstract class InjectTestRunnerRequestTask : DefaultTask() {
     }
 
     internal companion object {
+        private val FILE_NAME = "${
+            ProjectInfo.NAME.lowercase().replaceFirstChar { it.uppercase() }
+        }Tester-${ProjectInfo.VERSION}.jar"
+
+        private val CONFIGURATIONS = listOf("runtimeClasspath", "integrationTestRuntimeClasspath")
+
         /**
          * The plugin request for installing the `test-runner` module in the `plugins` directory.
          */
@@ -67,22 +73,18 @@ abstract class InjectTestRunnerRequestTask : DefaultTask() {
             ProjectInfo.GROUP.substringAfterLast("."),
             ProjectInfo.NAME,
             ProjectInfo.VERSION,
-            "${
-                ProjectInfo.NAME.lowercase().replaceFirstChar { it.uppercase() }
-            }Tester-${ProjectInfo.VERSION}.jar"
+            FILE_NAME
         )
-
-        private val CONFIGURATIONS = listOf("runtimeClasspath", "integrationTestRuntimeClasspath")
 
         /**
          * Updates the [PLUGIN_REQUEST] for tests.
          */
         internal fun testMode() {
             val testRunnerJar = File("").absoluteFile.toPath().parent
-                .resolve("tester")
+                .resolve("test-runner")
                 .resolve("build")
                 .resolve("libs")
-                .resolve("${ProjectInfo.NAME}Tester-${ProjectInfo.VERSION}.jar")
+                .resolve(FILE_NAME)
             PLUGIN_REQUEST = LocalPluginRequest(testRunnerJar, true)
         }
 
