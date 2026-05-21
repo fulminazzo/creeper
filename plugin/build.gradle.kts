@@ -18,9 +18,6 @@ java {
 dependencies {
     implementation(libs.bundles.jackson)
 
-    implementation(project.projects.serverRunner)
-    implementation(project.projects.tester)
-
     testImplementation("org.jetbrains.kotlin:kotlin-test")
     testImplementation("org.junit.jupiter:junit-jupiter-params")
 
