@@ -12,6 +12,7 @@ jetbrains = "26.1.0"
 slf4j = "2.0.17"
 
 # DATA FORMAT
+yaml = "2.6"
 gson = "2.14.0"
 
 # TEST ENGINES
@@ -50,6 +51,7 @@ slf4j-simple = { module = "org.slf4j:slf4j-simple", version.ref = "slf4j" }
 slf4j-jdk = { module = "org.slf4j:slf4j-jdk14", version.ref = "slf4j" }
 
 # DATA FORMAT
+yaml = { module = "org.yaml:snakeyaml", version.ref = "yaml" }
 gson = { module = "com.google.code.gson:gson", version.ref = "gson" }
 
 # TEST ENGINES
