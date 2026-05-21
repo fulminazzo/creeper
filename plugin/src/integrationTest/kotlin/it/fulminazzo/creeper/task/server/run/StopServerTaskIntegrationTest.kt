@@ -10,7 +10,6 @@ import kotlin.test.Ignore
 import kotlin.test.Test
 import kotlin.test.assertFalse
 
-@Ignore //TODO: fix
 class StopServerTaskIntegrationTest : TaskIntegrationTestHelper() {
 
     @Test

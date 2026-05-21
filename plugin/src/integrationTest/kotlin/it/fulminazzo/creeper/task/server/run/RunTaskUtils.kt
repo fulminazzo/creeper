@@ -2,6 +2,7 @@ package it.fulminazzo.creeper.task.server.run
 
 import it.fulminazzo.creeper.ProjectInfo
 import it.fulminazzo.creeper.extension.spec.MinecraftServerSpec
+import it.fulminazzo.creeper.task.server.InstallServerRunnerTask
 import java.io.File
 
 object RunTaskUtils {
@@ -11,7 +12,7 @@ object RunTaskUtils {
         taskWorkingDir: File,
         specification: MinecraftServerSpec
     ) {
-        File("build/resources/main/${ProjectInfo.NAME}/server-runner.jar").copyTo(
+        InstallServerRunnerTask.FILE_PATH.toFile().copyTo(
             File(taskWorkingDir, "server-runner.jar"),
             overwrite = true
         )

@@ -3,6 +3,7 @@ package it.fulminazzo.creeper.task.server.run
 import com.fasterxml.jackson.module.kotlin.readValue
 import it.fulminazzo.creeper.CreeperPlugin
 import it.fulminazzo.creeper.ProjectInfo
+import it.fulminazzo.creeper.task.server.InstallServerRunnerTask
 import org.gradle.testkit.runner.GradleRunner
 import org.junit.jupiter.api.BeforeEach
 import java.io.File
@@ -15,7 +16,6 @@ import kotlin.test.assertFalse
 import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
 
-@Ignore //TODO: fix
 class RunServerTaskRegistrarFunctionalTest {
     private val projectDir = File("build/resources/functionalTest/task/server/run/server")
 
@@ -37,7 +37,7 @@ class RunServerTaskRegistrarFunctionalTest {
         val server = RESOURCE_BUILD_FILE.parent.resolve("paper-1.21").toFile()
         server.copyRecursively(projectDir.resolve("paper-1.21"), overwrite = true)
 
-        val serverRunner = File("build/resources/main/${ProjectInfo.NAME}/server-runner.jar")
+        val serverRunner = InstallServerRunnerTask.FILE_PATH.toFile()
         serverRunner.copyTo(projectDir.resolve("server-runner.jar"), overwrite = true)
     }
 

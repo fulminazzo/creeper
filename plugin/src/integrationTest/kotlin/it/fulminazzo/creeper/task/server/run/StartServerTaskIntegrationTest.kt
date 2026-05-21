@@ -6,6 +6,7 @@ import it.fulminazzo.creeper.ProjectInfo
 import it.fulminazzo.creeper.ServerType
 import it.fulminazzo.creeper.extension.spec.MinecraftServerSpec
 import it.fulminazzo.creeper.task.TaskIntegrationTestHelper
+import it.fulminazzo.creeper.task.server.InstallServerRunnerTask
 import java.io.File
 import java.net.Socket
 import kotlin.test.Ignore
@@ -14,7 +15,6 @@ import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
 
-@Ignore //TODO: fix
 class StartServerTaskIntegrationTest : TaskIntegrationTestHelper() {
 
     @Test

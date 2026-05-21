@@ -20,7 +20,7 @@ val serverSpec = MinecraftServerSpec(
     ),
     setOf<String>(),
     setOf<String>(),
-    listOf<PluginRequest>()
+    mutableListOf<PluginRequest>()
 )
 
 RunServerTaskRegistrar.register(
