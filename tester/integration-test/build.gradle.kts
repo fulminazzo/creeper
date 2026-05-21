@@ -1,8 +1,8 @@
 plugins {
     `java-library`
-//    groovy //TODO: missing implementation dependencies
-//    alias(libs.plugins.kotlin) //TODO: missing implementation dependencies, weird Kotest exception
-//    scala //TODO: missing implementation dependencies
+    groovy
+    alias(libs.plugins.kotlin)
+    scala
 }
 
 val integrationTestImplementation by configurations.getting {}
