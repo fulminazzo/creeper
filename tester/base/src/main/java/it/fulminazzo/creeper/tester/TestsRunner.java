@@ -37,7 +37,7 @@ public final class TestsRunner {
     /**
      * The Test results filename.
      */
-    static final @NotNull String TEST_RESULTS_FILENAME = "test-results.json";
+    public static final @NotNull String TEST_RESULTS_FILENAME = "test-results.json";
 
     private static final @NotNull Gson GSON = new Gson();
 

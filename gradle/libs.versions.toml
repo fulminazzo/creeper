@@ -1,21 +1,46 @@
 [versions]
 # PLUGINS
-kotlin-jvm = "2.3.0"
-buildconfig = "3.1.0"
+kotlin = "2.3.0"
+shadow = "9.4.1"
+buildconfig = "6.0.9"
 
 # ANNOTATIONS
 lombok = "1.18.46"
 jetbrains = "26.1.0"
 
+# LOGGING
+slf4j = "2.0.17"
+
 # DATA FORMAT
 jackson = "2.21.3"
+yaml = "2.6"
+gson = "2.14.0"
 
+# TEST ENGINES
+testng-engine = "1.1.0"
+kotest-engine = "5.9.1"
+scalatest-engine = "3.2.19.1"
+
+# PROJECT
 junit-launcher = "1.14.4"
 
-# TESTING
+# MINECRAFT
+spigot = "1.16.5-R0.1-SNAPSHOT"
+
+mockbukkit = "1.5.2"
+
+# TESTS
+junit = "5.14.4"
+mockito = "5.23.0"
 mockk = "1.14.9"
 
+# TEST FRAMEWORKS
+testng = "7.5.1"
 spock = "2.4-groovy-4.0"
+kotlin-test = "2.3.21"
+kotest = "5.9.1"
+scalatest = "3.2.20"
+munit = "1.3.0"
 
 [libraries]
 kotlin-jvm = { module = "org.jetbrains.kotlin:kotlin-gradle-plugin", version.ref = "kotlin-jvm" }
@@ -24,21 +49,73 @@ kotlin-jvm = { module = "org.jetbrains.kotlin:kotlin-gradle-plugin", version.ref
 lombok = { module = "org.projectlombok:lombok", version.ref = "lombok" }
 jetbrains = { module = "org.jetbrains:annotations", version.ref = "jetbrains" }
 
+# LOGGING
+slf4j = { module = "org.slf4j:slf4j-api", version.ref = "slf4j" }
+slf4j-simple = { module = "org.slf4j:slf4j-simple", version.ref = "slf4j" }
+slf4j-jdk = { module = "org.slf4j:slf4j-jdk14", version.ref = "slf4j" }
+
 # DATA FORMAT
-json = { module = "com.fasterxml.jackson.core:jackson-databind", version.ref = "jackson" }
-yaml = { module = "com.fasterxml.jackson.dataformat:jackson-dataformat-yaml", version.ref = "jackson" }
-properties = { module = "com.fasterxml.jackson.dataformat:jackson-dataformat-properties", version.ref = "jackson" }
+yaml = { module = "org.yaml:snakeyaml", version.ref = "yaml" }
+gson = { module = "com.google.code.gson:gson", version.ref = "gson" }
+jackson-json = { module = "com.fasterxml.jackson.core:jackson-databind", version.ref = "jackson" }
+jackson-yaml = { module = "com.fasterxml.jackson.dataformat:jackson-dataformat-yaml", version.ref = "jackson" }
+jackson-properties = { module = "com.fasterxml.jackson.dataformat:jackson-dataformat-properties", version.ref = "jackson" }
 jackson-kotlin = { module = "com.fasterxml.jackson.module:jackson-module-kotlin", version.ref = "jackson" }
 
+# TEST ENGINES
+testng-engine = { module = "org.junit.support:testng-engine", version.ref = "testng-engine" }
+kotest-engine = { module = "io.kotest:kotest-runner-junit5", version.ref = "kotest-engine" }
+scalatest-engine = { module = "org.scalatestplus:junit-5-10_3", version.ref = "scalatest-engine" }
+
+# PROJECT
 junit-launcher = { module = "org.junit.platform:junit-platform-launcher", version.ref = "junit-launcher" }
 
-# TESTING
+# MINECRAFT
+spigot = { module = "org.spigotmc:spigot-api", version.ref = "spigot" }
+
+mockbukkit = { module = "com.github.seeseemelk:MockBukkit-v1.16", version.ref = "mockbukkit" }
+
+# TESTS
+junit = { module = "org.junit.jupiter:junit-jupiter-api", version.ref = "junit" }
+junit-params = { module = "org.junit.jupiter:junit-jupiter-params", version.ref = "junit" }
+junit-vintage-engine = { module = "org.junit.vintage:junit-vintage-engine", version.ref = "junit" }
+mockito = { module = "org.mockito:mockito-core", version.ref = "mockito" }
 mockk = { module = "io.mockk:mockk", version.ref = "mockk" }
 
+# TEST FRAMEWORKS
+testng = { module = "org.testng:testng", version.ref = "testng" }
 spock = { module = "org.spockframework:spock-core", version.ref = "spock" }
-
-[bundles]
-jackson = ["json", "yaml", "properties", "jackson-kotlin"]
+kotlin-test = { module = "org.jetbrains.kotlin:kotlin-test", version.ref = "kotlin-test" }
+kotest = { module = "io.kotest:kotest-assertions-core", version.ref = "kotest" }
+scalatest = { module = "org.scalatest:scalatest_3", version.ref = "scalatest" }
+munit = { module = "org.scalameta:munit_3", version.ref = "munit" }
 
 [plugins]
+kotlin = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
+shadow = { id = "com.gradleup.shadow", version.ref = "shadow" }
 buildconfig = { id = "com.github.gmazzo.buildconfig", version.ref = "buildconfig" }
+
+[bundles]
+# DATA FORMAT
+jackson = ["jackson-json", "jackson-yaml", "jackson-properties", "jackson-kotlin"]
+
+# TEST ENGINES
+test-engines = [
+    "testng-engine", # Java
+    "kotest-engine", # Kotlin
+    "scalatest-engine", # Scala
+    "junit-vintage-engine" # Scala MUnit
+]
+
+# TESTS
+junit = ["junit", "junit-params"]
+
+# TEST FRAMEWORKS
+test-frameworks = [
+    "testng", # Java
+    "spock", # Groovy
+    "kotlin-test", # Kotlin
+    "kotest", # Kotlin
+    "scalatest", # Scala
+    "munit" # Scala
+]

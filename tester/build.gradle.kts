@@ -4,32 +4,22 @@ plugins {
     alias(libs.plugins.shadow)
 }
 
-// VARIABLES START
-val compileJavaVersion = JavaLanguageVersion.of(8)
-val gradleJavaVersion = JavaLanguageVersion.of(8)
-val implementationDependencies = listOf<String>()
-val parentGroup = "it.fulminazzo.creeper"
-val parentVersion = "0.0.1-SNAPSHOT"
-val projectName = "Creeper${project.name.replaceFirstChar { if (it.isLowerCase()) it.titlecase() else it.toString() }}"
-// VARIABLES END
-
-val compileJavaVersionInt = compileJavaVersion.asInt()
-
-extra["implementationDependencies"] = implementationDependencies
+val projectName = "${
+    rootProject.name.replaceFirstChar { if (it.isLowerCase()) it.titlecase() else it.toString() } 
+}${
+    project.name.replaceFirstChar { if (it.isLowerCase()) it.titlecase() else it.toString() }
+}"
 
 allprojects {
     val libs = rootProject.libs
-    val baseProject = project(":base")
+    val baseProject = project(":tester:base")
 
     apply { plugin("java") }
     apply { plugin(libs.plugins.shadow.get().pluginId) }
 
-    group = parentGroup
-    version = parentVersion
-
     java {
         toolchain {
-            languageVersion.set(gradleJavaVersion)
+            languageVersion = JavaLanguageVersion.of(25)
         }
     }
 
@@ -88,15 +78,8 @@ allprojects {
         integrationTestCompileOnly(libs.jetbrains)
     }
 
-    tasks.compileJava {
-        // compile to the required Java version
-        javaCompiler = javaToolchains.compilerFor { languageVersion = compileJavaVersion }
-        compileJavaVersionInt.takeIf { it > 8 }?.let { options.release = it }
-    }
-
     tasks.test {
         useJUnitPlatform()
-        compileJavaVersionInt.takeIf { it > 21 }?.let { jvmArgs = listOf("-XX:+EnableDynamicAgentLoading") }
     }
 
     tasks.jar {
@@ -107,30 +90,6 @@ allprojects {
     tasks.shadowJar {
         archiveClassifier = ""
         archiveBaseName = if (project.name == baseProject.name) project.name else projectName
-
-        val basePackage = "${rootProject.group}.${rootProject.name}.libs"
-        mapOf(
-            "kotlin" to "kotlin",
-            "org.junit" to "junit",
-            "org.opentest4j" to "opentest4j",
-            "com.beust" to "beust",
-            "org.testng" to "testng",
-            "io.kotest" to "kotest",
-            "io.github.classgraph" to "classgraph",
-            "nonapi.io.github.classgraph" to "nonapi.classgraph",
-            "com.github.difflib" to "difflib",
-            "com.github.ajalt" to "ajalt",
-            "net.bytebuddy" to "bytebuddy",
-            "_COROUTINE" to "_COROUTINE",
-//            "junit" to "vintage.junit", // not relocating for issues
-            "org.hamcrest" to "hamcrest",
-            "scala" to "scala",
-            "org.scalactic" to "scalactic",
-            "org.scalatest" to "scalatest",
-            "org.scalatestplus" to "scalatestplus"
-        ).forEach { (from, to) ->
-//            relocate(from, "$basePackage.$to")
-        }
 
         dependencies {
             val jetbrainsAnnotations = libs.jetbrains.get().module
@@ -160,26 +119,39 @@ allprojects {
     }
 
     tasks.processResources {
-        val rootProjectName = rootProject.name.lowercase()
-        val commandName = projectName.lowercase().replace(rootProjectName, "test")
-        filesMatching(listOf("*.yml", "*.creeper")) {
+        val module = project(":tester")
+        val group = module.group
+        val rootProjectName = rootProject.name
+        val projectName = module.name
+        val version = module.version
+        val commandName = "run${rootProjectName}tests"
+        val pluginName = "${
+            rootProjectName.replaceFirstChar { if (it.isLowerCase()) it.titlecase() else it.toString() }
+        }${
+            projectName.replaceFirstChar { if (it.isLowerCase()) it.titlecase() else it.toString() }
+        }"
+        filesMatching(listOf("*.yml")) {
             expand(
                 mapOf(
-                    "group" to rootProject.group,
-                    "version" to rootProject.version,
-                    "name" to projectName,
-                    "name_lower" to projectName.lowercase(),
+                    "group" to "${group}.${rootProjectName}",
+                    "version" to version,
+                    "name" to pluginName,
+                    "name_lower" to pluginName.lowercase(),
                     "command_name" to commandName,
                     "command_description" to "Runs all the tests contained in the plugin. " +
                             "WARNING: to ensure maximum compatibility, these tests will be run synchronously " +
                             "when possible. Be ready to lag spikes and other undesirable effects.",
                     "command_usage" to "/$commandName",
-                    "command_aliases" to listOf(rootProjectName, "${rootProjectName}test")
+                    "command_aliases" to emptyList<String>()
                 )
             )
         }
     }
 
+}
+
+dependencies {
+    subprojects.filter { !it.name.contains("test") }.forEach { implementation(it) }
 }
 
 tasks.check {

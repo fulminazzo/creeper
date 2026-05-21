@@ -1,5 +1,7 @@
-package it.fulminazzo.creeper.tester;
+package it.fulminazzo.creeper.tester.bukkit;
 
+import it.fulminazzo.creeper.tester.TestCommand;
+import it.fulminazzo.creeper.tester.TesterApplication;
 import lombok.NoArgsConstructor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
@@ -62,7 +64,7 @@ public final class CreeperTester extends JavaPlugin implements TesterApplication
                              final @NotNull String label,
                              final @NotNull String[] args) {
         if (command.getName().equalsIgnoreCase(getCommandName())) {
-            new TestCommand(this, sender::sendMessage).execute(String.join(" ", args));
+            new TestCommand(this, sender::sendMessage).execute();
             return true;
         } else return super.onCommand(sender, command, label, args);
     }
@@ -77,7 +79,7 @@ public final class CreeperTester extends JavaPlugin implements TesterApplication
     }
 
     private @NotNull String getCommandName() {
-        return getName().toLowerCase().replace("tester", "test");
+        return "runcreepertests";
     }
 
     @Override

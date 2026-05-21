@@ -4,13 +4,13 @@ plugins {
     id("creeper.test-configuration")
 }
 
-group = "it.fulminazzo"
-version = "0.0.1-SNAPSHOT"
-
 allprojects {
     apply { plugin("jacoco") }
 
     apply { plugin("creeper.test-configuration") }
+
+    group = "it.fulminazzo"
+    version = "0.0.1-SNAPSHOT"
 
     testConfiguration {
         testType("functional")
