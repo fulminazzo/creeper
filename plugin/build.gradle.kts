@@ -1,3 +1,4 @@
+import com.github.gmazzo.buildconfig.BuildConfigExtension
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 plugins {
@@ -53,7 +54,7 @@ kotlin {
     }
 }
 
-configure<com.github.gmazzo.gradle.plugins.BuildConfigExtension> {
+configure<BuildConfigExtension> {
     val group = rootProject.group
     val name = rootProject.name
 
