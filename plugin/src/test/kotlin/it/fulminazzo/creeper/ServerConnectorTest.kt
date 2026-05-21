@@ -34,6 +34,7 @@ class ServerConnectorTest {
                 client.inputStream.bufferedReader().forEachLine { line ->
                     if (line == "Hello") {
                         output.write("World")
+                        output.newLine()
                         output.flush()
                     }
                     clientLines.add(line)
