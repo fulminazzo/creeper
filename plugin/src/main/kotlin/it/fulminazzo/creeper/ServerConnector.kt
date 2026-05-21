@@ -1,6 +1,7 @@
 package it.fulminazzo.creeper
 
 import it.fulminazzo.creeper.util.VerifyUtils
+import java.io.BufferedWriter
 import java.io.IOException
 import java.net.Socket
 import java.util.concurrent.CompletableFuture
@@ -22,6 +23,7 @@ class ServerConnector(
 
     private var socket: Socket? = null
     private var lineReader: CompletableFuture<Void>? = null
+    private var output: BufferedWriter? = null
 
     /**
      * Checks if the connector is connected.
@@ -59,7 +61,7 @@ class ServerConnector(
      */
     fun send(data: String) {
         checkConnected()
-        socket?.outputStream?.bufferedWriter()?.let { writer ->
+        output?.let { writer ->
             writer.write(data)
             writer.newLine()
             writer.flush()
@@ -73,6 +75,7 @@ class ServerConnector(
     fun connect() {
         check(!connected) { "Server connector is already connected to the server" }
         try {
+            lines.clear()
             socket = Socket(host, port)
             lineReader = CompletableFuture.runAsync {
                 try {
@@ -83,11 +86,10 @@ class ServerConnector(
                     // ignore errors
                 }
             }
+            output = socket?.outputStream?.bufferedWriter()
         } catch (_: IOException) {
-            // could not connect to the server, resetting fields
-            lineReader?.cancel(true)
-            lineReader = null
-            socket = null
+            // could not connect to the server, resetting connector
+            closeStreams()
         }
     }
 
@@ -96,12 +98,23 @@ class ServerConnector(
      */
     fun disconnect() {
         checkConnected()
+        closeStreams()
+    }
+
+    private fun closeStreams() {
         lineReader?.cancel(true)
+        try {
+            output?.close()
+        } catch (_: IOException) {
+            // ignore errors
+        }
         try {
             socket?.close()
         } catch (_: IOException) {
             // ignore errors
         }
+        lineReader = null
+        output = null
         socket = null
     }
 
