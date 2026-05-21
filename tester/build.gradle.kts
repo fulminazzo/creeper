@@ -126,7 +126,7 @@ allprojects {
 }
 
 dependencies {
-    subprojects.filter { !it.name.contains("test") }.forEach { implementation(it) }
+    subprojects.filter { !it.name.contains("test") }.forEach { api(it) }
 }
 
 tasks.check {

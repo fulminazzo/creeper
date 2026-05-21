@@ -1,5 +1,6 @@
 import com.github.gmazzo.buildconfig.BuildConfigExtension
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+import org.jetbrains.kotlin.gradle.tasks.KotlinJvmCompile
 
 plugins {
     `java-gradle-plugin`
@@ -39,7 +40,7 @@ tasks.named<JavaCompile>("compileJava") {
     targetCompatibility = "11"
 }
 
-tasks.named<org.jetbrains.kotlin.gradle.tasks.KotlinJvmCompile>("compileKotlin") {
+tasks.named<KotlinJvmCompile>("compileKotlin") {
     compilerOptions {
         jvmTarget = JvmTarget.JVM_11
     }
