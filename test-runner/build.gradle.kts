@@ -98,7 +98,7 @@ allprojects {
         }${
             projectName.replaceFirstChar { if (it.isLowerCase()) it.titlecase() else it.toString() }
         }"
-        filesMatching(listOf("*.yml")) {
+        filesMatching("*.yml") {
             expand(
                 mapOf(
                     "group" to "${group}.${rootProjectName}",
@@ -110,10 +110,14 @@ allprojects {
                             "WARNING: to ensure maximum compatibility, these tests will be run synchronously " +
                             "when possible. Be ready to lag spikes and other undesirable effects.",
                     "command_usage" to "/$commandName",
-                    "command_aliases" to emptyList<String>()
+                    "command_aliases" to listOf<String>()
                 )
             )
         }
+    }
+
+    tasks.withType<Test> {
+        jvmArgs("--add-opens=java.base/sun.misc=ALL-UNNAMED")
     }
 
 }
