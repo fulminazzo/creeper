@@ -35,5 +35,5 @@ tasks.named<AwaitBootCompleteTask>("awaitBootCompletePaper1_21") {
 }
 
 tasks.named<StopServerTask>("stopServerPaper1_21") {
-    awaitTimeout = 60L
+    awaitTimeout = 10L
 }
