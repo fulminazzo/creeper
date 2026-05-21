@@ -60,51 +60,53 @@ class CreeperPlugin : Plugin<Project> {
         val serversDir = workDir.resolve("servers")
 
         // TASKS
-        serversConfigExtension.specifications.forEach { spec ->
-            val serverDir = serversDir.resolve(spec.id)
+        project.afterEvaluate {
+            serversConfigExtension.specifications.forEach { spec ->
+                val serverDir = serversDir.resolve(spec.id)
 
-            val (executable, install) = InstallServerTaskRegistrar.register(
-                project,
-                spec,
-                serversDir
-            )
+                val (executable, install) = InstallServerTaskRegistrar.register(
+                    project,
+                    spec,
+                    serversDir
+                )
 
-            val injectTestRunnerRequestTask = registerTask(
-                project,
-                "inject${spec.id}TestRunner",
-                null,
-                "Injects the test runner into the server installation process",
-                InjectTestRunnerRequestTask::class.java
-            ) { task ->
-                task.specification.set(spec)
-                task.pluginConfigurationFile.set {
-                    serverDir.resolve("plugins")
-                        .resolve("${ProjectInfo.NAME}Tester")
-                        .resolve("config.yml")
-                        .toFile()
+                val injectTestRunnerRequestTask = registerTask(
+                    project,
+                    "inject${spec.id}TestRunner",
+                    null,
+                    "Injects the test runner into the server installation process",
+                    InjectTestRunnerRequestTask::class.java
+                ) { task ->
+                    task.specification.set(spec)
+                    task.pluginConfigurationFile.set {
+                        serverDir.resolve("plugins")
+                            .resolve("${ProjectInfo.NAME}Tester")
+                            .resolve("config.yml")
+                            .toFile()
+                    }
                 }
-            }
-            executable.dependsOn(injectTestRunnerRequestTask)
+                executable.dependsOn(injectTestRunnerRequestTask)
 
-            val serverRunner = serverDir.resolve("server-runner.jar")
-            val installServerRunnerTask = registerTask(
-                project,
-                "install${spec.id}ServerRunner",
-                null,
-                "Installs the server runner in the server directory",
-                InstallServerRunnerTask::class.java
-            ) { task ->
-                task.serverRunner.set(serverRunner.toFile())
-            }
+                val serverRunner = serverDir.resolve("server-runner.jar")
+                val installServerRunnerTask = registerTask(
+                    project,
+                    "install${spec.id}ServerRunner",
+                    null,
+                    "Installs the server runner in the server directory",
+                    InstallServerRunnerTask::class.java
+                ) { task ->
+                    task.serverRunner.set(serverRunner.toFile())
+                }
 
-            val (check, run) = RunServerTaskRegistrar.register(
-                project,
-                spec,
-                serverRunner,
-                serversDir
-            )
-            check.dependsOn(install)
-            check.dependsOn(installServerRunnerTask)
+                val (check, run) = RunServerTaskRegistrar.register(
+                    project,
+                    spec,
+                    serverRunner,
+                    serversDir
+                )
+                check.dependsOn(install)
+                check.dependsOn(installServerRunnerTask)
+            }
         }
     }
 
