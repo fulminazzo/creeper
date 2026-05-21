@@ -97,11 +97,10 @@ allprojects {
     }
 
     tasks.processResources {
-        val module = project(":tester")
-        val group = module.group
+        val group = rootProject.group
         val rootProjectName = rootProject.name
-        val projectName = module.name
-        val version = module.version
+        val projectName = "tester"
+        val version = rootProject.version
         val commandName = "run${rootProjectName}tests"
         val pluginName = "${
             rootProjectName.replaceFirstChar { if (it.isLowerCase()) it.titlecase() else it.toString() }
