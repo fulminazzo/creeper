@@ -39,6 +39,8 @@ abstract class InjectTestRunnerDependencyTask : DefaultTask() {
 
         logger.info("Writing plugin configuration file")
         val configurationFile = pluginConfigurationFile.get().asFile
+        configurationFile.parentFile.mkdirs()
+        configurationFile.createNewFile()
 
         val buildDir = project.layout.buildDirectory.get().asFile
         val dependencies = CONFIGURATIONS
