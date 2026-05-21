@@ -2,7 +2,7 @@
 # PLUGINS
 kotlin = "2.3.21"
 # This version of shadow seems to support all versions of Java from 1.8 and Gradle from 8
-shadow = "8.3.10"
+shadow = "9.4.1"
 
 # ANNOTATIONS
 lombok = "1.18.46"
@@ -30,7 +30,7 @@ mockbukkit = "1.5.2"
 
 # TESTS
 junit = "5.14.4"
-mockito = "4.11.0"
+mockito = "5.23.0"
 
 # TEST FRAMEWORKS
 testng = "7.5.1"
@@ -71,7 +71,7 @@ mockbukkit = { module = "com.github.seeseemelk:MockBukkit-v1.16", version.ref = 
 junit = { module = "org.junit.jupiter:junit-jupiter-api", version.ref = "junit" }
 junit-params = { module = "org.junit.jupiter:junit-jupiter-params", version.ref = "junit" }
 junit-vintage-engine = { module = "org.junit.vintage:junit-vintage-engine", version.ref = "junit" }
-mockito = { module = "org.mockito:mockito-inline", version.ref = "mockito" }
+mockito = { module = "org.mockito:mockito-core", version.ref = "mockito" }
 
 # TEST FRAMEWORKS
 testng = { module = "org.testng:testng", version.ref = "testng" }
