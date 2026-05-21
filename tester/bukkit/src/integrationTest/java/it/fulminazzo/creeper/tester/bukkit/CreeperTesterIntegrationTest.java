@@ -12,11 +12,14 @@ import org.junit.jupiter.api.Test;
 import org.mockito.MockedConstruction;
 import org.mockito.Mockito;
 import org.slf4j.jul.JDK14LoggerAdapter;
+import org.yaml.snakeyaml.Yaml;
 
 import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
-import java.nio.file.Files;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.mock;
@@ -29,9 +32,20 @@ class CreeperTesterIntegrationTest {
     private CreeperTester plugin;
 
     @BeforeEach
-    void setup() {
+    void setup() throws IOException {
         MockBukkit.mock();
         plugin = MockBukkit.load(CreeperTester.class);
+
+        File configFile = plugin.configuration();
+        configFile.getParentFile().mkdirs();
+        configFile.delete();
+        configFile.createNewFile();
+        try (FileWriter writer = new FileWriter(configFile)) {
+            Yaml yaml = new Yaml();
+            Map<String, Object> data = new HashMap<>();
+            data.put("build-directory-path", TEST_BUILD_DIRECTORY);
+            yaml.dump(data, writer);
+        }
     }
 
     @AfterEach
@@ -59,15 +73,14 @@ class CreeperTesterIntegrationTest {
     }
 
     @Test
-    void testThatOnCommandWorks() throws IOException {
+    void testThatOnCommandWorks() {
         File directory = plugin.dataDirectory();
-        Files.deleteIfExists(directory.toPath());
 
         CommandSender sender = mock(CommandSender.class);
         Command command = mock(Command.class);
         when(command.getName()).thenReturn("creepertest");
 
-        assertTrue(plugin.onCommand(sender, command, command.getName(), new String[]{TEST_BUILD_DIRECTORY}));
+        assertTrue(plugin.onCommand(sender, command, command.getName(), new String[0]));
 
         File resultsFile = new File(directory, TestsRunner.TEST_RESULTS_FILENAME);
         assertTrue(resultsFile.exists(), "Results file should have been created");
@@ -79,19 +92,16 @@ class CreeperTesterIntegrationTest {
         Command command = mock(Command.class);
         when(command.getName()).thenReturn("somethingelse");
 
-        assertFalse(plugin.onCommand(sender, command, command.getName(), new String[]{TEST_BUILD_DIRECTORY}));
+        assertFalse(plugin.onCommand(sender, command, command.getName(), new String[0]));
     }
 
     @Test
-    void testThatOnTabCompleteWorks() throws IOException {
-        File directory = plugin.dataDirectory();
-        Files.deleteIfExists(directory.toPath());
-
+    void testThatOnTabCompleteWorks() {
         CommandSender sender = mock(CommandSender.class);
         Command command = mock(Command.class);
         when(command.getName()).thenReturn("creepertest");
 
-        List<String> completions = plugin.onTabComplete(sender, command, command.getName(), new String[]{TEST_BUILD_DIRECTORY});
+        List<String> completions = plugin.onTabComplete(sender, command, command.getName(), new String[0]);
         assertNotNull(completions, "Tab completions should not be null");
         assertTrue(completions.isEmpty(), "Tab completions should be empty");
     }
@@ -102,7 +112,7 @@ class CreeperTesterIntegrationTest {
         Command command = mock(Command.class);
         when(command.getName()).thenReturn("somethingelse");
 
-        List<String> completions = plugin.onTabComplete(sender, command, command.getName(), new String[]{TEST_BUILD_DIRECTORY});
+        List<String> completions = plugin.onTabComplete(sender, command, command.getName(), new String[0]);
         assertNull(completions, "Tab completions should be null");
     }
 
