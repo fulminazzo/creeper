@@ -1,6 +1,9 @@
 package it.fulminazzo.creeper.task.server.install
 
+import com.fasterxml.jackson.module.kotlin.readValue
 import it.fulminazzo.creeper.CreeperPlugin
+import it.fulminazzo.creeper.extension.spec.ServerSpec
+import it.fulminazzo.creeper.provider.ConfigProvider
 import it.fulminazzo.creeper.service.provider.ConfigProviderService
 import org.gradle.api.DefaultTask
 import org.gradle.api.file.RegularFileProperty
@@ -10,16 +13,17 @@ import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.Internal
 import org.gradle.api.tasks.OutputFile
 import org.gradle.api.tasks.TaskAction
-import com.fasterxml.jackson.module.kotlin.readValue
-import it.fulminazzo.creeper.extension.spec.ServerSpec
 import kotlin.io.path.extension
 import kotlin.io.path.fileSize
 import kotlin.io.path.readText
 
 /**
- * Task to install a server configuration file.
+ * Task to fetch and modify a configuration file for the server.
+ * This process is necessary to provide support for custom ports or other settings from the specification.
  *
  * @constructor Creates a new Install config task
+ * @see ConfigProvider
+ * @see ConfigAction
  */
 abstract class InstallConfigTask : DefaultTask() {
 

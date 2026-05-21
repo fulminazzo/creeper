@@ -13,9 +13,11 @@ import org.gradle.api.tasks.TaskAction
 import kotlin.io.path.name
 
 /**
- * Task to write a general server file.
+ * Task to generate and modify a configuration file for the server.
+ * This process is necessary to provide support for whitelist or other settings from the specification.
  *
  * @constructor Creates a new Write file task
+ * @see FileAction
  */
 abstract class WriteFileTask : DefaultTask() {
 

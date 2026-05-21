@@ -1,5 +1,6 @@
 package it.fulminazzo.creeper.task.server.install
 
+import it.fulminazzo.creeper.provider.plugin.PluginProvider
 import it.fulminazzo.creeper.provider.plugin.PluginRequest
 import it.fulminazzo.creeper.service.provider.plugin.PluginProviderService
 import org.gradle.api.DefaultTask
@@ -11,9 +12,12 @@ import org.gradle.api.tasks.OutputFile
 import org.gradle.api.tasks.TaskAction
 
 /**
- * Task to fetch the metadata of one plugin.
+ * Fetches the metadata of a plugin request (for example the name).
+ * The actual installation process is performed by the [InstallPluginTask].
  *
  * @constructor Creates a new Fetch plugin metadata task
+ * @see PluginProvider
+ * @see PluginRequest
  */
 abstract class FetchPluginMetadataTask : DefaultTask() {
 

@@ -1,5 +1,6 @@
 package it.fulminazzo.creeper.task.server.install
 
+import it.fulminazzo.creeper.provider.plugin.PluginProvider
 import it.fulminazzo.creeper.provider.plugin.PluginRequest
 import it.fulminazzo.creeper.service.provider.plugin.PluginProviderService
 import org.gradle.api.DefaultTask
@@ -9,13 +10,15 @@ import org.gradle.api.services.ServiceReference
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.InputFile
 import org.gradle.api.tasks.Internal
-import org.gradle.api.tasks.OutputFile
 import org.gradle.api.tasks.TaskAction
 
 /**
- * Task to install one plugin in a server.
+ * Task for performing the installation process of a [PluginRequest].
+ * The actual process is defined by the different implementations.
  *
  * @constructor Creates a new Install plugin task
+ * @see PluginProvider
+ * @see PluginRequest
  */
 abstract class InstallPluginTask : DefaultTask() {
 

@@ -1,6 +1,7 @@
 package it.fulminazzo.creeper.task.server.install
 
 import it.fulminazzo.creeper.extension.spec.ServerSpec
+import it.fulminazzo.creeper.provider.JarProvider
 import it.fulminazzo.creeper.service.provider.JarProviderService
 import org.gradle.api.DefaultTask
 import org.gradle.api.file.RegularFileProperty
@@ -11,9 +12,10 @@ import org.gradle.api.tasks.OutputFile
 import org.gradle.api.tasks.TaskAction
 
 /**
- * Task to install a server executable.
+ * Task to fetch the necessary executable JAR for running a server.
  *
  * @constructor Creates a new Install executable task
+ * @see JarProvider
  */
 abstract class InstallExecutableTask : DefaultTask() {
 
