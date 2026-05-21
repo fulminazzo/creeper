@@ -60,9 +60,6 @@ allprojects {
         archiveClassifier = ""
         archiveBaseName = if (project.name == baseProject.name) project.name else projectName
 
-        val basePath = "${rootProject.group}.${rootProject.name}.tester.libs"
-        relocate("org.slf4j", "$basePath.slf4j")
-
         dependencies {
             val jetbrainsAnnotations = libs.jetbrains.get().module
             exclude(dependency(jetbrainsAnnotations.group + ":" + jetbrainsAnnotations.name))

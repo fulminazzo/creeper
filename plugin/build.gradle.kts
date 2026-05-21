@@ -72,12 +72,12 @@ val testerShadow by configurations.creating {
 
 afterEvaluate {
 
-    val integrationTestImplementation by configurations.getting {}
+    val integrationTestCompileOnly by configurations.getting {}
 
     dependencies {
         testerShadow(project(path = ":tester", configuration = "shadow"))
 
-        integrationTestImplementation(files(testerShadow))
+        integrationTestCompileOnly(files(testerShadow))
     }
 
 }
