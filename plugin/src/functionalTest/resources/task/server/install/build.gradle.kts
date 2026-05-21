@@ -33,7 +33,7 @@ val serverSpec = MinecraftServerSpec(
     ),
     setOf("Notch", "jeb_"),
     setOf("jeb_"),
-    listOf(
+    mutableListOf(
         ModrinthPluginRequest("teleporteffects", "3.0", "TeleportEffects-3.0.jar"),
         GitHubPluginRequest("fulminazzo", "YAGL", "5.2.2", "YAGL-plugin-5.2.2.jar"),
         HttpPluginRequest("https://github.com/fulminazzo/YAGL/releases/download/5.2.2/YAGL-5.2.2.jar"),

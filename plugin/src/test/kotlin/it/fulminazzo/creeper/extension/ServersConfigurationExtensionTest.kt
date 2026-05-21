@@ -50,7 +50,7 @@ class ServersConfigurationExtensionTest {
             ),
             setOf("Fulminazzo", "xca_mux"),
             setOf("xca_mux"),
-            listOf(
+            mutableListOf(
                 ModrinthPluginRequest("teleporteffects", "3.0", "TeleportEffects-3.0.jar"),
                 GitHubPluginRequest("fulminazzo", "YAGL", "5.2.2", "YAGL-5.2.2.jar"),
                 HttpPluginRequest("https://github.com/fulminazzo/YAGL/releases/download/5.2.2/YAGL-5.2.2.jar"),

@@ -29,7 +29,7 @@ class InstallServerTaskRegistrarTest : RegistrarTestHelper() {
         every { specification.id } returns SERVER_ID
         every { specification.type } returns ServerType.BUKKIT
         every { specification.version } returns SERVER_VERSION
-        every { specification.plugins } returns listOf(pluginRequest, pluginRequest)
+        every { specification.plugins } returns mutableListOf(pluginRequest, pluginRequest)
 
         InstallServerTaskRegistrar.register(project, specification, SERVER_DIRECTORY.parent)
 
