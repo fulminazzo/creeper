@@ -12,6 +12,8 @@ import it.fulminazzo.creeper.service.downloader.DownloaderService
 import it.fulminazzo.creeper.service.provider.ConfigProviderService
 import it.fulminazzo.creeper.service.provider.JarProviderService
 import it.fulminazzo.creeper.service.provider.plugin.PluginProviderService
+import it.fulminazzo.creeper.task.server.install.InjectTestRunnerTask
+import it.fulminazzo.creeper.task.server.install.InstallServerTaskRegistrar
 import org.gradle.api.Action
 import org.gradle.api.Plugin
 import org.gradle.api.Project
@@ -26,6 +28,7 @@ class CreeperPlugin : Plugin<Project> {
 
     override fun apply(project: Project) {
         val gradle = project.gradle
+
         // SERVICES
         val sharedServices = gradle.sharedServices
         val simpleDownloaderService = sharedServices
@@ -50,6 +53,38 @@ class CreeperPlugin : Plugin<Project> {
             ProjectInfo.NAME.lowercase(),
             ServersConfigurationExtension::class.java
         )
+
+        val workDir = project.layout.buildDirectory.get().asFile.resolve(ProjectInfo.NAME).toPath()
+        val serversDir = workDir.resolve("servers")
+
+        // TASKS
+        serversConfigExtension.specifications.forEach { spec ->
+            val serverDir = serversDir.resolve(spec.id)
+
+            val (executable, install) = InstallServerTaskRegistrar.register(
+                project,
+                spec,
+                serversDir
+            )
+
+            val injectTestRunnerTask = registerTask(
+                project,
+                "inject${spec.id}TestRunner",
+                null,
+                "Injects the test runner dependency into the server installation process",
+                InjectTestRunnerTask::class.java,
+                {
+                    it.specification.set(spec)
+                    it.pluginConfigurationFile.set {
+                        serverDir.resolve("plugins")
+                            .resolve("${ProjectInfo.NAME}Tester")
+                            .resolve("config.yml")
+                            .toFile()
+                    }
+                }
+            )
+            executable.dependsOn(injectTestRunnerTask)
+        }
     }
 
     companion object {
