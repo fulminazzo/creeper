@@ -52,6 +52,11 @@ allprojects {
         }
     }
 
+    tasks.named<JavaCompile>("compileJava") {
+        sourceCompatibility = "11"
+        targetCompatibility = "11"
+    }
+
     tasks.jar {
         archiveClassifier = "original"
         archiveBaseName = if (project.name == baseProject.name) project.name else projectName
