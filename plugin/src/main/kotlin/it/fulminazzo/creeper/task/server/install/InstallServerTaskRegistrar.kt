@@ -55,8 +55,9 @@ class InstallServerTaskRegistrar internal constructor(
      *
      * @param project the project to register the tasks for
      * @param directory the directory where the server will be installed (the server directory will reside in here)
+     * @return the `install[ServerSpec.id]Executable` and `install[ServerSpec.id]` tasks
      */
-    internal fun register(project: Project, directory: Path) {
+    internal fun register(project: Project, directory: Path): Pair<Task, Task> {
         this.project = project
         this.serverDirectory = directory.resolve(serverId)
         this.baseTask = CreeperPlugin.registerTask<Task>(
@@ -88,6 +89,8 @@ class InstallServerTaskRegistrar internal constructor(
             registerWriteOperators()
             if (specification.type.isForkOf(ServerType.BUKKIT)) registerInstallBukkitYml()
         }
+
+        return executableTask to baseTask
     }
 
     /**
@@ -319,6 +322,7 @@ class InstallServerTaskRegistrar internal constructor(
          * @param project the project to register the task in
          * @param specification the specification of the server to install
          * @param directory the directory where the server files are stored
+         * @return the `install[ServerSpec.id]Executable` and `install[ServerSpec.id]` tasks
          */
         fun register(project: Project, specification: ServerSpec<*, *>, directory: Path) =
             InstallServerTaskRegistrar(specification).register(project, directory)
