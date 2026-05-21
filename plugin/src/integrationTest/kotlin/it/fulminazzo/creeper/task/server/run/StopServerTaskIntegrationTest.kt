@@ -9,6 +9,7 @@ import java.io.File
 import kotlin.test.Ignore
 import kotlin.test.Test
 import kotlin.test.assertFalse
+import kotlin.test.assertNotNull
 
 class StopServerTaskIntegrationTest : TaskIntegrationTestHelper() {
 
@@ -54,7 +55,9 @@ class StopServerTaskIntegrationTest : TaskIntegrationTestHelper() {
         )
 
         task.run()
+        Thread.sleep(125L)
 
+        assertNotNull(process.exitValue(), "The server process should have exited")
         assertFalse(process.isAlive, "The server process should have been stopped")
     }
 
