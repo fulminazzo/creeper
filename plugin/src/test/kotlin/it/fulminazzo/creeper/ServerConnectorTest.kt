@@ -12,6 +12,7 @@ import java.io.IOException
 import java.net.ServerSocket
 import java.net.Socket
 import kotlin.test.assertEquals
+import kotlin.time.Duration.Companion.seconds
 
 class ServerConnectorTest {
     private lateinit var server: ServerSocket
@@ -29,7 +30,14 @@ class ServerConnectorTest {
         thread = Thread {
             client = server.accept()
             try {
-                client.inputStream.bufferedReader().forEachLine { clientLines.add(it) }
+                val output = client.outputStream.bufferedWriter()
+                client.inputStream.bufferedReader().forEachLine { line ->
+                    if (line == "Hello") {
+                        output.write("World")
+                        output.flush()
+                    }
+                    clientLines.add(line)
+                }
             } catch (_: IOException) {
                 // ignore
             }
@@ -61,6 +69,17 @@ class ServerConnectorTest {
         } catch (_: UninitializedPropertyAccessException) {
             // ignore
         }
+    }
+
+    @Test
+    fun `test that awaitInput is able to retrieve response from server`() {
+        connector.connect()
+        connector.send("Hello")
+        val response = connector.awaitInput(
+            """.*World.*""".toRegex(),
+            1.seconds
+        )
+        assertTrue(response, "Response should have been true")
     }
 
     @Test
