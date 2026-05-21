@@ -1,8 +1,11 @@
 package it.fulminazzo.creeper
 
+import it.fulminazzo.creeper.util.VerifyUtils
 import java.io.IOException
 import java.net.Socket
 import java.util.concurrent.CompletableFuture
+import kotlin.time.Duration
+import kotlin.time.Duration.Companion.seconds
 
 /**
  * Connector for interacting with the TCP server linked to a running Minecraft server.
@@ -19,6 +22,28 @@ class ServerConnector(
 
     private var socket: Socket? = null
     private var lineReader: CompletableFuture<Void>? = null
+
+    /**
+     * Awaits that the requested input appears once in the input stream.
+     *
+     * @param regex the regular expression to validate the input
+     * @param timeout the timeout after which the input will be considered non-arrived
+     * @param interval the interval between each check
+     * @return `true` if the input was read at least once
+     */
+    fun awaitInput(regex: Regex, timeout: Duration, interval: Duration = 1.seconds): Boolean {
+        /*
+         * Going back of one in case the requested input is already present.
+         */
+        val start = (lines.size - 2).takeIf { it >= 0 } ?: 0
+        return VerifyUtils.awaitVerified(
+            {
+                lines.subList(start, lines.size).any { regex.matches(it) }
+            },
+            timeout,
+            interval = interval
+        )
+    }
 
     /**
      * Sends data to the TCP server.
