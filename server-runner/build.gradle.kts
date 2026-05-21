@@ -10,6 +10,7 @@ java {
 }
 
 tasks.jar {
+    archiveBaseName.set("${rootProject.name}-server-runner")
     manifest {
         attributes["Main-Class"] = "${rootProject.group}.${rootProject.name}.runner.ServerRunner"
     }
