@@ -24,6 +24,14 @@ class ServerConnector(
     private var lineReader: CompletableFuture<Void>? = null
 
     /**
+     * Checks if the connector is connected.
+     *
+     * @return `true` if it is
+     */
+    val connected: Boolean
+        get() = socket?.isClosed?.let { !it } ?: false
+
+    /**
      * Awaits that the requested input appears once in the input stream.
      *
      * @param regex the regular expression to validate the input
@@ -32,9 +40,7 @@ class ServerConnector(
      * @return `true` if the input was read at least once
      */
     fun awaitInput(regex: Regex, timeout: Duration, interval: Duration = 1.seconds): Boolean {
-        /*
-         * Going back of one in case the requested input is already present.
-         */
+        // Going back of one in case the requested input is already present.
         val start = (lines.size - 2).takeIf { it >= 0 } ?: 0
         return VerifyUtils.awaitVerified(
             {
@@ -51,7 +57,7 @@ class ServerConnector(
      * @param data the data to send
      */
     fun send(data: String) {
-        check(!isConnected()) { "Server connector is not connected to the server" }
+        check(!connected) { "Server connector is not connected to the server" }
         socket?.outputStream?.bufferedWriter()?.use { writer ->
             writer.write(data)
             writer.newLine()
@@ -61,10 +67,10 @@ class ServerConnector(
 
     /**
      * Connects to the TCP server.
-     * Users should ALWAYS check with [isConnected] if the connection was successful.
+     * Users should ALWAYS check with [connected] if the connection was successful.
      */
     fun connect() {
-        check(isConnected()) { "Server connector is already connected to the server" }
+        check(connected) { "Server connector is already connected to the server" }
         try {
             socket = Socket(host, port)
             lineReader = CompletableFuture.runAsync {
@@ -84,7 +90,7 @@ class ServerConnector(
      * Disconnects from the TCP server.
      */
     fun disconnect() {
-        check(!isConnected()) { "Server connector is not connected to the server" }
+        check(!connected) { "Server connector is not connected to the server" }
         lineReader?.cancel(true)
         try {
             socket?.close()
@@ -93,13 +99,6 @@ class ServerConnector(
         }
         socket = null
     }
-
-    /**
-     * Checks if the connector is connected.
-     *
-     * @return `true` if it is
-     */
-    fun isConnected(): Boolean = socket?.isClosed?.let { !it } ?: false
 
     companion object {
 
@@ -113,7 +112,7 @@ class ServerConnector(
         fun isServerOnline(port: Int, host: String = "127.0.0.1"): Boolean {
             val connector = ServerConnector(port, host)
             connector.connect()
-            val isOnline = connector.isConnected()
+            val isOnline = connector.connected
             connector.disconnect()
             return isOnline
         }
