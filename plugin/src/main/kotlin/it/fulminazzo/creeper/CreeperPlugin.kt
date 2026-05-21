@@ -12,6 +12,7 @@ import it.fulminazzo.creeper.service.downloader.DownloaderService
 import it.fulminazzo.creeper.service.provider.ConfigProviderService
 import it.fulminazzo.creeper.service.provider.JarProviderService
 import it.fulminazzo.creeper.service.provider.plugin.PluginProviderService
+import it.fulminazzo.creeper.task.server.InstallServerRunnerTask
 import it.fulminazzo.creeper.task.server.install.InjectTestRunnerRequestTask
 import it.fulminazzo.creeper.task.server.install.InstallServerTaskRegistrar
 import org.gradle.api.Action
@@ -71,7 +72,7 @@ class CreeperPlugin : Plugin<Project> {
                 project,
                 "inject${spec.id}TestRunner",
                 null,
-                "Injects the test runner dependency into the server installation process",
+                "Injects the test runner into the server installation process",
                 InjectTestRunnerRequestTask::class.java
             ) { task ->
                 task.specification.set(spec)
@@ -83,6 +84,16 @@ class CreeperPlugin : Plugin<Project> {
                 }
             }
             executable.dependsOn(injectTestRunnerRequestTask)
+
+            val installServerRunnerTask = registerTask(
+                project,
+                "install${spec.id}ServerRunner",
+                null,
+                "Installs the server runner in the server directory",
+                InstallServerRunnerTask::class.java
+            ) { task ->
+                task.serverRunner.set(serverDir.resolve("server-runner.jar").toFile())
+            }
         }
     }
 
