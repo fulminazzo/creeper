@@ -6,7 +6,7 @@ import it.fulminazzo.creeper.extension.spec.ServerSpec
 import it.fulminazzo.creeper.provider.plugin.GitHubPluginRequest
 import it.fulminazzo.creeper.provider.plugin.LocalPluginRequest
 import it.fulminazzo.creeper.provider.plugin.PluginRequest
-import it.fulminazzo.creeper.task.server.install.InjectTestRunnerTask.Companion.PLUGIN_REQUEST
+import it.fulminazzo.creeper.task.server.install.InjectTestRunnerRequestTask.Companion.PLUGIN_REQUEST
 import org.gradle.api.DefaultTask
 import org.gradle.api.artifacts.Configuration
 import org.gradle.api.file.RegularFileProperty
@@ -17,17 +17,17 @@ import org.gradle.api.tasks.TaskAction
 import java.io.File
 
 /**
- * A task to inject the `tester` module runner dependency in the server.
+ * A task to inject the `test-runner` JAR request in the server.
  *
  * The task will do two actions:
  * - Inject the [GitHubPluginRequest] in the specification;
  * - Write or update the plugin configuration file with the `build` directory path and any required dependency
  * for the tests to run.
  *
- * @constructor Creates a new Inject test runner dependency
+ * @constructor Creates a new Inject test runner plugin request task
  */
-//TODO: This class is not completely tested yet, since it requires the actual release of the `tester` module
-abstract class InjectTestRunnerTask : DefaultTask() {
+//TODO: This class is not completely tested yet, since it requires the actual release of the `test-runner` module
+abstract class InjectTestRunnerRequestTask : DefaultTask() {
 
     @get:Input
     abstract val specification: Property<ServerSpec<*, *>>
@@ -61,7 +61,7 @@ abstract class InjectTestRunnerTask : DefaultTask() {
 
     internal companion object {
         /**
-         * The plugin request for installing the `tester` runner in the `plugins` directory.
+         * The plugin request for installing the `test-runner` module in the `plugins` directory.
          */
         internal var PLUGIN_REQUEST: PluginRequest = GitHubPluginRequest(
             ProjectInfo.GROUP.substringAfterLast("."),

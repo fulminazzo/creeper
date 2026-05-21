@@ -12,7 +12,7 @@ import kotlin.test.assertEquals
 import kotlin.test.assertIs
 import kotlin.test.assertTrue
 
-class InjectTestRunnerTaskIntegrationTest : TaskIntegrationTestHelper() {
+class InjectTestRunnerTaskIntegrationTestRequest : TaskIntegrationTestHelper() {
 
     @BeforeEach
     fun setup() {
@@ -54,14 +54,14 @@ class InjectTestRunnerTaskIntegrationTest : TaskIntegrationTestHelper() {
         val spec = MinecraftServerSpec()
         val configFile = project.file("build/resources/integrationTest/server/plugin/CreeperTester/config.yml")
 
-        val task = createTask(InjectTestRunnerTask::class.java) { task ->
+        val task = createTask(InjectTestRunnerRequestTask::class.java) { task ->
             task.specification.set(spec)
             task.pluginConfigurationFile.set { configFile }
         }
         task.run()
 
         assertContentEquals(
-            listOf(InjectTestRunnerTask.PLUGIN_REQUEST),
+            listOf(InjectTestRunnerRequestTask.PLUGIN_REQUEST),
             spec.plugins
         )
 

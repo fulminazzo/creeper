@@ -1,7 +1,7 @@
 package it.fulminazzo.creeper.task
 
 import io.mockk.mockk
-import it.fulminazzo.creeper.task.server.install.InjectTestRunnerTask
+import it.fulminazzo.creeper.task.server.install.InjectTestRunnerRequestTask
 import org.gradle.api.Action
 import org.gradle.api.Task
 import org.gradle.api.services.BuildService
@@ -22,7 +22,7 @@ abstract class TaskIntegrationTestHelper {
     private companion object {
 
         init {
-            InjectTestRunnerTask.testMode()
+            InjectTestRunnerRequestTask.testMode()
         }
 
     }
