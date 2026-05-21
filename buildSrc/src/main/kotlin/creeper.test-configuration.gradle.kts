@@ -44,8 +44,10 @@ afterEvaluate {
         testSourceSet.compileClasspath += mainSourceSet.output
         testSourceSet.runtimeClasspath += mainSourceSet.output
 
+        configurations["${sourceSetName}CompileOnly"].extendsFrom(configurations["testCompileOnly"])
         configurations["${sourceSetName}Implementation"].extendsFrom(configurations["testImplementation"])
         configurations["${sourceSetName}RuntimeOnly"].extendsFrom(configurations["testRuntimeOnly"])
+        configurations["${sourceSetName}AnnotationProcessor"].extendsFrom(configurations["testAnnotationProcessor"])
 
         // Enables internal visibility
         pluginManager.withPlugin("org.jetbrains.kotlin.jvm") {
