@@ -25,12 +25,7 @@ abstract class TaskIntegrationTestHelper {
     private companion object {
 
         init {
-            val testRunnerJar = File("").absoluteFile.toPath().parent
-                .resolve("tester")
-                .resolve("build")
-                .resolve("libs")
-                .resolve("${ProjectInfo.NAME}Tester-${ProjectInfo.VERSION}.jar")
-            InjectTestRunnerDependencyTask.PLUGIN_REQUEST = LocalPluginRequest(testRunnerJar, true)
+            InjectTestRunnerDependencyTask.testMode()
         }
 
     }

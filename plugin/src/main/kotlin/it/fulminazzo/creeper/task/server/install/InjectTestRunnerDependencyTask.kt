@@ -4,7 +4,9 @@ import it.fulminazzo.creeper.CreeperPlugin
 import it.fulminazzo.creeper.ProjectInfo
 import it.fulminazzo.creeper.extension.spec.ServerSpec
 import it.fulminazzo.creeper.provider.plugin.GitHubPluginRequest
+import it.fulminazzo.creeper.provider.plugin.LocalPluginRequest
 import it.fulminazzo.creeper.provider.plugin.PluginRequest
+import it.fulminazzo.creeper.task.server.install.InjectTestRunnerDependencyTask.Companion.PLUGIN_REQUEST
 import org.gradle.api.DefaultTask
 import org.gradle.api.artifacts.Configuration
 import org.gradle.api.file.RegularFileProperty
@@ -12,6 +14,7 @@ import org.gradle.api.provider.Property
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.OutputFile
 import org.gradle.api.tasks.TaskAction
+import java.io.File
 
 /**
  * A task to inject the `tester` module runner dependency in the server.
@@ -70,6 +73,18 @@ abstract class InjectTestRunnerDependencyTask : DefaultTask() {
         )
 
         private val CONFIGURATIONS = listOf("runtimeClasspath", "integrationTestRuntimeClasspath")
+
+        /**
+         * Updates the [PLUGIN_REQUEST] for tests.
+         */
+        internal fun testMode() {
+            val testRunnerJar = File("").absoluteFile.toPath().parent
+                .resolve("tester")
+                .resolve("build")
+                .resolve("libs")
+                .resolve("${ProjectInfo.NAME}Tester-${ProjectInfo.VERSION}.jar")
+            PLUGIN_REQUEST = LocalPluginRequest(testRunnerJar, true)
+        }
 
         private fun getResolvedArtifacts(configuration: Configuration) =
             try {
