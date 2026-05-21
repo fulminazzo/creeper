@@ -12,7 +12,7 @@ val projectName = "${
 
 allprojects {
     val libs = rootProject.libs
-    val baseProject = project(":tester:base")
+    val baseProject = rootProject.projects.testRunner.base
 
     apply { plugin("java") }
     apply { plugin(libs.plugins.shadow.get().pluginId) }

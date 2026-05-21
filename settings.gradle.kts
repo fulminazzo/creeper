@@ -23,7 +23,7 @@ include(
 )
 
 include(
-    "tester",
-    "tester:base",
-    "tester:bukkit"
+    "test-runner",
+    "test-runner:base",
+    "test-runner:bukkit"
 )

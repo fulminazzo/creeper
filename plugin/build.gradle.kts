@@ -75,7 +75,7 @@ afterEvaluate {
     val integrationTestCompileOnly by configurations.getting {}
 
     dependencies {
-        testerShadow(project(path = ":tester", configuration = "shadow"))
+        testerShadow(project(path = ":test-runner", configuration = "shadow"))
 
         integrationTestCompileOnly(files(testerShadow))
     }
