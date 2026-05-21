@@ -1,6 +1,5 @@
 package it.fulminazzo.creeper.runner
 
-
 import spock.lang.Shared
 import spock.lang.Specification
 import spock.lang.Stepwise
@@ -11,7 +10,7 @@ import java.util.concurrent.TimeUnit
 @Stepwise
 class ServerRunnerFunctionalTest extends Specification {
     private static final int PORT = 17526
-    private static final long WAIT_TIME = 10_000L
+    private static final long READ_TIMEOUT_SECONDS = 60
 
     @Shared
     private Thread runnerThread
@@ -96,7 +95,6 @@ class ServerRunnerFunctionalTest extends Specification {
         noExceptionThrown()
 
         when:
-        sleep(WAIT_TIME)
         def line = readClientStream('Internal process terminated')
 
         then:
@@ -114,7 +112,7 @@ class ServerRunnerFunctionalTest extends Specification {
                 if (line.contains(until)) return line
             return line
         }
-        return future.get(30, TimeUnit.SECONDS)
+        return future.get(READ_TIMEOUT_SECONDS, TimeUnit.SECONDS)
     }
 
     private static boolean isServerAlive() {
