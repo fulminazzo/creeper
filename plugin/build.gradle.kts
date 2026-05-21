@@ -71,12 +71,12 @@ configure<BuildConfigExtension> {
     )
 }
 
-afterEvaluate {
+val testerShadow by configurations.creating {
+    isCanBeConsumed = false
+    isCanBeResolved = true
+}
 
-    val testerShadow by configurations.creating {
-        isCanBeConsumed = false
-        isCanBeResolved = true
-    }
+afterEvaluate {
 
     val integrationTestImplementation by configurations.getting {}
 
