@@ -76,8 +76,8 @@ val testRunnerShadow by configurations.creating {
 }
 
 afterEvaluate {
-
     val integrationTestCompileOnly by configurations.getting {}
+    val functionalTestCompileOnly by configurations.getting {}
 
     dependencies {
         serverRunnerJar(project(path = ":server-runner", configuration = "runtimeElements"))
@@ -85,6 +85,9 @@ afterEvaluate {
 
         integrationTestCompileOnly(files(serverRunnerJar))
         integrationTestCompileOnly(files(testRunnerShadow))
+
+        functionalTestCompileOnly(files(serverRunnerJar))
+        functionalTestCompileOnly(files(testRunnerShadow))
     }
 
 }
