@@ -6,12 +6,10 @@ import it.fulminazzo.creeper.extension.spec.ServerSpec
 import it.fulminazzo.creeper.provider.plugin.GitHubPluginRequest
 import it.fulminazzo.creeper.provider.plugin.PluginRequest
 import org.gradle.api.DefaultTask
-import org.gradle.api.Project
 import org.gradle.api.artifacts.Configuration
 import org.gradle.api.file.RegularFileProperty
 import org.gradle.api.provider.Property
 import org.gradle.api.tasks.Input
-import org.gradle.api.tasks.Internal
 import org.gradle.api.tasks.OutputFile
 import org.gradle.api.tasks.TaskAction
 
@@ -27,9 +25,6 @@ import org.gradle.api.tasks.TaskAction
  */
 //TODO: This class is not completely tested yet, since it requires the actual release of the `tester` module
 abstract class InjectTestRunnerDependencyTask : DefaultTask() {
-
-    @get:Internal
-    abstract val project: Project
 
     @get:Input
     abstract val specification: Property<ServerSpec<*, *>>
