@@ -8,6 +8,7 @@ import org.gradle.api.DefaultTask
 import org.gradle.api.file.RegularFileProperty
 import org.gradle.api.provider.Property
 import org.gradle.api.tasks.Internal
+import org.gradle.api.tasks.OutputFile
 import org.gradle.api.tasks.TaskAction
 
 /**
@@ -36,26 +37,35 @@ abstract class CheckServerStatusTask : DefaultTask() {
     @get:Internal
     abstract val statusFile: RegularFileProperty
 
-    @get:Internal
-    abstract val stopRequiredFile: RegularFileProperty
+    @get:OutputFile
+    abstract val requestedStartFile: RegularFileProperty
+
+    @get:OutputFile
+    abstract val requestedStopFile: RegularFileProperty
 
     @TaskAction
     fun run() {
         logger.lifecycle("Checking server status")
 
         val statFile = statusFile.get().asFile
+        if (!statFile.exists()) return requestStart()
 
         val data = CreeperPlugin.PROPERTIES_MAPPER.readValue<Map<String, Any>>(statFile)
 
-        val pid = data["pid"]?.toString()?.toLongOrNull() ?: return writeStopRequiredFile()
-        ProcessHandle.of(pid).orElse(null)?.takeIf { it.isAlive } ?: return writeStopRequiredFile()
+        val pid = data["pid"]?.toString()?.toLongOrNull() ?: return requestStop()
+        ProcessHandle.of(pid).orElse(null)?.takeIf { it.isAlive } ?: return requestStop()
 
         val port = data["port"]?.toString()?.toIntOrNull()
-        if (port == null || !ServerConnector.isServerOnline(port)) return writeStopRequiredFile()
+        if (port == null || !ServerConnector.isServerOnline(port)) return requestStop()
     }
 
-    private fun writeStopRequiredFile() {
-        stopRequiredFile.get().asFile.createNewFile()
+    private fun requestStart() {
+        requestedStartFile.get().asFile.createNewFile()
+    }
+
+    private fun requestStop() {
+        requestedStopFile.get().asFile.createNewFile()
+        requestStart()
     }
 
 }
