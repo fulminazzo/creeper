@@ -10,7 +10,7 @@ import it.fulminazzo.creeper.service.provider.plugin.PluginProviderService
 import it.fulminazzo.creeper.task.server.InstallServerRunnerTask
 import it.fulminazzo.creeper.task.server.install.InjectTestRunnerRequestTask
 import it.fulminazzo.creeper.task.server.install.InstallServerTaskRegistrar
-import it.fulminazzo.creeper.task.server.run.RunServerTaskRegistrar
+import it.fulminazzo.creeper.task.server.start.StartServerTaskRegistrar
 import org.gradle.api.Action
 import org.gradle.api.Plugin
 import org.gradle.api.Project
@@ -103,7 +103,7 @@ class CreeperPlugin : Plugin<Project> {
                     task.serverRunner.set(serverRunner.toFile())
                 }
 
-                val (check, run) = RunServerTaskRegistrar.register(
+                val (check, run) = StartServerTaskRegistrar.register(
                     project,
                     spec,
                     serverRunner,
