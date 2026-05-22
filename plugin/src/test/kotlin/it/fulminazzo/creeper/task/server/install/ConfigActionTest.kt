@@ -14,7 +14,7 @@ class ConfigActionTest {
     @Test
     fun `test that ServerProperties ConfigAction configures correct values`() {
         val specification = MinecraftServerSpec(
-            config = MinecraftServerSettings(
+            settings = MinecraftServerSettings(
                 hardcore = true,
                 players = 2,
                 onlineMode = true,

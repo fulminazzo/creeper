@@ -5,16 +5,13 @@ import it.fulminazzo.creeper.ServerType
 import it.fulminazzo.creeper.extension.spec.MinecraftServerSpec
 import it.fulminazzo.creeper.extension.spec.settings.Difficulty
 import it.fulminazzo.creeper.extension.spec.settings.Gamemode
-import it.fulminazzo.creeper.extension.spec.settings.JvmFlagsBuilder
 import it.fulminazzo.creeper.extension.spec.settings.MinecraftServerSettings
 import it.fulminazzo.creeper.provider.plugin.GitHubPluginRequest
 import it.fulminazzo.creeper.provider.plugin.HttpPluginRequest
 import it.fulminazzo.creeper.provider.plugin.LocalPluginRequest
 import it.fulminazzo.creeper.provider.plugin.ModrinthPluginRequest
-import it.fulminazzo.creeper.util.mb
 import org.gradle.testfixtures.ProjectBuilder
 import org.junit.jupiter.api.Assertions.*
-import java.net.URI
 import java.nio.file.Path
 import kotlin.test.Test
 import kotlin.test.assertIs
@@ -67,7 +64,7 @@ class ServersConfigurationExtensionTest {
         extension.minecraftServer { specBuilder ->
             specBuilder.type.set("paper")
             specBuilder.version.set("26.1")
-            specBuilder.serverConfig { settingsBuilder ->
+            specBuilder.settings { settingsBuilder ->
                 settingsBuilder.port.set(25566)
                 settingsBuilder.maximumPlayers.set(11)
                 settingsBuilder.flags {

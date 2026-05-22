@@ -15,7 +15,7 @@ import org.gradle.api.tasks.Nested
  *
  * @param type the type of server
  * @param version the version of the server
- * @param config the server configuration
+ * @property settings the server settings
  * @param whitelist the whitelist of the server
  * @param operators the operator players of the server
  * @property plugins the plugins to install
@@ -23,14 +23,14 @@ import org.gradle.api.tasks.Nested
 class MinecraftServerSpec @JvmOverloads constructor(
     type: ServerType.MinecraftType = ServerType.VANILLA,
     version: String = "1.21.11",
-    config: MinecraftServerSettings = MinecraftServerSettings(),
+    settings: MinecraftServerSettings = MinecraftServerSettings(),
     val whitelist: Set<String> = emptySet(),
     val operators: Set<String> = emptySet(),
     plugins: MutableList<PluginRequest> = mutableListOf()
 ) : ServerSpec<ServerType.MinecraftType, MinecraftServerSettings>(
     type,
     version,
-    config,
+    settings,
     plugins
 ) {
 
@@ -56,7 +56,7 @@ abstract class MinecraftServerSpecBuilder :
     abstract override val type: Property<String>
 
     @get:Nested
-    abstract override val serverConfig: MinecraftServerSettingsBuilder
+    abstract override val settings: MinecraftServerSettingsBuilder
 
     override val serverClassType: Class<ServerType.MinecraftType> = ServerType.MinecraftType::class.java
 
@@ -93,7 +93,7 @@ abstract class MinecraftServerSpecBuilder :
         return MinecraftServerSpec(
             typeValue,
             versionValue,
-            serverConfig.build(),
+            settings.build(),
             whitelistValue,
             operatorsValue,
             plugins.requests

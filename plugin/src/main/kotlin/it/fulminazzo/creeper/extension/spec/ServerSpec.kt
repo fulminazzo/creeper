@@ -50,7 +50,7 @@ sealed class ServerSpec<T : ServerType, S : ServerSettings>(
 abstract class ServerSpecBuilder<T : ServerType, B : ServerSettingsBuilder, S : ServerSettings> {
     abstract val type: Property<String>
     abstract val version: Property<String>
-    abstract val serverConfig: B
+    abstract val settings: B
 
     @get:Nested
     abstract val plugins: PluginRequestsBuilder
@@ -85,11 +85,11 @@ abstract class ServerSpecBuilder<T : ServerType, B : ServerSettingsBuilder, S : 
     abstract fun build(): ServerSpec<T, S>
 
     /**
-     * Applies the configuration to the server configuration builder.
+     * Applies the settings to the server settings builder.
      *
      * @param action the configuration
      */
-    fun serverConfig(action: Action<B>) = action.execute(serverConfig)
+    fun settings(action: Action<B>) = action.execute(settings)
 
     /**
      * Applies the configuration to the plugin requests builder.
