@@ -3,7 +3,6 @@ package it.fulminazzo.creeper.task.server.start
 import com.fasterxml.jackson.module.kotlin.readValue
 import it.fulminazzo.creeper.CreeperPlugin
 import it.fulminazzo.creeper.ProjectInfo
-import it.fulminazzo.creeper.ServerConnector
 import it.fulminazzo.creeper.task.server.InstallServerRunnerTask
 import org.gradle.testkit.runner.GradleRunner
 import org.junit.jupiter.api.BeforeEach
@@ -67,17 +66,17 @@ class StartServerTaskRegistrarFunctionalTest {
             "TCP Server is not running on port $tcpPort"
         )
 
-        val port = 25565
+        val minecraftPort = 25565
         assertTrue(
-            isServerRunning(port),
-            "Minecraft Server is not running on port $port"
+            isServerRunning(minecraftPort),
+            "Minecraft Server is not running on port $minecraftPort"
         )
 
         runner.withArguments("stop1_21").build()
         Thread.sleep(WAIT_STOP_SECONDS * 1000)
         assertFalse(
-            isServerRunning(port),
-            "Minecraft Server is still running on port $port"
+            isServerRunning(minecraftPort),
+            "Minecraft Server is still running on port $minecraftPort"
         )
         assertFalse(
             isServerRunning(tcpPort),
@@ -98,7 +97,14 @@ class StartServerTaskRegistrarFunctionalTest {
 
         private val RESOURCE_BUILD_FILE = Path.of("src/functionalTest/resources/task/server/start/build.gradle.kts")
 
-        private fun isServerRunning(port: Int) = ServerConnector.isServerOnline(port)
+        private fun isServerRunning(port: Int): Boolean {
+            return try {
+                Socket("127.0.0.1", port).close()
+                true
+            } catch (_: IOException) {
+                false
+            }
+        }
 
     }
 
