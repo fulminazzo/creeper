@@ -33,13 +33,18 @@ abstract class StopServerTask : DefaultTask() {
      * Bridge file used primarily to signal a requested stop.
      * Tasks requesting a server stop can create a blank file under this path.
      */
-    @get:InputFile
-    @get:Optional
+    @get:Internal
     abstract val requestedStopFile: RegularFileProperty
+
+    init {
+        outputs.upToDateWhen { false }
+    }
 
     @TaskAction
     fun run() {
-        requestedStopFile.get().asFile.delete()
+        val request = requestedStopFile.get().asFile
+        if (!request.exists()) return
+        request.delete()
 
         logger.lifecycle("Stopping server")
         val statFile = statusFile.get().asFile

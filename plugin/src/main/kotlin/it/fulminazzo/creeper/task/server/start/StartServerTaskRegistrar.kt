@@ -112,11 +112,11 @@ class StartServerTaskRegistrar internal constructor(
         description = "Runs the server $serverDisplayName",
         type = RunServerTask::class.java
     ) { task ->
+        task.requestedStartFile.set(requestedStartFile.toFile())
+
         task.specification.set(specification)
         task.port.set(DEFAULT_TCP_SERVER_PORT)
         task.runnerJar.set(runnerExecutable.toFile())
-
-        task.requestedStartFile.set(requestedStartFile.toFile())
 
         task.statusFile.set(statusFile.toFile())
     }.get()
@@ -136,10 +136,9 @@ class StartServerTaskRegistrar internal constructor(
         ) { task ->
             task.logFile.set(serverDirectory.resolve("logs/latest.log").toFile())
             task.awaitTimeout.set(DEFAULT_BOOT_AWAIT_TIMEOUT)
+            task.statusFile.set(statusFile.toFile())
 
             task.specification.set(specification)
-
-            task.statusFile.set(statusFile.toFile())
 
             task.requestedStopFile.set(requestedStopFile.toFile())
         }.get()

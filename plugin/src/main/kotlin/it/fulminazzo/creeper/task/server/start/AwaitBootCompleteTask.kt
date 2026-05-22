@@ -27,18 +27,23 @@ abstract class AwaitBootCompleteTask : DefaultTask() {
     @get:Internal
     abstract val awaitTimeout: Property<Long>
 
+    @get:Internal
+    abstract val statusFile: RegularFileProperty
+
     @get:Input
     abstract val specification: Property<ServerSpec<*, *>>
-
-    @get:InputFile
-    @get:Optional
-    abstract val statusFile: RegularFileProperty
 
     @get:OutputFile
     abstract val requestedStopFile: RegularFileProperty
 
+    init {
+        outputs.upToDateWhen { false }
+    }
+
     @TaskAction
     fun run() {
+        if (!statusFile.get().asFile.exists()) return
+
         logger.lifecycle("Awaiting server boot completion. Timeout: ${awaitTimeout.get()} seconds")
 
         val spec = specification.get()

@@ -27,11 +27,11 @@ class RunServerTaskIntegrationTest : TaskIntegrationTestHelper() {
 
         val requestedStartFile = File(WORK_DIR, "request-start")
         val task = createTask(RunServerTask::class.java) { task ->
+            task.requestedStartFile.set(requestedStartFile)
             task.specification.set(specification)
             task.port.set(port)
             task.runnerJar.set(RUNNER_JAR)
             task.statusFile.set(STATUS_FILE)
-            task.requestedStartFile.set(requestedStartFile)
         }
 
         RunTaskUtils.copyRunFilesToTaskWorkDir(

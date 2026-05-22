@@ -8,6 +8,7 @@ import org.gradle.api.file.RegularFileProperty
 import org.gradle.api.provider.Property
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.InputFile
+import org.gradle.api.tasks.Internal
 import org.gradle.api.tasks.Optional
 import org.gradle.api.tasks.OutputFile
 import org.gradle.api.tasks.TaskAction
@@ -31,6 +32,13 @@ import java.util.concurrent.TimeUnit
  */
 abstract class RunServerTask : DefaultTask() {
 
+    /**
+     * Bridge file used primarily to signal a requested start.
+     * Tasks requesting a server start can create a blank file under this path.
+     */
+    @get:Internal
+    abstract val requestedStartFile: RegularFileProperty
+
     @get:Input
     abstract val specification: Property<ServerSpec<*, *>>
 
@@ -40,20 +48,18 @@ abstract class RunServerTask : DefaultTask() {
     @get:InputFile
     abstract val runnerJar: RegularFileProperty
 
-    /**
-     * Bridge file used primarily to signal a requested start.
-     * Tasks requesting a server start can create a blank file under this path.
-     */
-    @get:InputFile
-    @get:Optional
-    abstract val requestedStartFile: RegularFileProperty
-
     @get:OutputFile
     abstract val statusFile: RegularFileProperty
 
+    init {
+        outputs.upToDateWhen { false }
+    }
+
     @TaskAction
     fun run() {
-        requestedStartFile.get().asFile.delete()
+        val requestFile = requestedStartFile.get().asFile
+        if (!requestFile.exists()) return
+        requestFile.delete()
 
         val runnerJarFile = runnerJar.get().asFile
         val spec = specification.get()

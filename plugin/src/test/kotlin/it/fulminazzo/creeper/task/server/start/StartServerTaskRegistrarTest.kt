@@ -71,6 +71,8 @@ class StartServerTaskRegistrarTest : RegistrarTestHelper() {
 
         val (taskName, task) = testTaskMetadata<RunServerTask>("run$taskBaseName", showWorkers)
 
+        testRequestedStartFile(taskName, task.requestedStartFile.orNull?.asFile)
+
         assertEquals(
             specification,
             task.specification.orNull,
@@ -93,7 +95,6 @@ class StartServerTaskRegistrarTest : RegistrarTestHelper() {
             "Task $taskName should have runnerJar pointing to $runnerJar"
         )
 
-        testRequestedStartFile(taskName, task.requestedStartFile.orNull?.asFile)
         testStatusFile(taskName, task.statusFile.orNull?.asFile)
     }
 
@@ -121,13 +122,14 @@ class StartServerTaskRegistrarTest : RegistrarTestHelper() {
             "Task $taskName should have awaitTimeout ${StartServerTaskRegistrar.DEFAULT_BOOT_AWAIT_TIMEOUT}"
         )
 
+        testStatusFile(taskName, task.statusFile.orNull?.asFile)
+
         assertEquals(
             specification,
             task.specification.orNull,
             "Task $taskName should have the same specification"
         )
 
-        testStatusFile(taskName, task.statusFile.orNull?.asFile)
         testRequestedStopFile(taskName, task.requestedStopFile.orNull?.asFile)
     }
 

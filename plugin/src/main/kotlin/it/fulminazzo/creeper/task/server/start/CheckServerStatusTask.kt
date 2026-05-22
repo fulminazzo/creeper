@@ -33,8 +33,7 @@ abstract class CheckServerStatusTask : DefaultTask() {
     @get:Internal
     abstract val specification: Property<ServerSpec<*, *>>
 
-    @get:InputFile
-    @get:Optional
+    @get:Internal
     abstract val statusFile: RegularFileProperty
 
     @get:OutputFile
@@ -42,6 +41,10 @@ abstract class CheckServerStatusTask : DefaultTask() {
 
     @get:OutputFile
     abstract val requestedStopFile: RegularFileProperty
+
+    init {
+        outputs.upToDateWhen { false }
+    }
 
     @TaskAction
     fun run() {
