@@ -46,10 +46,8 @@ abstract class StartServerTask : DefaultTask() {
     @TaskAction
     fun run() {
         val runnerJarFile = runnerJar.get().asFile
-        val workDir = runnerJarFile.parentFile
-
         val spec = specification.get()
-        val serverDir = File(workDir, spec.id)
+        val serverDir = runnerJarFile.parentFile
 
         val tcpServerPort = port.get()
 
@@ -66,7 +64,7 @@ abstract class StartServerTask : DefaultTask() {
             *spec.settings.flags.split(" ").toTypedArray(),
             "${spec.id}.jar",
             "nogui"
-        ).directory(workDir).redirectErrorStream(true).start()
+        ).directory(serverDir).redirectErrorStream(true).start()
 
         try {
             process.waitFor(1, TimeUnit.SECONDS)
