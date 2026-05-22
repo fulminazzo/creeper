@@ -82,8 +82,12 @@ class CreeperPlugin : Plugin<Project> {
                     "Injects the test runner into the server installation process",
                     InjectTestRunnerRequestTask::class.java
                 ) { task ->
-                    task.specification.set(spec)
                     task.buildDirectory.set(project.layout.buildDirectory.get().asFile)
+
+                    task.runtimeClasspath.from(project.configurations.named("runtimeClasspath"))
+                    task.integrationTestRuntimeClasspath.from(project.configurations.named("integrationTestRuntimeClasspath"))
+
+                    task.specification.set(spec)
                     task.pluginConfigurationFile.set {
                         serverDir.resolve("plugins")
                             .resolve("${ProjectInfo.NAME}Tester")

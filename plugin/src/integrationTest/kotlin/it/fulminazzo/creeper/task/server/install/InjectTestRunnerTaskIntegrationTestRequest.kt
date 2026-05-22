@@ -55,8 +55,12 @@ class InjectTestRunnerTaskIntegrationTestRequest : TaskIntegrationTestHelper() {
         val configFile = project.file("build/resources/integrationTest/server/plugin/CreeperTester/config.yml")
 
         val task = createTask(InjectTestRunnerRequestTask::class.java) { task ->
-            task.specification.set(spec)
             task.buildDirectory.set(project.layout.buildDirectory.get().asFile)
+
+            task.runtimeClasspath.from(project.configurations.named("runtimeClasspath"))
+            task.integrationTestRuntimeClasspath.from(project.configurations.named("integrationTestRuntimeClasspath"))
+
+            task.specification.set(spec)
             task.pluginConfigurationFile.set { configFile }
         }
         task.run()

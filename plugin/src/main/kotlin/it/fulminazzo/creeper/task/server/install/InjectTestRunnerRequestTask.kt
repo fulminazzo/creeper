@@ -9,14 +9,11 @@ import it.fulminazzo.creeper.provider.plugin.PluginRequest
 import it.fulminazzo.creeper.task.server.install.InjectTestRunnerRequestTask.Companion.PLUGIN_REQUEST
 import org.gradle.api.DefaultTask
 import org.gradle.api.artifacts.Configuration
+import org.gradle.api.file.ConfigurableFileCollection
 import org.gradle.api.file.DirectoryProperty
 import org.gradle.api.file.RegularFileProperty
 import org.gradle.api.provider.Property
-import org.gradle.api.tasks.Input
-import org.gradle.api.tasks.InputDirectory
-import org.gradle.api.tasks.Internal
-import org.gradle.api.tasks.OutputFile
-import org.gradle.api.tasks.TaskAction
+import org.gradle.api.tasks.*
 import java.io.File
 
 /**
@@ -34,6 +31,14 @@ abstract class InjectTestRunnerRequestTask : DefaultTask() {
 
     @get:Internal
     abstract val buildDirectory: DirectoryProperty
+
+    @get:InputFiles
+    @get:Classpath
+    abstract val runtimeClasspath: ConfigurableFileCollection
+
+    @get:InputFiles
+    @get:Classpath
+    abstract val integrationTestRuntimeClasspath: ConfigurableFileCollection
 
     @get:Input
     abstract val specification: Property<ServerSpec<*, *>>
