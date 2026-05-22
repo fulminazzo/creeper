@@ -66,7 +66,7 @@ class StartServerTaskRegistrarFunctionalTest {
             "TCP Server is not running on port $tcpPort"
         )
 
-        val minecraftPort = 25565
+        val minecraftPort = 25566
         assertTrue(
             isServerRunning(minecraftPort),
             "Minecraft Server is not running on port $minecraftPort"
