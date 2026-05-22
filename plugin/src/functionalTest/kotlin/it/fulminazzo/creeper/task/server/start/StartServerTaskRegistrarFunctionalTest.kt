@@ -35,10 +35,11 @@ class StartServerTaskRegistrarFunctionalTest {
         buildFile.writeText(RESOURCE_BUILD_FILE.toFile().readText())
 
         val server = RESOURCE_BUILD_FILE.parent.resolve("paper-1.21").toFile()
-        server.copyRecursively(projectDir.resolve("paper-1.21"), overwrite = true)
+        val serverDir = projectDir.resolve("paper-1.21")
+        server.copyRecursively(serverDir, overwrite = true)
 
         val serverRunner = InstallServerRunnerTask.FILE_PATH.toFile()
-        serverRunner.copyTo(projectDir.resolve("server-runner.jar"), overwrite = true)
+        serverRunner.copyTo(serverDir.resolve("server-runner.jar"), overwrite = true)
     }
 
     @Test
@@ -49,7 +50,7 @@ class StartServerTaskRegistrarFunctionalTest {
         assertTrue(serverDir.exists(), "Server directory does not exist: $serverDir")
 
         val statusFile = serverDir.resolve("${ProjectInfo.NAME}-status.properties")
-        assertTrue(statusFile.exists(), "status file does not exist")
+        assertTrue(statusFile.exists(), "Status file ${statusFile.path} does not exist")
 
         val data = CreeperPlugin.PROPERTIES_MAPPER.readValue<Map<String, Any>>(statusFile)
         val pid = data["pid"]?.toString()?.toLong()

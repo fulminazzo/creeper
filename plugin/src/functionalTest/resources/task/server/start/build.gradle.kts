@@ -26,7 +26,7 @@ val serverSpec = MinecraftServerSpec(
 StartServerTaskRegistrar.register(
     project,
     serverSpec,
-    project.projectDir.toPath().resolve("server-runner.jar"),
+    project.projectDir.toPath().resolve(serverSpec.id).resolve("server-runner.jar"),
     project.projectDir.toPath()
 )
 
