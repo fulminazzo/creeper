@@ -8,12 +8,13 @@ import org.gradle.api.file.RegularFileProperty
 import org.gradle.api.provider.Property
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.InputFile
+import org.gradle.api.tasks.Optional
 import org.gradle.api.tasks.OutputFile
 import org.gradle.api.tasks.TaskAction
 import java.util.concurrent.TimeUnit
 
 /**
- * Task to start a server from its specification.
+ * Task to run a server from its specification.
  * The server will be started in the expected directory
  * (computed from the current working directory and the server specification).
  *
@@ -28,7 +29,7 @@ import java.util.concurrent.TimeUnit
  *
  * @constructor Creates a new Start server task
  */
-abstract class StartServerTask : DefaultTask() {
+abstract class RunServerTask : DefaultTask() {
 
     @get:Input
     abstract val specification: Property<ServerSpec<*, *>>
@@ -39,11 +40,21 @@ abstract class StartServerTask : DefaultTask() {
     @get:InputFile
     abstract val runnerJar: RegularFileProperty
 
+    /**
+     * Bridge file used primarily to signal a requested start.
+     * Tasks requesting a server start can create a blank file under this path.
+     */
+    @get:InputFile
+    @get:Optional
+    abstract val requestedStartFile: RegularFileProperty
+
     @get:OutputFile
     abstract val statusFile: RegularFileProperty
 
     @TaskAction
     fun run() {
+        requestedStartFile.get().asFile.delete()
+
         val runnerJarFile = runnerJar.get().asFile
         val spec = specification.get()
         val serverDir = runnerJarFile.parentFile

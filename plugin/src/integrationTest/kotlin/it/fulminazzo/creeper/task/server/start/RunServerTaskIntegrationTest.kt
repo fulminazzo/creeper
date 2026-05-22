@@ -10,10 +10,11 @@ import java.io.File
 import java.net.Socket
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertFalse
 import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
 
-class StartServerTaskIntegrationTest : TaskIntegrationTestHelper() {
+class RunServerTaskIntegrationTest : TaskIntegrationTestHelper() {
 
     @Test
     fun `test that StartServerTask creates a new detached process and updates status file`() {
@@ -24,11 +25,13 @@ class StartServerTaskIntegrationTest : TaskIntegrationTestHelper() {
 
         val port = 18526
 
-        val task = createTask(StartServerTask::class.java) { task ->
+        val requestedStartFile = File(WORK_DIR, "request-start")
+        val task = createTask(RunServerTask::class.java) { task ->
             task.specification.set(specification)
             task.port.set(port)
             task.runnerJar.set(RUNNER_JAR)
             task.statusFile.set(STATUS_FILE)
+            task.requestedStartFile.set(requestedStartFile)
         }
 
         RunTaskUtils.copyRunFilesToTaskWorkDir(
@@ -63,6 +66,11 @@ class StartServerTaskIntegrationTest : TaskIntegrationTestHelper() {
         output.write("stopprocess\n".toByteArray())
         output.flush()
         client.close()
+
+        assertFalse(
+            project.file(requestedStartFile).exists(),
+            "The requested stop file should have been deleted"
+        )
     }
 
     private companion object {
