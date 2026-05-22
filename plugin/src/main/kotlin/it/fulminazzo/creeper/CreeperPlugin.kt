@@ -62,6 +62,11 @@ class CreeperPlugin : Plugin<Project> {
         // TASKS
         project.afterEvaluate {
             serversConfigExtension.specifications.forEach { spec ->
+                val taskBaseName = spec.id
+                    .replaceFirstChar { it.uppercaseChar() }
+                    .replace(".", "_")
+                    .replace("-", "")
+
                 val serverDir = serversDir.resolve(spec.id)
 
                 val (executable, install) = InstallServerTaskRegistrar.register(
@@ -72,7 +77,7 @@ class CreeperPlugin : Plugin<Project> {
 
                 val injectTestRunnerRequestTask = registerTask(
                     project,
-                    "inject${spec.id}TestRunner",
+                    "inject${taskBaseName}TestRunner",
                     null,
                     "Injects the test runner into the server installation process",
                     InjectTestRunnerRequestTask::class.java
@@ -91,7 +96,7 @@ class CreeperPlugin : Plugin<Project> {
                 val serverRunner = serverDir.resolve("server-runner.jar")
                 val installServerRunnerTask = registerTask(
                     project,
-                    "install${spec.id}ServerRunner",
+                    "install${taskBaseName}ServerRunner",
                     null,
                     "Installs the server runner in the server directory",
                     InstallServerRunnerTask::class.java
