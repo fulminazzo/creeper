@@ -32,10 +32,10 @@ class RedirectPluginProvider(
 
     override fun handleRequest(request: PluginRequest, directory: Path, filename: String): Path =
         when (request) {
-            is ModrinthPluginRequest -> modrinthPluginProvider.handleRequest(request, directory)
-            is GitHubPluginRequest -> gitHubPluginProvider.handleRequest(request, directory)
-            is HttpPluginRequest -> httpPluginProvider.handleRequest(request, directory)
-            is LocalPluginRequest -> localPluginProvider.handleRequest(request, directory)
+            is ModrinthPluginRequest -> modrinthPluginProvider.handleRequest(request, directory, filename)
+            is GitHubPluginRequest -> gitHubPluginProvider.handleRequest(request, directory, filename)
+            is HttpPluginRequest -> httpPluginProvider.handleRequest(request, directory, filename)
+            is LocalPluginRequest -> localPluginProvider.handleRequest(request, directory, filename)
         }
 
 }
