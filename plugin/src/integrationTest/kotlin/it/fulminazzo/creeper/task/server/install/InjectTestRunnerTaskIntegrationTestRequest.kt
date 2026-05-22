@@ -65,11 +65,6 @@ class InjectTestRunnerTaskIntegrationTestRequest : TaskIntegrationTestHelper() {
         }
         task.run()
 
-        assertContentEquals(
-            listOf(InjectTestRunnerRequestTask.PLUGIN_REQUEST),
-            spec.plugins
-        )
-
         assertTrue(configFile.exists(), "Configuration file ${configFile.path} should exist")
 
         val config = YAML_MAPPER.readValue<Map<String, Any>>(configFile)

@@ -48,9 +48,6 @@ abstract class InjectTestRunnerRequestTask : DefaultTask() {
 
     @TaskAction
     fun run() {
-        logger.info("Injecting Tests runner JAR as a plugin request")
-        specification.get().plugins.add(PLUGIN_REQUEST)
-
         logger.info("Writing plugin configuration file")
         val configurationFile = pluginConfigurationFile.get().asFile
         configurationFile.parentFile.mkdirs()
@@ -93,13 +90,6 @@ abstract class InjectTestRunnerRequestTask : DefaultTask() {
                 .resolve(FILE_NAME)
             PLUGIN_REQUEST = LocalPluginRequest(testRunnerJar, true)
         }
-
-        private fun getResolvedArtifacts(configuration: Configuration) =
-            try {
-                configuration.resolvedConfiguration.resolvedArtifacts.map { it.file }
-            } catch (_: Exception) {
-                emptyList()
-            }
 
     }
 

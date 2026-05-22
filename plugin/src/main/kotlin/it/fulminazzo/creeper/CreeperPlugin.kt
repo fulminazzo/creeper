@@ -57,6 +57,8 @@ class CreeperPlugin : Plugin<Project> {
         // TASKS
         project.afterEvaluate {
             serversConfigExtension.specifications.forEach { spec ->
+                spec.plugins.add(InjectTestRunnerRequestTask.PLUGIN_REQUEST)
+
                 val taskBaseName = spec.id
                     .replaceFirstChar { it.uppercaseChar() }
                     .replace(".", "_")
