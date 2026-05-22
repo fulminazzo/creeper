@@ -57,7 +57,7 @@ class ServerRunnerFunctionalTest extends Specification {
 
         when:
         sleep(1_000)
-        client = new Socket('0.0.0.0', PORT)
+        client = new Socket('127.0.0.1', PORT)
 
         then:
         noExceptionThrown()
@@ -117,7 +117,7 @@ class ServerRunnerFunctionalTest extends Specification {
 
     private static boolean isServerAlive() {
         try {
-            new Socket('0.0.0.0', PORT).close()
+            new Socket('127.0.0.1', PORT).close()
             return true
         } catch (IOException ignored) {
             return false

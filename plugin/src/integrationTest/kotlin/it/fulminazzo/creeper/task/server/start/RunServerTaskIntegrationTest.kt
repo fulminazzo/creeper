@@ -61,7 +61,7 @@ class RunServerTaskIntegrationTest : TaskIntegrationTestHelper() {
         val processHandle = optProcessHandle.get()
         assertTrue(processHandle.isAlive, "The process should be alive")
 
-        val client = Socket("0.0.0.0", port)
+        val client = Socket("127.0.0.1", port)
         val output = client.outputStream
         output.write("stopprocess\n".toByteArray())
         output.flush()
