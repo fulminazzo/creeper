@@ -63,10 +63,12 @@ abstract class CheckServerStatusTask : DefaultTask() {
     }
 
     private fun requestStart() {
+        logger.lifecycle("Server is not running, requesting start")
         requestedStartFile.get().asFile.createNewFile()
     }
 
     private fun requestStop() {
+        logger.lifecycle("Server is running, requesting stop")
         requestedStopFile.get().asFile.createNewFile()
         requestStart()
     }

@@ -64,8 +64,10 @@ abstract class StopServerTask : DefaultTask() {
                             awaitTimeout.get().seconds
                         )
                         if (connector.connected) connector.disconnect()
+                        logger.lifecycle("Server stopped via TCP connection")
                     }
                 } catch (_: Exception) {
+                    logger.lifecycle("Failed to stop server via TCP connection")
                     // ignore errors
                 }
             }
