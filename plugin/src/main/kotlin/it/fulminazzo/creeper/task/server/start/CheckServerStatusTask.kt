@@ -33,9 +33,6 @@ abstract class CheckServerStatusTask : DefaultTask() {
     @get:Internal
     abstract val specification: Property<ServerSpec<*, *>>
 
-    @get:Internal
-    abstract val port: Property<Int>
-
     @get:InputFile
     @get:Optional
     abstract val statusFile: RegularFileProperty

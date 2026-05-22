@@ -89,7 +89,6 @@ class StartServerTaskRegistrar internal constructor(
             type = CheckServerStatusTask::class.java
         ) { task ->
             task.specification.set(specification)
-            task.port.set(DEFAULT_TCP_SERVER_PORT)
 
             task.statusFile.set(statusFile.toFile())
 
