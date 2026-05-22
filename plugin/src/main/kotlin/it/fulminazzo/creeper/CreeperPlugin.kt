@@ -87,7 +87,7 @@ class CreeperPlugin : Plugin<Project> {
                     task.specification.set(spec)
                     task.pluginConfigurationFile.set {
                         serverDir.resolve("plugins")
-                            .resolve("${ProjectInfo.NAME.replaceFirstChar { it.uppercaseChar() }}Tester")
+                            .resolve(ProjectInfo.NAME)
                             .resolve("config.yml")
                             .toFile()
                     }
