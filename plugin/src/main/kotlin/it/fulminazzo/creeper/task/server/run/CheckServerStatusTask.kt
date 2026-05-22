@@ -46,7 +46,6 @@ abstract class CheckServerStatusTask : DefaultTask() {
         logger.lifecycle("Checking server status")
 
         val statFile = statusFile.get().asFile
-        if (!statFile.exists()) return writeStopRequiredFile()
 
         val data = CreeperPlugin.PROPERTIES_MAPPER.readValue<Map<String, Any>>(statFile)
 
