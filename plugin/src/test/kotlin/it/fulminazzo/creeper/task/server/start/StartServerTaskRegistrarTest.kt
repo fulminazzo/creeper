@@ -8,225 +8,183 @@ import it.fulminazzo.creeper.task.server.RegistrarTestHelper
 import org.gradle.api.Task
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.ValueSource
+import java.io.File
 import kotlin.test.Test
-import kotlin.test.assertContains
 import kotlin.test.assertEquals
 
 class StartServerTaskRegistrarTest : RegistrarTestHelper() {
 
     @Test
-    fun `test that register correctly registers all tasks and dependency hierarchy`() {
-        val specification = mockk<MinecraftServerSpec>()
-        every { specification.id } returns SERVER_ID
-        every { specification.type } returns ServerType.BUKKIT
-        every { specification.version } returns SERVER_VERSION
-
+    fun `test that registerStartTask correctly registers task`() {
         StartServerTaskRegistrar.register(
             project,
-            specification,
+            specification, 
             SERVER_DIRECTORY.resolve("server-runner.jar"),
-            SERVER_DIRECTORY.parent
+            SERVER_DIRECTORY
         )
 
-        val checkTask = getTask("checkServer${taskBaseName}")
+        val (_, checkServerTask) = testTaskMetadata<CheckServerStatusTask>("checkServer${taskBaseName}", false)
+        val (_, checkServerStopTask) = testTaskMetadata<Task>("checkStopRequired${taskBaseName}ForCheckServer", false)
 
-        val startTask = getTask("startServer${taskBaseName}")
-        testDependency(startTask, checkTask)
+        val (_, runServerTask) = testTaskMetadata<RunServerTask>("run${taskBaseName}", false)
 
-        val awaitTask = getTask("awaitBootComplete${taskBaseName}")
-        testDependency(awaitTask, startTask)
+        val (_, awaitServerTask) = testTaskMetadata<AwaitBootCompleteTask>("awaitBootComplete${taskBaseName}", false)
+        val (_, awaitServerStopTask) = testTaskMetadata<Task>("checkStopRequired${taskBaseName}ForAwaitBootComplete", false)
 
-        val (_, runTask) = testTaskMetadata<Task>("run${taskBaseName}", true)
-        testDependency(runTask, awaitTask)
+        testTaskMetadata<StopServerTask>("stop${taskBaseName}", true)
+        val (_, startServerTask) = testTaskMetadata<Task>("start${taskBaseName}", true)
 
-        val stopServerTask = getTask("stopServer${taskBaseName}")
+        testDependency(checkServerStopTask, checkServerTask)
 
-        val (_, stopTask) = testTaskMetadata<Task>("stop${taskBaseName}", true)
-        testFinalizedBy(stopTask, stopServerTask)
+        testDependency(runServerTask, checkServerStopTask)
+
+        testDependency(awaitServerTask, runServerTask)
+        testDependency(awaitServerStopTask, awaitServerTask)
+
+        testDependency(startServerTask, awaitServerStopTask)
     }
 
     @ParameterizedTest
     @ValueSource(booleans = [true, false])
-    fun `test that registerCheckServerStatusTask correctly registers task`(showWorkers: Boolean) {
-        val registrar = createRegistrar(showWorkers = showWorkers)
-        registrar.registerCheckServerStatusTask()
+    fun `test that registerCheckServerTask correctly registers task`(showWorkers: Boolean) {
+        val registrar = createRegistrar(showWorkers)
+        registrar.registerCheckServerTask()
 
-        val (taskName, task) = testTaskMetadata<CheckServerStatusTask>(
-            "checkServer$taskBaseName",
-            showWorkers
-        )
+        val (taskName, task) = testTaskMetadata<CheckServerStatusTask>("checkServer$taskBaseName", showWorkers)
 
         assertEquals(
             specification,
             task.specification.orNull,
-            "Task $taskName should have specification $specification"
+            "Task $taskName should have the same specification"
         )
+
+        testStatusFile(taskName, task.statusFile.orNull?.asFile)
+        testRequestedStartFile(taskName, task.requestedStartFile.orNull?.asFile)
+        testRequestedStopFile(taskName, task.requestedStopFile.orNull?.asFile)
+    }
+
+    @ParameterizedTest
+    @ValueSource(booleans = [true, false])
+    fun `test thatRegisterRunTask correctly registers task`(showWorkers: Boolean) {
+        val registrar = createRegistrar(showWorkers)
+        registrar.registerRunTask()
+
+        val (taskName, task) = testTaskMetadata<RunServerTask>("run$taskBaseName", showWorkers)
+
+        assertEquals(
+            specification,
+            task.specification.orNull,
+            "Task $taskName should have the same specification"
+        )
+
         assertEquals(
             StartServerTaskRegistrar.DEFAULT_TCP_SERVER_PORT,
             task.port.orNull,
             "Task $taskName should have port ${StartServerTaskRegistrar.DEFAULT_TCP_SERVER_PORT}"
         )
-        val statusFile = project.projectDir.toPath()
-            .resolve(SERVER_DIRECTORY)
-            .resolve(StartServerTaskRegistrar.STATUS_FILE_NAME)
-        assertEquals(
-            statusFile.toFile(),
-            task.statusFile.orNull?.asFile,
-            "Task $taskName should have statusFile pointing to $statusFile"
-        )
-        val stopFile = project.projectDir.toPath()
-            .resolve(SERVER_DIRECTORY)
-            .resolve(StartServerTaskRegistrar.REQUESTED_STOP_FILENAME)
-        assertEquals(
-            stopFile.toFile(),
-            task.requestedStopFile.orNull?.asFile,
-            "Task $taskName should have stopRequiredFile pointing to $stopFile"
-        )
 
-        testFinalizedByStopServerTask(registrar, task)
-    }
-
-    @ParameterizedTest
-    @ValueSource(booleans = [true, false])
-    fun `test that registerStartServerTask correctly registers task`(showWorkers: Boolean) {
-        val registrar = createRegistrar(showWorkers = showWorkers)
-        registrar.registerStartServerTask()
-
-        val (taskName, task) = testTaskMetadata<RunServerTask>(
-            "startServer$taskBaseName",
-            showWorkers
-        )
-
-        assertEquals(
-            specification,
-            task.specification.orNull,
-            "Task $taskName should have specification $specification"
-        )
-        assertEquals(
-            StartServerTaskRegistrar.DEFAULT_TCP_SERVER_PORT,
-            task.port.orNull,
-            "Task $taskName should have port ${StartServerTaskRegistrar.DEFAULT_TCP_SERVER_PORT}"
-        )
-        val runnerExecutable = project.projectDir.toPath()
+        val runnerJar = project.projectDir.toPath()
             .resolve(SERVER_DIRECTORY)
             .resolve("server-runner.jar")
+            .toFile()
         assertEquals(
-            runnerExecutable.toFile(),
+            runnerJar,
             task.runnerJar.orNull?.asFile,
-            "Task $taskName should have runnerJar pointing to $runnerExecutable"
-        )
-        val statusFile = project.projectDir.toPath()
-            .resolve(SERVER_DIRECTORY)
-            .resolve(StartServerTaskRegistrar.STATUS_FILE_NAME)
-        assertEquals(
-            statusFile.toFile(),
-            task.statusFile.orNull?.asFile,
-            "Task $taskName should have statusFile pointing to $statusFile"
+            "Task $taskName should have runnerJar pointing to $runnerJar"
         )
 
-        testFinalizedByStopServerTask(registrar, task)
+        testRequestedStartFile(taskName, task.requestedStartFile.orNull?.asFile)
+        testStatusFile(taskName, task.statusFile.orNull?.asFile)
     }
 
     @ParameterizedTest
     @ValueSource(booleans = [true, false])
     fun `test that registerAwaitBootCompleteTask correctly registers task`(showWorkers: Boolean) {
-        val registrar = createRegistrar(showWorkers = showWorkers)
+        val registrar = createRegistrar(showWorkers)
         registrar.registerAwaitBootCompleteTask()
 
-        val (taskName, task) = testTaskMetadata<AwaitBootCompleteTask>(
-            "awaitBootComplete$taskBaseName",
-            showWorkers
+        val (taskName, task) = testTaskMetadata<AwaitBootCompleteTask>("awaitBootComplete$taskBaseName", showWorkers)
+
+        val logFile = project.projectDir.toPath()
+            .resolve(SERVER_DIRECTORY)
+            .resolve("logs/latest.log")
+            .toFile()
+        assertEquals(
+            logFile,
+            task.logFile.orNull?.asFile,
+            "Task $taskName should have logFile pointing to $logFile"
+        )
+
+        assertEquals(
+            StartServerTaskRegistrar.DEFAULT_BOOT_AWAIT_TIMEOUT,
+            task.awaitTimeout.orNull,
+            "Task $taskName should have awaitTimeout ${StartServerTaskRegistrar.DEFAULT_BOOT_AWAIT_TIMEOUT}"
         )
 
         assertEquals(
             specification,
             task.specification.orNull,
-            "Task $taskName should have specification $specification"
-        )
-        val statusFile = project.projectDir.toPath()
-            .resolve(SERVER_DIRECTORY)
-            .resolve(StartServerTaskRegistrar.STATUS_FILE_NAME)
-        assertEquals(
-            statusFile.toFile(),
-            task.statusFile.orNull?.asFile,
-            "Task $taskName should have statusFile pointing to $statusFile"
-        )
-        val logFile = project.projectDir.toPath()
-            .resolve(SERVER_DIRECTORY)
-            .resolve("logs/latest.log")
-        assertEquals(
-            logFile.toFile(),
-            task.logFile.orNull?.asFile,
-            "Task $taskName should have logFile pointing to $logFile"
-        )
-        assertEquals(
-            StartServerTaskRegistrar.DEFAULT_BOOT_AWAIT_TIMEOUT,
-            task.awaitTimeout.orNull,
-            "Task $taskName should have awaitTimeout ${StartServerTaskRegistrar.DEFAULT_BOOT_AWAIT_TIMEOUT} seconds"
-        )
-        val stopFile = project.projectDir.toPath()
-            .resolve(SERVER_DIRECTORY)
-            .resolve(StartServerTaskRegistrar.REQUESTED_STOP_FILENAME)
-        assertEquals(
-            stopFile.toFile(),
-            task.stopRequiredFile.orNull?.asFile,
-            "Task $taskName should have stopRequiredFile pointing to $stopFile"
+            "Task $taskName should have the same specification"
         )
 
-        testFinalizedByStopServerTask(registrar, task)
+        testStatusFile(taskName, task.statusFile.orNull?.asFile)
+        testRequestedStopFile(taskName, task.requestedStopFile.orNull?.asFile)
     }
 
-    @ParameterizedTest
-    @ValueSource(booleans = [true, false])
-    fun `test that registerStopServerTask correctly registers task`(showWorkers: Boolean) {
-        val registrar = createRegistrar(showWorkers = showWorkers)
-        registrar.registerStopServerTask()
+    @Test
+    fun `test that registerStopTask correctly registers task`() {
+        val registrar = createRegistrar()
+        registrar.registerStopTask()
 
-        val (taskName, task) = testTaskMetadata<StopServerTask>(
-            "stopServer$taskBaseName",
-            showWorkers
-        )
+        val (taskName, task) = testTaskMetadata<StopServerTask>("stop$taskBaseName", true)
 
-        val stopFile = project.projectDir.toPath()
-            .resolve(SERVER_DIRECTORY)
-            .resolve(StartServerTaskRegistrar.REQUESTED_STOP_FILENAME)
-        assertEquals(
-            stopFile.toFile(),
-            task.stopRequiredFile.orNull?.asFile,
-            "Task $taskName should have stopRequiredFile pointing to $stopFile"
-        )
         assertEquals(
             StartServerTaskRegistrar.DEFAULT_STOP_TIMEOUT,
             task.awaitTimeout.orNull,
-            "Task $taskName should have awaitTimeout ${StartServerTaskRegistrar.DEFAULT_STOP_TIMEOUT} seconds"
+            "Task $taskName should have awaitTimeout ${StartServerTaskRegistrar.DEFAULT_STOP_TIMEOUT}"
         )
+
+        testStatusFile(taskName, task.statusFile.orNull?.asFile)
+        testRequestedStopFile(taskName, task.requestedStopFile.orNull?.asFile)
+    }
+
+    private fun testStatusFile(taskName: String, file: File?) {
         val statusFile = project.projectDir.toPath()
             .resolve(SERVER_DIRECTORY)
             .resolve(StartServerTaskRegistrar.STATUS_FILE_NAME)
+            .toFile()
         assertEquals(
-            statusFile.toFile(),
-            task.statusFile.orNull?.asFile,
+            statusFile,
+            file,
             "Task $taskName should have statusFile pointing to $statusFile"
         )
     }
 
-    private fun testFinalizedByStopServerTask(registrar: StartServerTaskRegistrar, task: Task) {
-        val stopServerTask = registrar.stopServerTask
-        testFinalizedBy(task, stopServerTask)
-    }
-
-    private fun testFinalizedBy(first: Task, second: Task) {
-        assertContains(
-            first.finalizedBy.getDependencies(first),
-            second,
-            "Task ${first.name} should be finalized by ${second.name}"
+    private fun testRequestedStartFile(taskName: String, file: File?) {
+        val requestedStartFile = project.projectDir.toPath()
+            .resolve(SERVER_DIRECTORY)
+            .resolve(StartServerTaskRegistrar.REQUESTED_START_FILENAME)
+            .toFile()
+        assertEquals(
+            requestedStartFile,
+            file,
+            "Task $taskName should have requestedStartFile pointing to $requestedStartFile"
         )
     }
 
-    private fun createRegistrar(
-        setupStopServerTask: Boolean = true,
-        showWorkers: Boolean = false
-    ): StartServerTaskRegistrar {
+    private fun testRequestedStopFile(taskName: String, file: File?) {
+        val requestedStopFile = project.projectDir.toPath()
+            .resolve(SERVER_DIRECTORY)
+            .resolve(StartServerTaskRegistrar.REQUESTED_STOP_FILENAME)
+            .toFile()
+        assertEquals(
+            requestedStopFile,
+            file,
+            "Task $taskName should have requestedStopFile pointing to $requestedStopFile"
+        )
+    }
+
+    private fun createRegistrar(showWorkers: Boolean = false): StartServerTaskRegistrar {
         val registrar = StartServerTaskRegistrar(
             specification,
             SERVER_DIRECTORY.resolve("server-runner.jar"),
@@ -235,8 +193,8 @@ class StartServerTaskRegistrarTest : RegistrarTestHelper() {
         registrar.project = project
         registrar.serverDirectory = SERVER_DIRECTORY
         registrar.statusFile = SERVER_DIRECTORY.resolve(StartServerTaskRegistrar.STATUS_FILE_NAME)
+        registrar.requestedStartFile = SERVER_DIRECTORY.resolve(StartServerTaskRegistrar.REQUESTED_START_FILENAME)
         registrar.requestedStopFile = SERVER_DIRECTORY.resolve(StartServerTaskRegistrar.REQUESTED_STOP_FILENAME)
-        if (setupStopServerTask) registrar.stopServerTask = setupTask()
         return registrar
     }
 
