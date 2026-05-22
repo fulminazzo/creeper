@@ -3,6 +3,7 @@ package it.fulminazzo.creeper.task.server.start
 import com.fasterxml.jackson.module.kotlin.readValue
 import it.fulminazzo.creeper.CreeperPlugin
 import it.fulminazzo.creeper.ProjectInfo
+import it.fulminazzo.creeper.ServerConnector
 import it.fulminazzo.creeper.task.server.InstallServerRunnerTask
 import org.gradle.testkit.runner.GradleRunner
 import org.junit.jupiter.api.BeforeEach
@@ -16,7 +17,7 @@ import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
 
 class StartServerTaskRegistrarFunctionalTest {
-    private val projectDir = File("build/resources/functionalTest/task/server/run/server")
+    private val projectDir = File("build/resources/functionalTest/task/server/start/server")
 
     private val buildFile by lazy { projectDir.resolve("build.gradle.kts") }
     private val settingsFile by lazy { projectDir.resolve("settings.gradle.kts") }
@@ -42,7 +43,7 @@ class StartServerTaskRegistrarFunctionalTest {
 
     @Test
     fun `test that run task correctly runs server`() {
-        runner.withArguments("runPaper1_21").build()
+        runner.withArguments("startPaper1_21").build()
 
         val serverDir = projectDir.resolve("paper-1.21")
         assertTrue(serverDir.exists(), "Server directory does not exist: $serverDir")
@@ -71,7 +72,7 @@ class StartServerTaskRegistrarFunctionalTest {
             "Minecraft Server is not running on port $port"
         )
 
-        runner.withArguments("stopPaper1_21").build()
+        runner.withArguments("stop1_21").build()
         Thread.sleep(WAIT_STOP_SECONDS * 1000)
         assertFalse(
             isServerRunning(port),
@@ -92,18 +93,11 @@ class StartServerTaskRegistrarFunctionalTest {
     }
 
     private companion object {
-        private val WAIT_STOP_SECONDS = 5L
+        private const val WAIT_STOP_SECONDS = 5L
 
-        private val RESOURCE_BUILD_FILE = Path.of("src/functionalTest/resources/task/server/run/build.gradle.kts")
+        private val RESOURCE_BUILD_FILE = Path.of("src/functionalTest/resources/task/server/start/build.gradle.kts")
 
-        private fun isServerRunning(port: Int): Boolean {
-            try {
-                Socket("localhost", port).close()
-                return true
-            } catch (_: IOException) {
-                return false
-            }
-        }
+        private fun isServerRunning(port: Int) = ServerConnector.isServerOnline(port)
 
     }
 
