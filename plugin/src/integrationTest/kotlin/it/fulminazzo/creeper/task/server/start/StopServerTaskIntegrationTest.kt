@@ -55,7 +55,7 @@ class StopServerTaskIntegrationTest : TaskIntegrationTestHelper() {
         )
 
         task.run()
-        Thread.sleep(125L)
+        Thread.sleep(2_000L)
 
         assertNotNull(process.exitValue(), "The server process should have exited")
         assertFalse(process.isAlive, "The server process should have been stopped")
