@@ -7,7 +7,9 @@ import it.fulminazzo.creeper.extension.spec.ServerSpec
 import org.gradle.api.DefaultTask
 import org.gradle.api.file.RegularFileProperty
 import org.gradle.api.provider.Property
+import org.gradle.api.tasks.InputFile
 import org.gradle.api.tasks.Internal
+import org.gradle.api.tasks.Optional
 import org.gradle.api.tasks.OutputFile
 import org.gradle.api.tasks.TaskAction
 
@@ -34,7 +36,8 @@ abstract class CheckServerStatusTask : DefaultTask() {
     @get:Internal
     abstract val port: Property<Int>
 
-    @get:Internal
+    @get:InputFile
+    @get:Optional
     abstract val statusFile: RegularFileProperty
 
     @get:OutputFile

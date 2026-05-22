@@ -9,6 +9,7 @@ import org.gradle.api.provider.Property
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.InputFile
 import org.gradle.api.tasks.Internal
+import org.gradle.api.tasks.Optional
 import org.gradle.api.tasks.OutputFile
 import org.gradle.api.tasks.TaskAction
 import kotlin.time.Duration.Companion.seconds
@@ -20,17 +21,18 @@ import kotlin.time.Duration.Companion.seconds
  */
 abstract class AwaitBootCompleteTask : DefaultTask() {
 
-    @get:Input
-    abstract val specification: Property<ServerSpec<*, *>>
-
-    @get:InputFile
-    abstract val statusFile: RegularFileProperty
-
     @get:Internal
     abstract val logFile: RegularFileProperty
 
     @get:Internal
     abstract val awaitTimeout: Property<Long>
+
+    @get:Input
+    abstract val specification: Property<ServerSpec<*, *>>
+
+    @get:InputFile
+    @get:Optional
+    abstract val statusFile: RegularFileProperty
 
     @get:OutputFile
     abstract val requestedStopFile: RegularFileProperty
