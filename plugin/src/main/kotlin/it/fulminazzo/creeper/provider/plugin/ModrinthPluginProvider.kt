@@ -4,7 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.annotation.JsonProperty
 import com.fasterxml.jackson.module.kotlin.readValue
 import it.fulminazzo.creeper.CreeperPlugin
-import it.fulminazzo.creeper.CreeperPlugin.Companion.JSON_MAPPER
+import it.fulminazzo.creeper.JSON_MAPPER
 import it.fulminazzo.creeper.cache.CacheManager
 import it.fulminazzo.creeper.download.CachedDownloader
 import it.fulminazzo.creeper.util.HttpUtils

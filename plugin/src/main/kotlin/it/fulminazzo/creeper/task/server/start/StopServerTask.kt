@@ -1,14 +1,12 @@
 package it.fulminazzo.creeper.task.server.start
 
 import com.fasterxml.jackson.module.kotlin.readValue
-import it.fulminazzo.creeper.CreeperPlugin
+import it.fulminazzo.creeper.PROPERTIES_MAPPER
 import it.fulminazzo.creeper.ServerConnector
 import org.gradle.api.DefaultTask
 import org.gradle.api.file.RegularFileProperty
 import org.gradle.api.provider.Property
-import org.gradle.api.tasks.InputFile
 import org.gradle.api.tasks.Internal
-import org.gradle.api.tasks.Optional
 import org.gradle.api.tasks.TaskAction
 import kotlin.time.Duration.Companion.seconds
 
@@ -49,7 +47,7 @@ abstract class StopServerTask : DefaultTask() {
         logger.lifecycle("Stopping server")
         val statFile = statusFile.get().asFile
         if (statFile.exists()) {
-            val data = CreeperPlugin.PROPERTIES_MAPPER.readValue<Map<String, Any>>(statFile)
+            val data = PROPERTIES_MAPPER.readValue<Map<String, Any>>(statFile)
 
             val port = data["port"]?.toString()?.toIntOrNull()
             if (port != null) {

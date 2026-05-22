@@ -3,7 +3,7 @@ package it.fulminazzo.creeper.task.server.install
 import com.fasterxml.jackson.module.kotlin.readValue
 import io.mockk.every
 import io.mockk.mockk
-import it.fulminazzo.creeper.CreeperPlugin
+import it.fulminazzo.creeper.JSON_MAPPER
 import it.fulminazzo.creeper.PlayerProfile
 import it.fulminazzo.creeper.PlayerResolver
 import it.fulminazzo.creeper.extension.spec.MinecraftServerSpec
@@ -58,7 +58,7 @@ class FileActionTest {
         val whitelistFile = DIRECTORY.resolve("whitelist.json")
         assertTrue(whitelistFile.exists(), "Whitelist file does not exist: $whitelistFile")
 
-        val data = CreeperPlugin.JSON_MAPPER.readValue<Set<PlayerProfile>>(whitelistFile.toFile())
+        val data = JSON_MAPPER.readValue<Set<PlayerProfile>>(whitelistFile.toFile())
         assertEquals(
             setOf(PlayerProfile(UUID.nameUUIDFromBytes("Fulminazzo".toByteArray()), "Fulminazzo")),
             data
@@ -97,7 +97,7 @@ class FileActionTest {
         val opsFile = DIRECTORY.resolve("ops.json")
         assertTrue(opsFile.exists(), "Operators file does not exist: $opsFile")
 
-        val data = CreeperPlugin.JSON_MAPPER.readValue<Set<Map<String, String>>>(opsFile.toFile())
+        val data = JSON_MAPPER.readValue<Set<Map<String, String>>>(opsFile.toFile())
         assertEquals(
             setOf(
                 mapOf(

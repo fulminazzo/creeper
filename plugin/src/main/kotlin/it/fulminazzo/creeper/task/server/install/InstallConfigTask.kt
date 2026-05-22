@@ -1,8 +1,8 @@
 package it.fulminazzo.creeper.task.server.install
 
 import com.fasterxml.jackson.module.kotlin.readValue
-import it.fulminazzo.creeper.CreeperPlugin
 import it.fulminazzo.creeper.extension.spec.ServerSpec
+import it.fulminazzo.creeper.getMapper
 import it.fulminazzo.creeper.provider.ConfigProvider
 import it.fulminazzo.creeper.service.provider.ConfigProviderService
 import org.gradle.api.DefaultTask
@@ -50,7 +50,7 @@ abstract class InstallConfigTask : DefaultTask() {
             spec.version,
             file.parentFile.toPath()
         )
-        val mapper = CreeperPlugin.getMapper(path.extension)
+        val mapper = getMapper(path.extension)
         val currentConfig =
             // Reading in ISO_8859_1 to support section signs
             if (path.fileSize() > 0) mapper.readValue<MutableMap<String, Any>>(path.readText(Charsets.ISO_8859_1))

@@ -1,6 +1,6 @@
 package it.fulminazzo.creeper.task.server.start
 
-import it.fulminazzo.creeper.CreeperPlugin
+import it.fulminazzo.creeper.PROPERTIES_MAPPER
 import it.fulminazzo.creeper.ProjectInfo
 import it.fulminazzo.creeper.ServerType
 import it.fulminazzo.creeper.extension.spec.MinecraftServerSpec
@@ -47,7 +47,7 @@ class StopServerTaskIntegrationTest : TaskIntegrationTestHelper() {
         ).directory(workDir).redirectErrorStream(true).start()
         Thread.sleep(1_000L)
 
-        CreeperPlugin.PROPERTIES_MAPPER.writeValue(
+        PROPERTIES_MAPPER.writeValue(
             statusFile, mapOf(
                 "pid" to process.pid(),
                 "port" to port

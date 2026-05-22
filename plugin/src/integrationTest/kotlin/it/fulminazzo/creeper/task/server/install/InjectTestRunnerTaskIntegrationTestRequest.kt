@@ -1,7 +1,7 @@
 package it.fulminazzo.creeper.task.server.install
 
 import com.fasterxml.jackson.module.kotlin.readValue
-import it.fulminazzo.creeper.CreeperPlugin
+import it.fulminazzo.creeper.YAML_MAPPER
 import it.fulminazzo.creeper.extension.spec.MinecraftServerSpec
 import it.fulminazzo.creeper.task.TaskIntegrationTestHelper
 import org.gradle.api.plugins.JavaPlugin
@@ -72,7 +72,7 @@ class InjectTestRunnerTaskIntegrationTestRequest : TaskIntegrationTestHelper() {
 
         assertTrue(configFile.exists(), "Configuration file ${configFile.path} should exist")
 
-        val config = CreeperPlugin.YAML_MAPPER.readValue<Map<String, Any>>(configFile)
+        val config = YAML_MAPPER.readValue<Map<String, Any>>(configFile)
 
         val buildDirectory = project.file("build").absolutePath
         assertEquals(

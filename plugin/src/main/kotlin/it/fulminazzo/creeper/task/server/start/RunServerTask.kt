@@ -1,15 +1,13 @@
 package it.fulminazzo.creeper.task.server.start
 
-import it.fulminazzo.creeper.CreeperPlugin
+import it.fulminazzo.creeper.PROPERTIES_MAPPER
 import it.fulminazzo.creeper.extension.spec.ServerSpec
 import org.gradle.api.DefaultTask
 import org.gradle.api.GradleException
 import org.gradle.api.file.RegularFileProperty
 import org.gradle.api.provider.Property
 import org.gradle.api.tasks.Input
-import org.gradle.api.tasks.InputFile
 import org.gradle.api.tasks.Internal
-import org.gradle.api.tasks.Optional
 import org.gradle.api.tasks.OutputFile
 import org.gradle.api.tasks.TaskAction
 import java.util.concurrent.TimeUnit
@@ -96,7 +94,7 @@ abstract class RunServerTask : DefaultTask() {
                 "pid" to process.pid(),
                 "port" to tcpServerPort
             )
-            CreeperPlugin.PROPERTIES_MAPPER.writeValue(statusFile.get().asFile, data)
+            PROPERTIES_MAPPER.writeValue(statusFile.get().asFile, data)
         }
     }
 

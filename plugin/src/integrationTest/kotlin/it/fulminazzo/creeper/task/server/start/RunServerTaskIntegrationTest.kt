@@ -1,7 +1,7 @@
 package it.fulminazzo.creeper.task.server.start
 
 import com.fasterxml.jackson.module.kotlin.readValue
-import it.fulminazzo.creeper.CreeperPlugin
+import it.fulminazzo.creeper.PROPERTIES_MAPPER
 import it.fulminazzo.creeper.ProjectInfo
 import it.fulminazzo.creeper.ServerType
 import it.fulminazzo.creeper.extension.spec.MinecraftServerSpec
@@ -46,7 +46,7 @@ class RunServerTaskIntegrationTest : TaskIntegrationTestHelper() {
 
         assertTrue(statusFile.exists(), "The status file should have been created")
 
-        val data = CreeperPlugin.PROPERTIES_MAPPER.readValue<Map<String, Any>>(statusFile)
+        val data = PROPERTIES_MAPPER.readValue<Map<String, Any>>(statusFile)
 
         val pid = data["pid"]
         assertNotNull(pid, "The PID should have been set in the status file")

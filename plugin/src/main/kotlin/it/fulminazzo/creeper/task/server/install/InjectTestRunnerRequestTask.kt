@@ -1,7 +1,7 @@
 package it.fulminazzo.creeper.task.server.install
 
-import it.fulminazzo.creeper.CreeperPlugin
 import it.fulminazzo.creeper.ProjectInfo
+import it.fulminazzo.creeper.YAML_MAPPER
 import it.fulminazzo.creeper.extension.spec.ServerSpec
 import it.fulminazzo.creeper.provider.plugin.GitHubPluginRequest
 import it.fulminazzo.creeper.provider.plugin.LocalPluginRequest
@@ -67,7 +67,7 @@ abstract class InjectTestRunnerRequestTask : DefaultTask() {
             "dependencies" to dependencies
         )
 
-        CreeperPlugin.YAML_MAPPER.writeValue(configurationFile, data)
+        YAML_MAPPER.writeValue(configurationFile, data)
     }
 
     internal companion object {

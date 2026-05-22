@@ -1,15 +1,13 @@
 package it.fulminazzo.creeper.task.server.start
 
 import com.fasterxml.jackson.module.kotlin.readValue
-import it.fulminazzo.creeper.CreeperPlugin
+import it.fulminazzo.creeper.PROPERTIES_MAPPER
 import it.fulminazzo.creeper.ServerConnector
 import it.fulminazzo.creeper.extension.spec.ServerSpec
 import org.gradle.api.DefaultTask
 import org.gradle.api.file.RegularFileProperty
 import org.gradle.api.provider.Property
-import org.gradle.api.tasks.InputFile
 import org.gradle.api.tasks.Internal
-import org.gradle.api.tasks.Optional
 import org.gradle.api.tasks.OutputFile
 import org.gradle.api.tasks.TaskAction
 
@@ -53,7 +51,7 @@ abstract class CheckServerStatusTask : DefaultTask() {
         val statFile = statusFile.get().asFile
         if (!statFile.exists()) return requestStart()
 
-        val data = CreeperPlugin.PROPERTIES_MAPPER.readValue<Map<String, Any>>(statFile)
+        val data = PROPERTIES_MAPPER.readValue<Map<String, Any>>(statFile)
 
         val pid = data["pid"]?.toString()?.toLongOrNull() ?: return requestStop()
         ProcessHandle.of(pid).orElse(null)?.takeIf { it.isAlive } ?: return requestStop()

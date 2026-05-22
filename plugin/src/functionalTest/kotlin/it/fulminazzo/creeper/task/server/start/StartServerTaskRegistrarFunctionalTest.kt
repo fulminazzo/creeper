@@ -1,7 +1,7 @@
 package it.fulminazzo.creeper.task.server.start
 
 import com.fasterxml.jackson.module.kotlin.readValue
-import it.fulminazzo.creeper.CreeperPlugin
+import it.fulminazzo.creeper.PROPERTIES_MAPPER
 import it.fulminazzo.creeper.ProjectInfo
 import it.fulminazzo.creeper.task.server.InstallServerRunnerTask
 import org.gradle.testkit.runner.GradleRunner
@@ -51,7 +51,7 @@ class StartServerTaskRegistrarFunctionalTest {
         val statusFile = serverDir.resolve("${ProjectInfo.NAME}-status.properties")
         assertTrue(statusFile.exists(), "Status file ${statusFile.path} does not exist")
 
-        val data = CreeperPlugin.PROPERTIES_MAPPER.readValue<Map<String, Any>>(statusFile)
+        val data = PROPERTIES_MAPPER.readValue<Map<String, Any>>(statusFile)
         val pid = data["pid"]?.toString()?.toLong()
         assertNotNull(pid, "PID should not be null")
         assertTrue(

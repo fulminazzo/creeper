@@ -1,10 +1,5 @@
 package it.fulminazzo.creeper
 
-import com.fasterxml.jackson.databind.ObjectMapper
-import com.fasterxml.jackson.dataformat.javaprop.JavaPropsMapper
-import com.fasterxml.jackson.dataformat.yaml.YAMLMapper
-import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
-import com.fasterxml.jackson.module.kotlin.kotlinModule
 import it.fulminazzo.creeper.extension.ServersConfigurationExtension
 import it.fulminazzo.creeper.service.PlayerResolverService
 import it.fulminazzo.creeper.service.downloader.CachedDownloaderService
@@ -127,10 +122,6 @@ class CreeperPlugin : Plugin<Project> {
         internal val CACHE_DIRECTORY
             get() = Path.of(System.getProperty("user.home"), ".gradle", "caches", ProjectInfo.NAME)
 
-        internal val JSON_MAPPER = jacksonObjectMapper()
-        internal val YAML_MAPPER = YAMLMapper.builder().addModule(kotlinModule()).build()
-        internal val PROPERTIES_MAPPER = JavaPropsMapper.builder().addModule(kotlinModule()).build()
-
         /**
          * Registers a task with the given name and description.
          *
@@ -154,19 +145,6 @@ class CreeperPlugin : Plugin<Project> {
             it.group = group
             it.description = description
             configuration.execute(it)
-        }
-
-        /**
-         * Gets an appropriate Jackson mapper for the given format.
-         *
-         * @param format the format of the mapper (file extension)
-         * @return the mapper
-         */
-        internal fun getMapper(format: String): ObjectMapper = when (format) {
-            "json" -> JSON_MAPPER
-            "yaml", "yml" -> YAML_MAPPER
-            "properties" -> PROPERTIES_MAPPER
-            else -> throw IllegalArgumentException("Unsupported format: $format")
         }
 
     }

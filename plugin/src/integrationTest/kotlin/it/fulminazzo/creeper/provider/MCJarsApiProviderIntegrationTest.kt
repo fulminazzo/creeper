@@ -4,7 +4,7 @@ import io.mockk.every
 import io.mockk.mockkObject
 import io.mockk.unmockkObject
 import io.mockk.verify
-import it.fulminazzo.creeper.CreeperPlugin
+import it.fulminazzo.creeper.JSON_MAPPER
 import it.fulminazzo.creeper.download.CachedDownloader
 import it.fulminazzo.creeper.download.Downloader
 import it.fulminazzo.creeper.ServerType
@@ -53,7 +53,7 @@ class MCJarsApiProviderIntegrationTest {
     @MethodSource("providerJarProviderInvalidResponses")
     fun `test that JarProvider#get throws on invalid response from API`(response: MCJarsApiProvider.RawBuildResponse) {
         mockkObject(HttpUtils)
-        every { HttpUtils.getApi(any()) } returns CreeperPlugin.JSON_MAPPER.writeValueAsString(response)
+        every { HttpUtils.getApi(any()) } returns JSON_MAPPER.writeValueAsString(response)
         assertThrows<JarNotFoundException> { provider.get(PLATFORM, VERSION, WORK_DIR) }
         unmockkObject(HttpUtils)
     }
@@ -93,7 +93,7 @@ class MCJarsApiProviderIntegrationTest {
         mockkObject(HttpUtils)
         every { HttpUtils.getApi(any()) } answers {
             val url = args[0] as String
-            if (url.contains("versions")) CreeperPlugin.JSON_MAPPER.writeValueAsString(
+            if (url.contains("versions")) JSON_MAPPER.writeValueAsString(
                 MCJarsApiProvider.RawBuildResponse(
                     MCJarsApiProvider.BuildPage(
                         listOf(

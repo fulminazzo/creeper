@@ -1,7 +1,7 @@
 package it.fulminazzo.creeper.cache
 
 import com.fasterxml.jackson.annotation.JsonIgnore
-import it.fulminazzo.creeper.CreeperPlugin.Companion.JSON_MAPPER
+import it.fulminazzo.creeper.JSON_MAPPER
 import it.fulminazzo.creeper.ProjectInfo
 import java.io.Closeable
 import java.nio.file.Path

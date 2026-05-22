@@ -1,9 +1,11 @@
 package it.fulminazzo.creeper.task.server.install
 
 import com.fasterxml.jackson.module.kotlin.readValue
-import it.fulminazzo.creeper.CreeperPlugin
+import it.fulminazzo.creeper.JSON_MAPPER
+import it.fulminazzo.creeper.PROPERTIES_MAPPER
 import it.fulminazzo.creeper.PlayerProfile
 import it.fulminazzo.creeper.ProjectInfo
+import it.fulminazzo.creeper.YAML_MAPPER
 import org.gradle.testkit.runner.GradleRunner
 import org.junit.jupiter.api.BeforeEach
 import java.io.File
@@ -56,7 +58,7 @@ class InstallServerTaskRegistrarFunctionalTest {
 
         val serverProperties = serverDir.resolve("server.properties")
         assertTrue(serverProperties.exists(), "Server properties file does not exist: $serverProperties")
-        val properties = CreeperPlugin.PROPERTIES_MAPPER.readValue<Map<String, Any>>(serverProperties.readText(Charsets.ISO_8859_1))
+        val properties = PROPERTIES_MAPPER.readValue<Map<String, Any>>(serverProperties.readText(Charsets.ISO_8859_1))
         assertEquals("25567", properties["server-port"], "Server port was not set correctly")
         assertEquals("22", properties["max-players"], "Max players was not set correctly")
         assertEquals("true", properties["white-list"], "White list was not set correctly")
@@ -72,12 +74,12 @@ class InstallServerTaskRegistrarFunctionalTest {
 
         val whitelistFile = serverDir.resolve("whitelist.json")
         assertTrue(whitelistFile.exists(), "Whitelist file does not exist: $whitelistFile")
-        val whitelist = CreeperPlugin.JSON_MAPPER.readValue<Set<PlayerProfile>>(whitelistFile)
+        val whitelist = JSON_MAPPER.readValue<Set<PlayerProfile>>(whitelistFile)
         assertEquals(setOf(NOTCH, JEB), whitelist, "Whitelist does not contain expected players")
 
         val operatorsFile = serverDir.resolve("ops.json")
         assertTrue(operatorsFile.exists(), "Operators file does not exist: $operatorsFile")
-        val operators = CreeperPlugin.JSON_MAPPER.readValue<Set<Map<String, String>>>(operatorsFile)
+        val operators = JSON_MAPPER.readValue<Set<Map<String, String>>>(operatorsFile)
         assertEquals(
             setOf(
                 mapOf(
@@ -93,7 +95,7 @@ class InstallServerTaskRegistrarFunctionalTest {
 
         val bukkitFile = serverDir.resolve("bukkit.yml")
         assertTrue(bukkitFile.exists(), "Bukkit config file does not exist: $bukkitFile")
-        val bukkitConfig = CreeperPlugin.YAML_MAPPER.readValue<Map<String, Any>>(bukkitFile)
+        val bukkitConfig = YAML_MAPPER.readValue<Map<String, Any>>(bukkitFile)
         @Suppress("UNCHECKED_CAST")
         assertEquals(
             false,

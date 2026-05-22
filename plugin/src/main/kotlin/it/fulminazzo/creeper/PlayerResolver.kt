@@ -1,6 +1,5 @@
 package it.fulminazzo.creeper
 
-import it.fulminazzo.creeper.CreeperPlugin.Companion.JSON_MAPPER
 import it.fulminazzo.creeper.PlayerResolver.Companion.CACHE_FILE
 import it.fulminazzo.creeper.cache.CacheManager
 import it.fulminazzo.creeper.util.HttpUtils
