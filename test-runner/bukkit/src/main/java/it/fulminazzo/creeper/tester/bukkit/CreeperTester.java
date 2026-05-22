@@ -36,10 +36,12 @@ public final class CreeperTester extends JavaPlugin implements TesterApplication
      * @param dataFolder  the data folder
      * @param file        the file
      */
-    public CreeperTester(final @NotNull JavaPluginLoader loader,
-                         final @NotNull PluginDescriptionFile description,
-                         final @NotNull File dataFolder,
-                         final @NotNull File file) {
+    public CreeperTester(
+            final @NotNull JavaPluginLoader loader,
+            final @NotNull PluginDescriptionFile description,
+            final @NotNull File dataFolder,
+            final @NotNull File file
+    ) {
         super(loader, description, dataFolder, file);
     }
 
@@ -89,7 +91,7 @@ public final class CreeperTester extends JavaPlugin implements TesterApplication
 
     @Override
     public @NotNull File dataDirectory() {
-        return getDataFolder();
+        return new File(getDataFolder().getParentFile(), "creeper");
     }
 
 }
