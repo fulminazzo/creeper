@@ -57,10 +57,7 @@ abstract class InjectTestRunnerRequestTask : DefaultTask() {
         configurationFile.createNewFile()
 
         val buildDir = buildDirectory.get().asFile
-        val dependencies = CONFIGURATIONS
-            .map { project.configurations.getByName(it) }
-            .flatMap { getResolvedArtifacts(it) }
-            .distinct()
+        val dependencies = runtimeClasspath.files + integrationTestRuntimeClasspath.files
 
         val data = mapOf(
             "build-directory-path" to buildDir.absolutePath,
@@ -74,8 +71,6 @@ abstract class InjectTestRunnerRequestTask : DefaultTask() {
         private val FILE_NAME = "${
             ProjectInfo.NAME.lowercase().replaceFirstChar { it.uppercase() }
         }Tester-${ProjectInfo.VERSION}.jar"
-
-        private val CONFIGURATIONS = listOf("runtimeClasspath", "integrationTestRuntimeClasspath")
 
         /**
          * The plugin request for installing the `test-runner` module in the `plugins` directory.
