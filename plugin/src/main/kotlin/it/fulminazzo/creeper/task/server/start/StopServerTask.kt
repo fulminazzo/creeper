@@ -1,4 +1,4 @@
-package it.fulminazzo.creeper.task.server.run
+package it.fulminazzo.creeper.task.server.start
 
 import com.fasterxml.jackson.module.kotlin.readValue
 import it.fulminazzo.creeper.CreeperPlugin
@@ -8,8 +8,6 @@ import org.gradle.api.file.RegularFileProperty
 import org.gradle.api.provider.Property
 import org.gradle.api.tasks.Internal
 import org.gradle.api.tasks.TaskAction
-import java.io.IOException
-import java.net.Socket
 import kotlin.time.Duration.Companion.seconds
 
 /**

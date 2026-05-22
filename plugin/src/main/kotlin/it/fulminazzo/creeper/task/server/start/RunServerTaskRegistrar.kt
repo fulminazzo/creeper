@@ -1,4 +1,4 @@
-package it.fulminazzo.creeper.task.server.run
+package it.fulminazzo.creeper.task.server.start
 
 import it.fulminazzo.creeper.CreeperPlugin
 import it.fulminazzo.creeper.ProjectInfo

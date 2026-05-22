@@ -1,6 +1,5 @@
-package it.fulminazzo.creeper.task.server.run
+package it.fulminazzo.creeper.task.server.start
 
-import it.fulminazzo.creeper.ProjectInfo
 import it.fulminazzo.creeper.extension.spec.MinecraftServerSpec
 import it.fulminazzo.creeper.task.server.InstallServerRunnerTask
 import java.io.File

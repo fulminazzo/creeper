@@ -1,4 +1,4 @@
-package it.fulminazzo.creeper.task.server.run
+package it.fulminazzo.creeper.task.server.start
 
 import com.fasterxml.jackson.module.kotlin.readValue
 import it.fulminazzo.creeper.CreeperPlugin
@@ -10,7 +10,6 @@ import java.io.File
 import java.io.IOException
 import java.net.Socket
 import java.nio.file.Path
-import kotlin.test.Ignore
 import kotlin.test.Test
 import kotlin.test.assertFalse
 import kotlin.test.assertNotNull

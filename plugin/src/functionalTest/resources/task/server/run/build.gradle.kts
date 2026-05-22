@@ -2,9 +2,9 @@ import it.fulminazzo.creeper.ServerType
 import it.fulminazzo.creeper.extension.spec.MinecraftServerSpec
 import it.fulminazzo.creeper.extension.spec.settings.MinecraftServerSettings
 import it.fulminazzo.creeper.provider.plugin.PluginRequest
-import it.fulminazzo.creeper.task.server.run.RunServerTaskRegistrar
-import it.fulminazzo.creeper.task.server.run.AwaitBootCompleteTask
-import it.fulminazzo.creeper.task.server.run.StopServerTask
+import it.fulminazzo.creeper.task.server.start.RunServerTaskRegistrar
+import it.fulminazzo.creeper.task.server.start.AwaitBootCompleteTask
+import it.fulminazzo.creeper.task.server.start.StopServerTask
 
 plugins {
     id("it.fulminazzo.creeper")

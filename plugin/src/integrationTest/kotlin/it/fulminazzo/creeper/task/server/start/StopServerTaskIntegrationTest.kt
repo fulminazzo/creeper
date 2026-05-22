@@ -1,4 +1,4 @@
-package it.fulminazzo.creeper.task.server.run
+package it.fulminazzo.creeper.task.server.start
 
 import it.fulminazzo.creeper.CreeperPlugin
 import it.fulminazzo.creeper.ProjectInfo
@@ -6,7 +6,6 @@ import it.fulminazzo.creeper.ServerType
 import it.fulminazzo.creeper.extension.spec.MinecraftServerSpec
 import it.fulminazzo.creeper.task.TaskIntegrationTestHelper
 import java.io.File
-import kotlin.test.Ignore
 import kotlin.test.Test
 import kotlin.test.assertFalse
 import kotlin.test.assertNotNull
