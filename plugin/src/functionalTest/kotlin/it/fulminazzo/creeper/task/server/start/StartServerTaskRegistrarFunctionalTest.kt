@@ -3,6 +3,7 @@ package it.fulminazzo.creeper.task.server.start
 import com.fasterxml.jackson.module.kotlin.readValue
 import it.fulminazzo.creeper.PROPERTIES_MAPPER
 import it.fulminazzo.creeper.ProjectInfo
+import it.fulminazzo.creeper.ServerConnector
 import it.fulminazzo.creeper.task.server.InstallServerRunnerTask
 import org.gradle.testkit.runner.GradleRunner
 import org.junit.jupiter.api.BeforeEach
@@ -11,6 +12,8 @@ import java.io.IOException
 import java.net.Socket
 import java.nio.file.Path
 import kotlin.test.Test
+import kotlin.test.assertContentEquals
+import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
@@ -42,12 +45,72 @@ class StartServerTaskRegistrarFunctionalTest {
     }
 
     @Test
-    fun `test that run task correctly runs server`() {
+    fun `test that stop task does not throw if server already stopped`() {
+        runner.withArguments("startPaper1_21").build()
+
+        val serverDir = projectDir.resolve("paper-1.21")
+        assertTrue(serverDir.exists(), "Server directory does not exist on first run: $serverDir")
+
+        val (statusFile, pid, tcpPort) = testSuccessfulStart(serverDir)
+
+        val connector = ServerConnector(tcpPort)
+        connector.connect()
+        assertTrue(connector.connected, "TCP Server should be connected")
+        connector.send("stopprocess")
+        connector.disconnect()
+        assertFalse(connector.connected, "TCP Server should not be connected")
+
+        Thread.sleep(WAIT_STOP_SECONDS * 1000)
+        runner.withArguments("stopPaper1_21").build()
+
+        testSuccessfulStop(tcpPort, pid, statusFile)
+    }
+
+    @Test
+    fun `test that start task does not run again if already running`() {
+        runner.withArguments("startPaper1_21").build()
+
+        val serverDir = projectDir.resolve("paper-1.21")
+        assertTrue(serverDir.exists(), "Server directory does not exist on first run: $serverDir")
+
+        val statusFile = serverDir.resolve("${ProjectInfo.NAME}-status.properties")
+        assertTrue(statusFile.exists(), "Status file ${statusFile.path} does not exist on first run")
+
+        val firstData = PROPERTIES_MAPPER.readValue<Map<String, Any>>(statusFile)
+
+        runner.withArguments("startPaper1_21").build()
+
+        assertTrue(statusFile.exists(), "Status file ${statusFile.path} does not exist on second run")
+
+        val secondData = PROPERTIES_MAPPER.readValue<Map<String, Any>>(statusFile)
+
+        assertEquals(
+            firstData,
+            secondData,
+            "Status file should not have been modified"
+        )
+    }
+
+    @Test
+    fun `test start stop cycle`() {
         runner.withArguments("startPaper1_21").build()
 
         val serverDir = projectDir.resolve("paper-1.21")
         assertTrue(serverDir.exists(), "Server directory does not exist: $serverDir")
 
+        val (statusFile, pid, tcpPort) = testSuccessfulStart(serverDir)
+
+        val minecraftPort = 25566
+        assertTrue(
+            isServerRunning(minecraftPort),
+            "Minecraft Server is not running on port $minecraftPort"
+        )
+
+        runner.withArguments("stopPaper1_21").build()
+        testSuccessfulStop(tcpPort, pid, statusFile)
+    }
+
+    private fun testSuccessfulStart(serverDir: File): Triple<File, Long, Int> {
         val statusFile = serverDir.resolve("${ProjectInfo.NAME}-status.properties")
         assertTrue(statusFile.exists(), "Status file ${statusFile.path} does not exist")
 
@@ -65,14 +128,11 @@ class StartServerTaskRegistrarFunctionalTest {
             isServerRunning(tcpPort),
             "TCP Server is not running on port $tcpPort"
         )
+        return Triple(statusFile, pid, tcpPort)
+    }
 
-        val minecraftPort = 25566
-        assertTrue(
-            isServerRunning(minecraftPort),
-            "Minecraft Server is not running on port $minecraftPort"
-        )
-
-        runner.withArguments("stop1_21").build()
+    private fun testSuccessfulStop(tcpPort: Int, pid: Long, statusFile: File) {
+        val minecraftPort = 25565
         Thread.sleep(WAIT_STOP_SECONDS * 1000)
         assertFalse(
             isServerRunning(minecraftPort),
