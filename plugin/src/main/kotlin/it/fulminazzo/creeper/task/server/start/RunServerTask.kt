@@ -2,15 +2,20 @@ package it.fulminazzo.creeper.task.server.start
 
 import it.fulminazzo.creeper.PROPERTIES_MAPPER
 import it.fulminazzo.creeper.extension.spec.ServerSpec
+import it.fulminazzo.creeper.util.VersionUtils
 import org.gradle.api.DefaultTask
 import org.gradle.api.GradleException
 import org.gradle.api.file.RegularFileProperty
 import org.gradle.api.provider.Property
+import org.gradle.api.services.ServiceReference
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.Internal
 import org.gradle.api.tasks.OutputFile
 import org.gradle.api.tasks.TaskAction
+import org.gradle.jvm.toolchain.JavaLanguageVersion
+import org.gradle.jvm.toolchain.JavaToolchainService
 import java.util.concurrent.TimeUnit
+import javax.inject.Inject
 
 /**
  * Task to run a server from its specification.
@@ -29,6 +34,9 @@ import java.util.concurrent.TimeUnit
  * @constructor Creates a new Start server task
  */
 abstract class RunServerTask : DefaultTask() {
+
+    @get:Inject
+    abstract val javaToolchains: JavaToolchainService
 
     /**
      * Bridge file used primarily to signal a requested start.
@@ -65,16 +73,21 @@ abstract class RunServerTask : DefaultTask() {
 
         val tcpServerPort = port.get()
 
+        val minJavaVersion = VersionUtils.getJavaVersion(spec.version)
+
+        val javaExecutable = javaToolchains.launcherFor {
+            it.languageVersion.set(JavaLanguageVersion.of(minJavaVersion.feature()))
+        }.get().executablePath.asFile.absolutePath
+
         logger.lifecycle(
-            "Starting server ${spec.type.name} ${spec.version}. "
+            "Starting server ${spec.type.name} ${spec.version} with Java ${minJavaVersion.feature()}. "
                     + "TCP server on port $tcpServerPort (use any TCP client to connect, e.g. telnet localhost $tcpServerPort)"
         )
         val process = ProcessBuilder(
             "java", "-jar", runnerJarFile.name,
             tcpServerPort.toString(),
             serverDir.absolutePath,
-            //TODO: change version according to specification
-            "java", "-jar",
+            javaExecutable, "-jar",
             *spec.settings.flags.split(" ").toTypedArray(),
             "${spec.id}.jar",
             "nogui"
