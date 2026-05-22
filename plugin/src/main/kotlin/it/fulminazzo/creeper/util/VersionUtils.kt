@@ -23,7 +23,9 @@ object VersionUtils {
                 if (major > 1) "25"
                 else when (minor) {
                     in 0..5 -> "5"
-                    in 6..11 -> "6"
+                    // does not conform to Minecraft, but it is better for testing purposes
+                    in 6..7 -> "6"
+                    in 8..11 -> "8"
                     in 12..16 -> "8"
                     17 -> "16"
                     in 18..19 -> "17"
