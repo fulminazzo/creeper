@@ -9,14 +9,10 @@ import it.fulminazzo.creeper.extension.spec.MinecraftServerSpec
 import it.fulminazzo.creeper.provider.plugin.PluginRequest
 import it.fulminazzo.creeper.task.server.RegistrarTestHelper
 import org.gradle.api.Task
-import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.ValueSource
-import java.nio.file.Path
 import kotlin.test.Test
 import kotlin.test.assertEquals
-import kotlin.test.assertNotNull
-import kotlin.test.assertNull
 
 class InstallServerTaskRegistrarTest : RegistrarTestHelper() {
 
@@ -80,7 +76,7 @@ class InstallServerTaskRegistrarTest : RegistrarTestHelper() {
 
     @ParameterizedTest
     @ValueSource(booleans = [true, false])
-    fun `test that registerInstallExecutableTask correctly register task`(showWorkers: Boolean) {
+    fun `test that registerInstallExecutableTask correctly registers task`(showWorkers: Boolean) {
         val registrar = createRegistrar(showWorkers = showWorkers, setupExecutableTask = false)
         registrar.registerInstallExecutableTask()
 
@@ -100,7 +96,7 @@ class InstallServerTaskRegistrarTest : RegistrarTestHelper() {
 
     @ParameterizedTest
     @ValueSource(booleans = [true, false])
-    fun `test that registerInstallPluginsTask correctly register task for plugins`(showWorkers: Boolean) {
+    fun `test that registerInstallPluginsTask correctly registers task for plugins`(showWorkers: Boolean) {
         val registrar = createRegistrar(showWorkers = showWorkers)
         registrar.registerInstallPluginsTask()
 
@@ -114,7 +110,7 @@ class InstallServerTaskRegistrarTest : RegistrarTestHelper() {
 
     @ParameterizedTest
     @ValueSource(booleans = [true, false])
-    fun `test that registerFetchPluginMetadataTask correctly register task for plugin`(showWorkers: Boolean) {
+    fun `test that registerFetchPluginMetadataTask correctly registers task for plugin`(showWorkers: Boolean) {
         val request = mockk<PluginRequest>()
         every { request.toHashString() } returns "hash"
         val index = 1
@@ -143,7 +139,7 @@ class InstallServerTaskRegistrarTest : RegistrarTestHelper() {
 
     @ParameterizedTest
     @ValueSource(booleans = [true, false])
-    fun `test that registerInstallPluginTask correctly register task for plugin`(showWorkers: Boolean) {
+    fun `test that registerInstallPluginTask correctly registers task for plugin`(showWorkers: Boolean) {
         val request = mockk<PluginRequest>()
         every { request.toHashString() } returns "hash"
         val index = 1
@@ -207,7 +203,7 @@ class InstallServerTaskRegistrarTest : RegistrarTestHelper() {
             "Task $taskName should have configFile pointing to $configFile"
         )
 
-        testDependencyHierarchy(registrar, task, taskName)
+        testDependencyHierarchy(registrar, task)
     }
 
     @ParameterizedTest
@@ -238,7 +234,7 @@ class InstallServerTaskRegistrarTest : RegistrarTestHelper() {
             "Task $taskName should have file pointing to $file"
         )
 
-        testDependencyHierarchy(registrar, task, taskName)
+        testDependencyHierarchy(registrar, task)
     }
 
     @ParameterizedTest
@@ -269,7 +265,7 @@ class InstallServerTaskRegistrarTest : RegistrarTestHelper() {
             "Task $taskName should have file pointing to $file"
         )
 
-        testDependencyHierarchy(registrar, task, taskName)
+        testDependencyHierarchy(registrar, task)
     }
 
     @ParameterizedTest
@@ -300,7 +296,7 @@ class InstallServerTaskRegistrarTest : RegistrarTestHelper() {
             "Task $taskName should have file pointing to $file"
         )
 
-        testDependencyHierarchy(registrar, task, taskName)
+        testDependencyHierarchy(registrar, task)
     }
 
     /**
@@ -335,10 +331,10 @@ class InstallServerTaskRegistrarTest : RegistrarTestHelper() {
             "Task $taskName should have configFile pointing to $configFile"
         )
 
-        testDependencyHierarchy(registrar, task, taskName)
+        testDependencyHierarchy(registrar, task)
     }
 
-    private fun testDependencyHierarchy(registrar: InstallServerTaskRegistrar, task: Task, taskName: String) {
+    private fun testDependencyHierarchy(registrar: InstallServerTaskRegistrar, task: Task) {
         verify(exactly = 1) { registrar.baseTask.dependsOn(task) }
         testDependency(task, registrar.executableTask)
     }
