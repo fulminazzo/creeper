@@ -33,11 +33,13 @@ class RunServerTaskIntegrationTest : TaskIntegrationTestHelper() {
             task.runnerJar.set(RUNNER_JAR)
             task.statusFile.set(STATUS_FILE)
         }
+        val taskRequestFile = task.requestedStartFile.get().asFile
+        taskRequestFile.parentFile.mkdirs()
+        taskRequestFile.createNewFile()
 
         RunTaskUtils.copyRunFilesToTaskWorkDir(
             WORK_DIR,
-            task.statusFile.get().asFile.parentFile,
-            specification
+            task.statusFile.get().asFile.parentFile
         )
 
         val statusFile = task.statusFile.get().asFile
@@ -74,7 +76,7 @@ class RunServerTaskIntegrationTest : TaskIntegrationTestHelper() {
     }
 
     private companion object {
-        private val WORK_DIR = File("build/resources/integrationTest/task/server/run")
+        private val WORK_DIR = File("build/resources/integrationTest/task/server/start")
 
         private val RUNNER_JAR = File(WORK_DIR, "server-runner.jar")
 

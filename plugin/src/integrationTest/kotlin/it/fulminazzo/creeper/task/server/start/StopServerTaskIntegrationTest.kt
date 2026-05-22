@@ -30,8 +30,7 @@ class StopServerTaskIntegrationTest : TaskIntegrationTestHelper() {
 
         RunTaskUtils.copyRunFilesToTaskWorkDir(
             WORK_DIR,
-            task.statusFile.get().asFile.parentFile,
-            specification
+            task.statusFile.get().asFile.parentFile
         )
 
         val statusFile = task.statusFile.get().asFile
@@ -67,7 +66,7 @@ class StopServerTaskIntegrationTest : TaskIntegrationTestHelper() {
     }
 
     private companion object {
-        private val WORK_DIR = File("build/resources/integrationTest/task/server/run")
+        private val WORK_DIR = File("build/resources/integrationTest/task/server/start")
 
         private val STATUS_FILE = File(WORK_DIR, "${ProjectInfo.NAME}.properties")
 
