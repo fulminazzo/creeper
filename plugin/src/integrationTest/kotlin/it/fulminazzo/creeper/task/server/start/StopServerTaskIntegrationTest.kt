@@ -21,10 +21,11 @@ class StopServerTaskIntegrationTest : TaskIntegrationTestHelper() {
 
         val port = 18527
 
+        val requestedStopFile = File(WORK_DIR, "request-stop")
         val task = createTask(StopServerTask::class.java) { task ->
             task.statusFile.set(STATUS_FILE)
             task.awaitTimeout.set(5L)
-            task.stopRequiredFile.set(File(WORK_DIR, "stopRequired"))
+            task.requestedStopFile.set(requestedStopFile)
         }
 
         RunTaskUtils.copyRunFilesToTaskWorkDir(
@@ -58,6 +59,11 @@ class StopServerTaskIntegrationTest : TaskIntegrationTestHelper() {
 
         assertNotNull(process.exitValue(), "The server process should have exited")
         assertFalse(process.isAlive, "The server process should have been stopped")
+
+        assertFalse(
+            project.file(requestedStopFile).exists(),
+            "The requested stop file should have been deleted"
+        )
     }
 
     private companion object {
