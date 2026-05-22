@@ -15,7 +15,7 @@ import kotlin.test.assertFalse
 import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
 
-class RunServerTaskRegistrarFunctionalTest {
+class StartServerTaskRegistrarFunctionalTest {
     private val projectDir = File("build/resources/functionalTest/task/server/run/server")
 
     private val buildFile by lazy { projectDir.resolve("build.gradle.kts") }
