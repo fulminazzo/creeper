@@ -89,7 +89,7 @@ abstract class ServerSpecBuilder<T : ServerType, B : ServerSettingsBuilder, S : 
      *
      * @param action the configuration
      */
-    fun settings(action: Action<B>) = action.execute(settings)
+    fun serverSettings(action: Action<B>) = action.execute(settings)
 
     /**
      * Applies the configuration to the plugin requests builder.

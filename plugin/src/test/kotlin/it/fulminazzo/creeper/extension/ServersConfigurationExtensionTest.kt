@@ -64,7 +64,7 @@ class ServersConfigurationExtensionTest {
         extension.minecraftServer { specBuilder ->
             specBuilder.type.set("paper")
             specBuilder.version.set("26.1")
-            specBuilder.settings { settingsBuilder ->
+            specBuilder.serverSettings { settingsBuilder ->
                 settingsBuilder.port.set(25566)
                 settingsBuilder.maximumPlayers.set(11)
                 settingsBuilder.flags {
