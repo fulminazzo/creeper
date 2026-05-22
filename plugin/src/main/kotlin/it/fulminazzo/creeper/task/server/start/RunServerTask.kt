@@ -45,7 +45,7 @@ abstract class RunServerTask : DefaultTask() {
     @get:Input
     abstract val port: Property<Int>
 
-    @get:InputFile
+    @get:Internal
     abstract val runnerJar: RegularFileProperty
 
     @get:OutputFile
