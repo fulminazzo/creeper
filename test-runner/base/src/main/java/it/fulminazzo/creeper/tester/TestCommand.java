@@ -78,7 +78,7 @@ public final class TestCommand {
                         testsPackage,
                         application.dataDirectory(),
                         application.logger()
-                ).runTests(tmpClassLoader);
+                ).runTests(tmpClassLoader, functionalTestSources);
             }
 
             messageSender.accept(String.format(

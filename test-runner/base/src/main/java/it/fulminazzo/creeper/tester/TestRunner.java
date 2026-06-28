@@ -1,7 +1,6 @@
 package it.fulminazzo.creeper.tester;
 
 import com.google.gson.Gson;
-import it.fulminazzo.creeper.tester.util.ResourceUtils;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -21,13 +20,16 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Stream;
 
 /**
  * A runner for executing tests from the {@link #testClassesPackage}.
- * Check {@link #runTests(ClassLoader)} to understand how reports are computed.
+ * Check {@link #runTests(ClassLoader, Collection)} to understand how reports are computed.
  */
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
@@ -61,7 +63,7 @@ public final class TestRunner {
     }
 
     /**
-     * Executes the test classes in the {@link #testClassesPackage} package with the <b>JUnit</b> test launcher.
+     * Executes the test classes in the given test sources list with the <b>JUnit</b> test launcher.
      * Then, it writes the results under {@link #workDir}/{@link #TEST_RESULTS_FILENAME}.
      * <br>
      * The results are represented by {@link TestResult}:
@@ -73,20 +75,22 @@ public final class TestRunner {
      * </ul>
      *
      * @param classLoader the class loader to get the classes from
+     * @param testSources the test sources where the test classes to run are located
      */
-    public void runTests(final @NotNull ClassLoader classLoader) {
+    public void runTests(final @NotNull ClassLoader classLoader, final @NotNull List<File> testSources) {
         final Map<String, TestResult> results = new ConcurrentHashMap<>();
 
         try {
             logger.info("Initializing tests launcher.");
 
-            List<Class<?>> testClasses = ResourceUtils.loadClasses(classLoader, testClassesPackage);
+            List<String> testClasses = extractTestClasses(testSources);
+
             logger.info("Discovered {} test classes.", testClasses.size());
 
             logger.info("Initiating tests execution.");
-            for (Class<?> testClass : testClasses)
+            for (String testClass : testClasses)
                 testWorker.schedule(() ->
-                        results.put(testClass.getName(), runSingleTest(classLoader, testClass))
+                        results.put(testClass, runSingleTest(classLoader, testClass))
                 );
         } catch (IOException e) {
             logger.error("Error while running tests: {}", e.getMessage(), e);
@@ -118,13 +122,13 @@ public final class TestRunner {
      * @param testClass   the test class to run
      * @return the test result
      */
-    @NotNull TestResult runSingleTest(final @NotNull ClassLoader classLoader, final @NotNull Class<?> testClass) {
+    @NotNull TestResult runSingleTest(final @NotNull ClassLoader classLoader, final @NotNull String testClass) {
         Thread currentThread = Thread.currentThread();
         ClassLoader previous = currentThread.getContextClassLoader();
         try {
             currentThread.setContextClassLoader(classLoader);
 
-            logger.debug("Running test: {}", testClass.getCanonicalName());
+            logger.debug("Running test: {}", testClass);
             LauncherDiscoveryRequest request = LauncherDiscoveryRequestBuilder.request()
                     .selectors(DiscoverySelectors.selectClass(testClass))
                     .build();
@@ -134,7 +138,7 @@ public final class TestRunner {
             launcher.registerTestExecutionListeners(summaryListener);
             launcher.execute(request);
 
-            logger.debug("Finished running test: {}", testClass.getCanonicalName());
+            logger.debug("Finished running test: {}", testClass);
             logger.debug("Gathering results...");
 
             TestExecutionSummary summary = summaryListener.getSummary();
@@ -145,6 +149,30 @@ public final class TestRunner {
         } finally {
             currentThread.setContextClassLoader(previous);
         }
+    }
+
+    /**
+     * Extracts the test classes from the given test sources.
+     *
+     * @param testSources the test sources
+     * @return the test classes
+     * @throws IOException in case of any error
+     */
+    static @NotNull List<String> extractTestClasses(final @NotNull Collection<File> testSources) throws IOException {
+        List<String> testClasses = new ArrayList<>();
+        for (File source : testSources)
+            try (Stream<Path> paths = Files.walk(source.toPath())) {
+                paths.filter(Files::isRegularFile)
+                        .filter(p -> p.toString().endsWith(".class"))
+                        .map(source.toPath()::relativize)
+                        .map(Path::toString)
+                        .map(s -> s
+                                .split("\\.class")[0]
+                                .replace(File.separatorChar, '.')
+                        )
+                        .forEach(testClasses::add);
+            }
+        return testClasses;
     }
 
 }
