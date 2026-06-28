@@ -11,6 +11,13 @@ import java.io.File;
 public interface TesterApplication {
 
     /**
+     * Gets the test worker.
+     * 
+     * @return the test worker
+     */
+    @NotNull TestWorker testWorker();
+
+    /**
      * Gets the logger of the application.
      *
      * @return the logger
