@@ -50,6 +50,7 @@ class CreeperTesterIntegrationTest {
 
     @AfterEach
     void tearDown() {
+        plugin.onDisable();
         plugin.getDataFolder().mkdirs();
         MockBukkit.unmock();
     }
@@ -58,7 +59,7 @@ class CreeperTesterIntegrationTest {
     void testOnEnableExceptionDisablesPlugin() {
         try (MockedConstruction<JDK14LoggerAdapter> ignored = Mockito.mockConstruction(
                 JDK14LoggerAdapter.class,
-                (mock, context) -> {
+                (_, _) -> {
                     throw new RuntimeException("Test exception");
                 })) {
             plugin.onEnable();
