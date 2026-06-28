@@ -86,7 +86,7 @@ public final class TestRunner {
             logger.info("Initiating tests execution.");
             for (Class<?> testClass : testClasses)
                 testWorker.schedule(() ->
-                        results.put(testClass.getCanonicalName(), runSingleTest(classLoader, testClass))
+                        results.put(testClass.getName(), runSingleTest(classLoader, testClass))
                 );
         } catch (IOException e) {
             logger.error("Error while running tests: {}", e.getMessage(), e);

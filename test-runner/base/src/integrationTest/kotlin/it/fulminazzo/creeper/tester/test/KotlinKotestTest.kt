@@ -1,4 +1,4 @@
-package it.fulminazzo.creeper.tester.tests
+package it.fulminazzo.creeper.tester.test
 
 import io.kotest.core.spec.style.StringSpec
 import io.kotest.matchers.shouldBe

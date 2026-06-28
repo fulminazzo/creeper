@@ -1,6 +1,8 @@
 package it.fulminazzo.creeper.tester;
 
 import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
+import it.fulminazzo.creeper.tester.util.ResourceUtils;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
@@ -9,6 +11,8 @@ import org.slf4j.LoggerFactory;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.List;
+import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -42,24 +46,57 @@ public class TestsRunnerIntegrationTest {
         assertTrue(resultsFile.exists(), "Results file should have been created");
 
         try (FileReader reader = new FileReader(resultsFile)) {
-            TestResult.SuccessfulTestResult result = GSON.fromJson(reader, TestResult.SuccessfulTestResult.class);
-            assertTrue(result.isSuccess(), "Test should have not failed");
+            Map<String, TestResult.SuccessfulTestResult> results = GSON.fromJson(
+                    reader,
+                    new TypeToken<Map<String, TestResult.SuccessfulTestResult>>() {
+                    }.getType()
+            );
 
-            assertEquals(0, result.getFailedContainers(), "There should have been no failed containers: " + result);
-            assertEquals(0, result.getSkippedContainers(), "There should have been no skipped containers: " + result);
+            List<Class<?>> testClasses = ResourceUtils.loadClasses(
+                    CLASS_LOADER,
+                    TestRunner.class.getPackage().getName() + ".test"
+            );
 
-            assertEquals(0, result.getFailedTests(), "There should have been no failed tests: " + result);
-            assertEquals(0, result.getSkippedTests(), "There should have been no skipped tests: " + result);
             assertEquals(
-                    EXPECTED_SUCCEEDED_TESTS,
-                    result.getSucceededTests(),
-                    String.format("There should have been %s succeeded tests: %s", EXPECTED_SUCCEEDED_TESTS, result)
+                    testClasses.size(),
+                    results.size(),
+                    "There should have been the same number of results as test classes: " + results
             );
             assertEquals(
                     EXPECTED_TOTAL_TESTS,
-                    result.getTotalTests(),
-                    String.format("There should have been %s total tests: %s", EXPECTED_TOTAL_TESTS, result)
+                    results.size(),
+                    String.format("There should have been %s succeeded tests", EXPECTED_TOTAL_TESTS)
             );
+
+            for (Class<?> testClass : testClasses) {
+                String testClassName = testClass.getName();
+                if (testClassName.endsWith("$1$1")) continue;
+                TestResult.SuccessfulTestResult result = results.get(testClassName);
+                assertNotNull(result, "Test result should not be null for test class: " + testClassName);
+                assertTrue(result.isSuccess(), "Test should have not failed");
+
+                assertEquals(0, result.getFailedContainers(), "There should have been no failed containers: " + result);
+                assertEquals(0, result.getSkippedContainers(), "There should have been no skipped containers: " + result);
+
+                assertEquals(0, result.getFailedTests(), "There should have been no failed tests: " + result);
+                assertEquals(0, result.getSkippedTests(), "There should have been no skipped tests: " + result);
+
+                int succeededTests = 1;
+                assertEquals(
+                        succeededTests,
+                        result.getSucceededTests(),
+                        String.format("There should have been %s succeeded tests: %s (%s)", succeededTests, result, testClassName)
+                );
+
+                int totalTests = 1;
+                if (testClassName.endsWith("ScalaScalatestTest")) totalTests++;
+                assertEquals(
+                        totalTests,
+                        result.getTotalTests(),
+                        String.format("There should have been %s total tests: %s (%s)", totalTests, result, testClassName)
+                );
+                
+            }
         }
     }
 

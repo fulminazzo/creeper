@@ -1,4 +1,4 @@
-package it.fulminazzo.creeper.tester.tests
+package it.fulminazzo.creeper.tester.test
 
 import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
