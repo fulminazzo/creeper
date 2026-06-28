@@ -35,10 +35,10 @@ public class TestsRunnerIntegrationTest {
 
     @Test
     void testThatTestRunnerLoadsTestsFromDifferentPlatforms() throws IOException {
-        TestsRunner runner = new TestsRunner(WORKING_DIR, LOGGER);
+        TestRunner runner = new TestRunner(Runnable::run, WORKING_DIR, LOGGER);
         assertDoesNotThrow(() -> runner.runTests(CLASS_LOADER));
 
-        File resultsFile = new File(WORKING_DIR, TestsRunner.TEST_RESULTS_FILENAME);
+        File resultsFile = new File(WORKING_DIR, TestRunner.TEST_RESULTS_FILENAME);
         assertTrue(resultsFile.exists(), "Results file should have been created");
 
         try (FileReader reader = new FileReader(resultsFile)) {

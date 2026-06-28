@@ -1,6 +1,8 @@
 package it.fulminazzo.creeper.tester;
 
 import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
+import it.fulminazzo.creeper.tester.util.ResourceUtils;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.Test;
 import org.junit.platform.engine.TestSource;
@@ -21,8 +23,6 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.lang.reflect.Field;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -30,19 +30,24 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
-class TestsRunnerTest {
+class TestRunnerTest {
     private static final @NotNull String TEST_EXECUTION_SUMMARY_TYPE = "org.junit.platform.launcher.listeners.MutableTestExecutionSummary";
 
-    private static final @NotNull ClassLoader CLASS_LOADER = TestsRunnerTest.class.getClassLoader();
+    private static final @NotNull ClassLoader CLASS_LOADER = TestRunnerTest.class.getClassLoader();
 
     private static final @NotNull File WORKING_DIR = new File("build/resources/test/tester_main");
-    private static final @NotNull Logger LOGGER = LoggerFactory.getLogger(TestsRunnerTest.class);
+    private static final @NotNull Logger LOGGER = LoggerFactory.getLogger(TestRunnerTest.class);
 
     private static final @NotNull Gson GSON = new Gson();
 
+    private static final @NotNull TestWorker WORKER = Runnable::run;
+
     @Test
     void testThatRunTestsCorrectlyReportsTestsSummary() throws ClassNotFoundException, IOException, NoSuchFieldException {
-        try (MockedStatic<LauncherFactory> mock = mockStatic(LauncherFactory.class)) {
+        try (
+                MockedStatic<LauncherFactory> factoryMock = mockStatic(LauncherFactory.class);
+                MockedStatic<ResourceUtils> resourceUtilsMock = mockStatic(ResourceUtils.class)
+        ) {
             TestResult.SuccessfulTestResult expected = new TestResult.SuccessfulTestResult(
                     1000L,
                     2000L,
@@ -55,7 +60,7 @@ class TestsRunnerTest {
                                     "Container failure",
                                     "Container failed execution!",
                                     new TestResult.TestSource(
-                                            TestsRunnerTest.class.getCanonicalName(),
+                                            TestRunnerTest.class.getCanonicalName(),
                                             null,
                                             null
                                     ),
@@ -76,7 +81,7 @@ class TestsRunnerTest {
                                     "First test failure",
                                     "Test method failed execution!",
                                     new TestResult.TestSource(
-                                            TestsRunnerTest.class.getCanonicalName(),
+                                            TestRunnerTest.class.getCanonicalName(),
                                             "testThatRunTestsCorrectlyReportsTestsSummary",
                                             "''"
                                     ),
@@ -122,7 +127,7 @@ class TestsRunnerTest {
                 when(identifier.getDisplayName()).thenReturn("Container failure");
                 when(identifier.getSource()).thenAnswer(a2 -> {
                     ClassSource source = mock(ClassSource.class);
-                    when(source.getClassName()).thenReturn(TestsRunnerTest.class.getCanonicalName());
+                    when(source.getClassName()).thenReturn(TestRunnerTest.class.getCanonicalName());
                     return Optional.of(source);
                 });
                 return identifier;
@@ -144,7 +149,7 @@ class TestsRunnerTest {
                 when(identifier.getDisplayName()).thenReturn("First test failure");
                 when(identifier.getSource()).thenAnswer(a2 -> {
                     MethodSource source = mock(MethodSource.class);
-                    when(source.getClassName()).thenReturn(TestsRunnerTest.class.getCanonicalName());
+                    when(source.getClassName()).thenReturn(TestRunnerTest.class.getCanonicalName());
                     when(source.getMethodName()).thenReturn("testThatRunTestsCorrectlyReportsTestsSummary");
                     when(source.getMethodParameterTypes()).thenReturn("''");
                     return Optional.of(source);
@@ -186,16 +191,25 @@ class TestsRunnerTest {
                 return null;
             }).when(launcher).execute(any(LauncherDiscoveryRequest.class));
 
-            mock.when(LauncherFactory::create).thenReturn(launcher);
+            factoryMock.when(LauncherFactory::create).thenReturn(launcher);
 
-            TestsRunner runner = new TestsRunner(WORKING_DIR, LOGGER);
+            resourceUtilsMock.when(() -> ResourceUtils.loadClasses(any(), any())).thenReturn(List.of(TestRunnerTest.class));
+
+            TestRunner runner = new TestRunner(WORKER, WORKING_DIR, LOGGER);
             assertDoesNotThrow(() -> runner.runTests(CLASS_LOADER));
 
-            File resultsFile = new File(WORKING_DIR, TestsRunner.TEST_RESULTS_FILENAME);
+            File resultsFile = new File(WORKING_DIR, TestRunner.TEST_RESULTS_FILENAME);
             assertTrue(resultsFile.exists(), "Results file should have been created");
 
             try (FileReader reader = new FileReader(resultsFile)) {
-                TestResult.SuccessfulTestResult result = GSON.fromJson(reader, TestResult.SuccessfulTestResult.class);
+                Map<String, TestResult.SuccessfulTestResult> results = GSON.fromJson(
+                        reader,
+                        new TypeToken<Map<String, TestResult.SuccessfulTestResult>>() {
+                        }.getType()
+                );
+
+                TestResult.SuccessfulTestResult result = results.get(TestRunnerTest.class.getCanonicalName());
+                assertNotNull(result, "Test result should not be null");
                 assertTrue(result.isSuccess(), "Test should have not failed");
 
                 // Remove stacktrace to compare with expected
@@ -209,26 +223,36 @@ class TestsRunnerTest {
 
     @Test
     void testThatRunTestsDoesNotThrowOnExceptionDuringExecutionAndCorrectlyStoresResults() throws IOException {
-        try (MockedStatic<Files> mock = mockStatic(Files.class)) {
+        try (
+                MockedStatic<LauncherFactory> factoryMock = mockStatic(LauncherFactory.class);
+                MockedStatic<ResourceUtils> resourceUtilsMock = mockStatic(ResourceUtils.class)
+        ) {
             AtomicBoolean exceptionThrown = new AtomicBoolean(false);
-            mock.when(() -> Files.createDirectories(any())).thenAnswer(a -> {
-                Path path = a.getArgument(0);
-                path.toFile().mkdirs();
+            factoryMock.when(LauncherFactory::create).thenAnswer(_ -> {
                 if (!exceptionThrown.get()) {
                     exceptionThrown.set(true);
                     throw new RuntimeException("Test exception");
                 }
-                return path;
+                return mock(Launcher.class);
             });
 
-            TestsRunner runner = new TestsRunner(WORKING_DIR, LOGGER);
+            resourceUtilsMock.when(() -> ResourceUtils.loadClasses(any(), any())).thenReturn(List.of(TestRunnerTest.class));
+
+            TestRunner runner = new TestRunner(WORKER, WORKING_DIR, LOGGER);
             assertDoesNotThrow(() -> runner.runTests(CLASS_LOADER));
 
-            File resultsFile = new File(WORKING_DIR, TestsRunner.TEST_RESULTS_FILENAME);
+            File resultsFile = new File(WORKING_DIR, TestRunner.TEST_RESULTS_FILENAME);
             assertTrue(resultsFile.exists(), "Results file should have been created");
 
             try (FileReader reader = new FileReader(resultsFile)) {
-                TestResult.ThrowableResult result = GSON.fromJson(reader, TestResult.ThrowableResult.class);
+                Map<String, TestResult.ThrowableResult> results = GSON.fromJson(
+                        reader,
+                        new TypeToken<Map<String, TestResult.ThrowableResult>>() {
+                        }.getType()
+                );
+
+                TestResult.ThrowableResult result = results.get(TestRunnerTest.class.getCanonicalName());
+                assertNotNull(result, "Test result should not be null");
                 assertFalse(result.isSuccess(), "Test should have failed");
 
                 TestResult.ThrowableData data = result.getException();
@@ -251,7 +275,7 @@ class TestsRunnerTest {
 
     @Test
     void testThatRunTestsDoesNotThrowOnWriteException() {
-        TestsRunner runner = new TestsRunner(new File("/tests/"), LOGGER);
+        TestRunner runner = new TestRunner(WORKER, new File("/tests/"), LOGGER);
         assertDoesNotThrow(() -> runner.runTests(CLASS_LOADER));
     }
 
