@@ -1,7 +1,9 @@
 package it.fulminazzo.creeper.tester;
 
 import it.fulminazzo.creeper.tester.util.FileUtils;
+import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
+import lombok.experimental.FieldDefaults;
 import org.jetbrains.annotations.NotNull;
 import org.yaml.snakeyaml.Yaml;
 
@@ -19,9 +21,10 @@ import java.util.stream.Stream;
  * Command to execute the tests.
  */
 @RequiredArgsConstructor
+@FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public final class TestCommand {
-    private final @NotNull TesterApplication application;
-    private final @NotNull Consumer<String> messageSender;
+    @NotNull TesterApplication application;
+    @NotNull Consumer<String> messageSender;
 
     /**
      * Executes the tests.
@@ -34,7 +37,7 @@ public final class TestCommand {
                 try (FileReader fileReader = new FileReader(configurationFile)) {
                     configuration = new Yaml().loadAs(fileReader, Map.class);
                 }
-            
+
             final String buildDirectoryPath = Objects.requireNonNull(
                     configuration.get("build-directory-path"),
                     "Could not find 'build-directory-path' from configuration"
@@ -70,7 +73,8 @@ public final class TestCommand {
                     classLoader
             )) {
                 messageSender.accept("Running tests...");
-                new TestsRunner(
+                new TestRunner(
+                        application.testWorker(),
                         testsPackage,
                         application.dataDirectory(),
                         application.logger()
