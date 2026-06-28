@@ -100,9 +100,4 @@ public class TestsRunnerIntegrationTest {
         }
     }
 
-    @Test
-    void testThatTestingEnvironmentWorks() {
-        assertTrue(true);
-    }
-
 }
