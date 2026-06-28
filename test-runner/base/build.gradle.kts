@@ -7,6 +7,7 @@ plugins {
 
 afterEvaluate {
     val integrationTestImplementation by configurations.getting {}
+    val functionalTestImplementation by configurations.getting {}
 
     dependencies {
         compileOnly(libs.slf4j)
@@ -17,6 +18,13 @@ afterEvaluate {
         api(libs.bundles.test.engines)
 
         integrationTestImplementation(libs.bundles.test.frameworks)
+        functionalTestImplementation(libs.bundles.test.frameworks)
+    }
+
+    tasks.named("integrationTest") {
+        listOf("Groovy", "Java", "Kotlin", "Scala").forEach {
+            dependsOn("compileFunctionalTest$it")
+        }
     }
 
 }

@@ -4,6 +4,7 @@ import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import it.fulminazzo.creeper.tester.util.ResourceUtils;
 import org.jetbrains.annotations.NotNull;
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -11,6 +12,9 @@ import org.slf4j.LoggerFactory;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.net.URLClassLoader;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -32,23 +36,38 @@ public class TestsRunnerIntegrationTest {
     // Scalatest counts the suite class as a test
     private static final int EXPECTED_TOTAL_TESTS = EXPECTED_SUCCEEDED_TESTS + 1;
 
-    private static final @NotNull ClassLoader CLASS_LOADER = TestsRunnerIntegrationTest.class.getClassLoader();
+    private static final List<File> TEST_SOURCES = Stream.of("groovy", "java", "kotlin", "scala")
+            .map(c -> String.format("build/classes/%s/functionalTest", c))
+            .map(File::new)
+            .collect(Collectors.toList());
+    private static final @NotNull URLClassLoader CLASS_LOADER = new URLClassLoader(
+            TEST_SOURCES.stream()
+                    .map(File::toURI)
+                    .map(f -> {
+                        try {
+                            return f.toURL();
+                        } catch (MalformedURLException e) {
+                            throw new RuntimeException(e);
+                        }
+                    })
+                    .toArray(URL[]::new),
+            TestsRunnerIntegrationTest.class.getClassLoader()
+    );
 
     private static final @NotNull File WORKING_DIR = new File("build/resources/test/integration_test");
     private static final @NotNull Logger LOGGER = LoggerFactory.getLogger(TestsRunnerIntegrationTest.class);
 
     private static final @NotNull Gson GSON = new Gson();
 
+    @AfterAll
+    static void tearDownAll() throws IOException {
+        CLASS_LOADER.close();
+    }
+
     @Test
     void testThatTestRunnerLoadsTestsFromDifferentPlatforms() throws IOException {
         TestRunner runner = new TestRunner(Runnable::run, WORKING_DIR, LOGGER);
-        assertDoesNotThrow(() -> runner.runTests(
-                CLASS_LOADER,
-                Stream.of("groovy", "java", "kotlin", "scala")
-                        .map(c -> String.format("build/classes/%s/integrationTest", c))
-                        .map(File::new)
-                        .collect(Collectors.toList())
-        ));
+        assertDoesNotThrow(() -> runner.runTests(CLASS_LOADER, TEST_SOURCES));
 
         File resultsFile = new File(WORKING_DIR, TestRunner.TEST_RESULTS_FILENAME);
         assertTrue(resultsFile.exists(), "Results file should have been created");
@@ -83,11 +102,27 @@ public class TestsRunnerIntegrationTest {
                 assertNotNull(result, "Test result should not be null for test class: " + testClassName);
                 assertTrue(result.isSuccess(), "Test should have not failed");
 
-                assertEquals(0, result.getFailedContainers(), "There should have been no failed containers: " + result);
-                assertEquals(0, result.getSkippedContainers(), "There should have been no skipped containers: " + result);
+                assertEquals(
+                        0,
+                        result.getFailedContainers(),
+                        String.format("There should have been no failed containers: %s (%s)", result, testClassName)
+                );
+                assertEquals(
+                        0,
+                        result.getSkippedContainers(),
+                        String.format("There should have been no skipped containers: %s (%s)", result, testClassName)
+                );
 
-                assertEquals(0, result.getFailedTests(), "There should have been no failed tests: " + result);
-                assertEquals(0, result.getSkippedTests(), "There should have been no skipped tests: " + result);
+                assertEquals(
+                        0,
+                        result.getFailedTests(),
+                        String.format("There should have been no failed tests: %s (%s)", result, testClassName)
+                );
+                assertEquals(
+                        0,
+                        result.getSkippedTests(),
+                        String.format("There should have been no skipped tests: %s (%s)", result, testClassName)
+                );
 
                 int succeededTests = 1;
                 assertEquals(
