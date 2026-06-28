@@ -2,7 +2,6 @@ package it.fulminazzo.creeper.tester;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
-import it.fulminazzo.creeper.tester.util.ResourceUtils;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.Test;
 import org.junit.platform.engine.TestSource;
@@ -46,7 +45,7 @@ class TestRunnerTest {
     void testThatRunTestsCorrectlyReportsTestsSummary() throws ClassNotFoundException, IOException, NoSuchFieldException {
         try (
                 MockedStatic<LauncherFactory> factoryMock = mockStatic(LauncherFactory.class);
-                MockedStatic<ResourceUtils> resourceUtilsMock = mockStatic(ResourceUtils.class)
+                MockedStatic<TestRunner> testRunnerMock = mockStatic(TestRunner.class)
         ) {
             TestResult.SuccessfulTestResult expected = new TestResult.SuccessfulTestResult(
                     1000L,
@@ -193,10 +192,10 @@ class TestRunnerTest {
 
             factoryMock.when(LauncherFactory::create).thenReturn(launcher);
 
-            resourceUtilsMock.when(() -> ResourceUtils.loadClasses(any(), any())).thenReturn(List.of(TestRunnerTest.class));
+            testRunnerMock.when(() -> TestRunner.extractTestClasses(any())).thenReturn(List.of(TestRunnerTest.class.getCanonicalName()));
 
             TestRunner runner = new TestRunner(WORKER, WORKING_DIR, LOGGER);
-            assertDoesNotThrow(() -> runner.runTests(CLASS_LOADER));
+            assertDoesNotThrow(() -> runner.runTests(CLASS_LOADER, new ArrayList<>()));
 
             File resultsFile = new File(WORKING_DIR, TestRunner.TEST_RESULTS_FILENAME);
             assertTrue(resultsFile.exists(), "Results file should have been created");
@@ -225,7 +224,7 @@ class TestRunnerTest {
     void testThatRunTestsDoesNotThrowOnExceptionDuringExecutionAndCorrectlyStoresResults() throws IOException {
         try (
                 MockedStatic<LauncherFactory> factoryMock = mockStatic(LauncherFactory.class);
-                MockedStatic<ResourceUtils> resourceUtilsMock = mockStatic(ResourceUtils.class)
+                MockedStatic<TestRunner> testRunnerMock = mockStatic(TestRunner.class)
         ) {
             AtomicBoolean exceptionThrown = new AtomicBoolean(false);
             factoryMock.when(LauncherFactory::create).thenAnswer(_ -> {
@@ -236,10 +235,10 @@ class TestRunnerTest {
                 return mock(Launcher.class);
             });
 
-            resourceUtilsMock.when(() -> ResourceUtils.loadClasses(any(), any())).thenReturn(List.of(TestRunnerTest.class));
+            testRunnerMock.when(() -> TestRunner.extractTestClasses(any())).thenReturn(List.of(TestRunnerTest.class.getCanonicalName()));
 
             TestRunner runner = new TestRunner(WORKER, WORKING_DIR, LOGGER);
-            assertDoesNotThrow(() -> runner.runTests(CLASS_LOADER));
+            assertDoesNotThrow(() -> runner.runTests(CLASS_LOADER, new ArrayList<>()));
 
             File resultsFile = new File(WORKING_DIR, TestRunner.TEST_RESULTS_FILENAME);
             assertTrue(resultsFile.exists(), "Results file should have been created");
@@ -276,7 +275,7 @@ class TestRunnerTest {
     @Test
     void testThatRunTestsDoesNotThrowOnWriteException() {
         TestRunner runner = new TestRunner(WORKER, new File("/tests/"), LOGGER);
-        assertDoesNotThrow(() -> runner.runTests(CLASS_LOADER));
+        assertDoesNotThrow(() -> runner.runTests(CLASS_LOADER, new ArrayList<>()));
     }
 
 }

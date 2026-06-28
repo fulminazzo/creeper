@@ -13,6 +13,8 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -40,7 +42,13 @@ public class TestsRunnerIntegrationTest {
     @Test
     void testThatTestRunnerLoadsTestsFromDifferentPlatforms() throws IOException {
         TestRunner runner = new TestRunner(Runnable::run, WORKING_DIR, LOGGER);
-        assertDoesNotThrow(() -> runner.runTests(CLASS_LOADER));
+        assertDoesNotThrow(() -> runner.runTests(
+                CLASS_LOADER,
+                Stream.of("groovy", "java", "kotlin", "scala")
+                        .map(c -> String.format("build/classes/%s/integrationTest", c))
+                        .map(File::new)
+                        .collect(Collectors.toList())
+        ));
 
         File resultsFile = new File(WORKING_DIR, TestRunner.TEST_RESULTS_FILENAME);
         assertTrue(resultsFile.exists(), "Results file should have been created");
@@ -95,7 +103,7 @@ public class TestsRunnerIntegrationTest {
                         result.getTotalTests(),
                         String.format("There should have been %s total tests: %s (%s)", totalTests, result, testClassName)
                 );
-                
+
             }
         }
     }
