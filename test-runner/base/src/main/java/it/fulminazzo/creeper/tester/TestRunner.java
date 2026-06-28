@@ -102,16 +102,17 @@ public final class TestRunner {
      * Executes a single test class with the <b>JUnit</b> test launcher.
      *
      * @param classLoader the class loader to get the classes from
-     * @param testClass   the test class to run
+     * @param testClassName   the test class to run
      * @return the test result
      */
-    @NotNull TestResult runSingleTest(final @NotNull ClassLoader classLoader, final @NotNull String testClass) {
+    @NotNull TestResult runSingleTest(final @NotNull ClassLoader classLoader, final @NotNull String testClassName) {
         Thread currentThread = Thread.currentThread();
         ClassLoader previous = currentThread.getContextClassLoader();
         try {
             currentThread.setContextClassLoader(classLoader);
 
-            logger.debug("Running test: {}", testClass);
+            logger.debug("Running test: {}", testClassName);
+            Class<?> testClass = classLoader.loadClass(testClassName);
             LauncherDiscoveryRequest request = LauncherDiscoveryRequestBuilder.request()
                     .selectors(DiscoverySelectors.selectClass(testClass))
                     .build();
@@ -121,7 +122,7 @@ public final class TestRunner {
             launcher.registerTestExecutionListeners(summaryListener);
             launcher.execute(request);
 
-            logger.debug("Finished running test: {}", testClass);
+            logger.debug("Finished running test: {}", testClassName);
             logger.debug("Gathering results...");
 
             TestExecutionSummary summary = summaryListener.getSummary();
