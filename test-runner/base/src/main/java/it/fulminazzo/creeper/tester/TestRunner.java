@@ -31,7 +31,7 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
-final class TestRunner {
+public final class TestRunner {
     /**
      * The file where the test results are stored.
      */

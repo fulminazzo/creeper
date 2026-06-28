@@ -1,7 +1,7 @@
 package it.fulminazzo.creeper.tester.bukkit;
 
 import be.seeseemelk.mockbukkit.MockBukkit;
-import it.fulminazzo.creeper.tester.TestsRunner;
+import it.fulminazzo.creeper.tester.TestRunner;
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
@@ -82,7 +82,7 @@ class CreeperTesterIntegrationTest {
 
         assertTrue(plugin.onCommand(sender, command, command.getName(), new String[0]));
 
-        File resultsFile = new File(directory, TestsRunner.TEST_RESULTS_FILENAME);
+        File resultsFile = new File(directory, TestRunner.TEST_RESULTS_FILENAME);
         assertTrue(resultsFile.exists(), "Results file should have been created");
     }
 
