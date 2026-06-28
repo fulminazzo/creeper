@@ -2,7 +2,9 @@ package it.fulminazzo.creeper.tester.bukkit;
 
 import it.fulminazzo.creeper.tester.TestCommand;
 import it.fulminazzo.creeper.tester.TesterApplication;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.experimental.Accessors;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.plugin.PluginDescriptionFile;
@@ -18,14 +20,18 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Collections;
 import java.util.List;
-import java.util.Objects;
 import java.util.logging.Level;
 
 /**
  * Main class of the plugin.
  */
+@Getter
 @NoArgsConstructor
+@Accessors(fluent = true)
 public final class CreeperTester extends JavaPlugin implements TesterApplication {
+    private final @NotNull File dataDirectory = new File(getDataFolder().getParentFile(), "creeper");
+    private @Nullable BukkitTestWorker testWorker;
+
     private @Nullable Logger logger;
 
     /**
@@ -52,12 +58,19 @@ public final class CreeperTester extends JavaPlugin implements TesterApplication
             Constructor<?> constructor = JDK14LoggerAdapter.class.getDeclaredConstructor(java.util.logging.Logger.class);
             constructor.setAccessible(true);
             this.logger = (Logger) constructor.newInstance(logger);
+
+            this.testWorker = new BukkitTestWorker(this);
         } catch (InvocationTargetException | IllegalAccessException | InstantiationException |
                  NoSuchMethodException e) {
             logger.log(Level.WARNING, "Error while creating logger", e);
             logger.warning("Shutting down plugin to prevent further errors");
             getServer().getPluginManager().disablePlugin(this);
         }
+    }
+
+    @Override
+    public void onDisable() {
+        if (testWorker != null) testWorker.close();
     }
 
     @Override
@@ -82,16 +95,6 @@ public final class CreeperTester extends JavaPlugin implements TesterApplication
 
     private @NotNull String getCommandName() {
         return "runcreepertests";
-    }
-
-    @Override
-    public @NotNull Logger logger() {
-        return Objects.requireNonNull(logger, "Logger not initialized");
-    }
-
-    @Override
-    public @NotNull File dataDirectory() {
-        return new File(getDataFolder().getParentFile(), "creeper");
     }
 
 }
