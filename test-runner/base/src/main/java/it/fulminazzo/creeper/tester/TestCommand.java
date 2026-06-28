@@ -56,8 +56,6 @@ public final class TestCommand {
             messageSender.accept("Found " + mainSources.size() + " main sources.");
             @NotNull List<File> functionalTestSources = FileUtils.findCompiledSources(buildDirectory, "functionalTest");
             messageSender.accept("Found " + functionalTestSources.size() + " functional test sources.");
-            String testsPackage = FileUtils.findMainPackage(functionalTestSources);
-            messageSender.accept("Tests package: " + testsPackage);
 
             try (URLClassLoader tmpClassLoader = new URLClassLoader(
                     Stream.concat(
@@ -75,7 +73,6 @@ public final class TestCommand {
                 messageSender.accept("Running tests...");
                 new TestRunner(
                         application.testWorker(),
-                        testsPackage,
                         application.dataDirectory(),
                         application.logger()
                 ).runTests(tmpClassLoader, functionalTestSources);

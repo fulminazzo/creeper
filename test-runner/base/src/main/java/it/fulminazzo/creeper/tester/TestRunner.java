@@ -28,7 +28,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Stream;
 
 /**
- * A runner for executing tests from the {@link #testClassesPackage}.
+ * A runner for executing tests from the given test sources.
  * Check {@link #runTests(ClassLoader, Collection)} to understand how reports are computed.
  */
 @RequiredArgsConstructor
@@ -42,25 +42,8 @@ public final class TestRunner {
     private static final @NotNull Gson GSON = new Gson();
 
     @NotNull TestWorker testWorker;
-
-    @NotNull String testClassesPackage;
     @NotNull File workDir;
     @NotNull Logger logger;
-
-    /**
-     * Instantiates a new Test runner.
-     *
-     * @param testWorker the actual worker of the tests
-     * @param workDir    the work dir
-     * @param logger     the logger
-     */
-    public TestRunner(
-            final @NotNull TestWorker testWorker,
-            final @NotNull File workDir,
-            final @NotNull Logger logger
-    ) {
-        this(testWorker, TestRunner.class.getPackage().getName() + ".test", workDir, logger);
-    }
 
     /**
      * Executes the test classes in the given test sources list with the <b>JUnit</b> test launcher.
