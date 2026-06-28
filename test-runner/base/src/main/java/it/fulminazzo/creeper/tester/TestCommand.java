@@ -51,14 +51,14 @@ public final class TestCommand {
 
             @NotNull List<File> mainSources = FileUtils.findCompiledSources(buildDirectory, "main");
             messageSender.accept("Found " + mainSources.size() + " main sources.");
-            @NotNull List<File> integrationTestSources = FileUtils.findCompiledSources(buildDirectory, "integrationTest");
-            messageSender.accept("Found " + integrationTestSources.size() + " integration test sources.");
-            String testsPackage = FileUtils.findMainPackage(integrationTestSources);
+            @NotNull List<File> functionalTestSources = FileUtils.findCompiledSources(buildDirectory, "functionalTest");
+            messageSender.accept("Found " + functionalTestSources.size() + " functional test sources.");
+            String testsPackage = FileUtils.findMainPackage(functionalTestSources);
             messageSender.accept("Tests package: " + testsPackage);
 
             try (URLClassLoader tmpClassLoader = new URLClassLoader(
                     Stream.concat(
-                            Stream.concat(mainSources.stream(), integrationTestSources.stream()),
+                            Stream.concat(mainSources.stream(), functionalTestSources.stream()),
                             dependencies.stream().map(File::new)
                     ).map(File::toURI).map(f -> {
                         try {
