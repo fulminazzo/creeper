@@ -82,7 +82,8 @@ class CreeperPlugin : Plugin<Project> {
                     task.buildDirectory.set(project.layout.buildDirectory.get().asFile)
 
                     task.runtimeClasspath.from(project.configurations.named("runtimeClasspath"))
-                    task.integrationTestRuntimeClasspath.from(project.configurations.named("integrationTestRuntimeClasspath"))
+                    task.functionalTestRuntimeClasspath
+                        .from(project.configurations.named("functionalTestRuntimeClasspath"))
 
                     task.specification.set(spec)
                     task.pluginConfigurationFile.set {

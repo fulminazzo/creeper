@@ -8,7 +8,6 @@ import it.fulminazzo.creeper.provider.plugin.LocalPluginRequest
 import it.fulminazzo.creeper.provider.plugin.PluginRequest
 import it.fulminazzo.creeper.task.server.install.InjectTestRunnerRequestTask.Companion.PLUGIN_REQUEST
 import org.gradle.api.DefaultTask
-import org.gradle.api.artifacts.Configuration
 import org.gradle.api.file.ConfigurableFileCollection
 import org.gradle.api.file.DirectoryProperty
 import org.gradle.api.file.RegularFileProperty
@@ -38,7 +37,7 @@ abstract class InjectTestRunnerRequestTask : DefaultTask() {
 
     @get:InputFiles
     @get:Classpath
-    abstract val integrationTestRuntimeClasspath: ConfigurableFileCollection
+    abstract val functionalTestRuntimeClasspath: ConfigurableFileCollection
 
     @get:Input
     abstract val specification: Property<ServerSpec<*, *>>
@@ -54,7 +53,7 @@ abstract class InjectTestRunnerRequestTask : DefaultTask() {
         configurationFile.createNewFile()
 
         val buildDir = buildDirectory.get().asFile
-        val dependencies = runtimeClasspath.files + integrationTestRuntimeClasspath.files
+        val dependencies = runtimeClasspath.files + functionalTestRuntimeClasspath.files
 
         val data = mapOf(
             "build-directory-path" to buildDir.absolutePath,

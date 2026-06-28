@@ -7,7 +7,6 @@ import it.fulminazzo.creeper.task.TaskIntegrationTestHelper
 import org.gradle.api.plugins.JavaPlugin
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
-import kotlin.test.assertContentEquals
 import kotlin.test.assertEquals
 import kotlin.test.assertIs
 import kotlin.test.assertTrue
@@ -18,14 +17,14 @@ class InjectTestRunnerTaskIntegrationTestRequest : TaskIntegrationTestHelper() {
     fun setup() {
         project.plugins.apply(JavaPlugin::class.java)
 
-        project.configurations.create("integrationTestImplementation")
-        project.configurations.create("integrationTestRuntimeOnly")
-        project.configurations.create("integrationTestRuntimeClasspath") {
+        project.configurations.create("functionalTestImplementation")
+        project.configurations.create("functionalTestRuntimeOnly")
+        project.configurations.create("functionalTestRuntimeClasspath") {
             it.isCanBeResolved = true
             it.isCanBeConsumed = false
             it.extendsFrom(
-                project.configurations.getByName("integrationTestImplementation"),
-                project.configurations.getByName("integrationTestRuntimeOnly")
+                project.configurations.getByName("functionalTestImplementation"),
+                project.configurations.getByName("functionalTestRuntimeOnly")
             )
         }
 
@@ -36,7 +35,7 @@ class InjectTestRunnerTaskIntegrationTestRequest : TaskIntegrationTestHelper() {
             "org.junit.jupiter:junit-jupiter-api:5.8.2"
         )
         project.dependencies.add(
-            "integrationTestImplementation",
+            "functionalTestImplementation",
             "org.junit.jupiter:junit-jupiter-engine:5.8.2"
         )
         project.dependencies.add(
@@ -44,7 +43,7 @@ class InjectTestRunnerTaskIntegrationTestRequest : TaskIntegrationTestHelper() {
             "org.junit.platform:junit-platform-launcher:1.8.2"
         )
         project.dependencies.add(
-            "integrationTestRuntimeOnly",
+            "functionalTestRuntimeOnly",
             "org.junit.platform:junit-platform-launcher:1.8.2"
         )
     }
@@ -58,7 +57,7 @@ class InjectTestRunnerTaskIntegrationTestRequest : TaskIntegrationTestHelper() {
             task.buildDirectory.set(project.layout.buildDirectory.get().asFile)
 
             task.runtimeClasspath.from(project.configurations.named("runtimeClasspath"))
-            task.integrationTestRuntimeClasspath.from(project.configurations.named("integrationTestRuntimeClasspath"))
+            task.functionalTestRuntimeClasspath.from(project.configurations.named("functionalTestRuntimeClasspath"))
 
             task.specification.set(spec)
             task.pluginConfigurationFile.set { configFile }
