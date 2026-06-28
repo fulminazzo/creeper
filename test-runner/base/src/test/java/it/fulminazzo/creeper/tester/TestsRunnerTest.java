@@ -25,7 +25,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
@@ -44,7 +43,7 @@ class TestsRunnerTest {
     @Test
     void testThatRunTestsCorrectlyReportsTestsSummary() throws ClassNotFoundException, IOException, NoSuchFieldException {
         try (MockedStatic<LauncherFactory> mock = mockStatic(LauncherFactory.class)) {
-            TestsRunner.SuccessfulTestsResult expected = new TestsRunner.SuccessfulTestsResult(
+            TestResult.SuccessfulTestResult expected = new TestResult.SuccessfulTestResult(
                     1000L,
                     2000L,
                     1L,
@@ -52,15 +51,15 @@ class TestsRunnerTest {
                     2L,
                     6L,
                     Collections.singletonList(
-                            new TestsRunner.Failure(
+                            new TestResult.Failure(
                                     "Container failure",
                                     "Container failed execution!",
-                                    new TestsRunner.TestSource(
+                                    new TestResult.TestSource(
                                             TestsRunnerTest.class.getCanonicalName(),
                                             null,
                                             null
                                     ),
-                                    new TestsRunner.ThrowableData(
+                                    new TestResult.ThrowableData(
                                             Error.class.getCanonicalName(),
                                             "Container failed execution!",
                                             Collections.emptyList(),
@@ -73,26 +72,26 @@ class TestsRunnerTest {
                     2L,
                     7L,
                     Arrays.asList(
-                            new TestsRunner.Failure(
+                            new TestResult.Failure(
                                     "First test failure",
                                     "Test method failed execution!",
-                                    new TestsRunner.TestSource(
+                                    new TestResult.TestSource(
                                             TestsRunnerTest.class.getCanonicalName(),
                                             "testThatRunTestsCorrectlyReportsTestsSummary",
                                             "''"
                                     ),
-                                    new TestsRunner.ThrowableData(
+                                    new TestResult.ThrowableData(
                                             RuntimeException.class.getCanonicalName(),
                                             "Test method failed execution!",
                                             Collections.emptyList(),
                                             null
                                     )
                             ),
-                            new TestsRunner.Failure(
+                            new TestResult.Failure(
                                     "Second test failure",
                                     "Test class failed execution!",
                                     null,
-                                    new TestsRunner.ThrowableData(
+                                    new TestResult.ThrowableData(
                                             Exception.class.getCanonicalName(),
                                             "Test class failed execution!",
                                             Collections.emptyList(),
@@ -196,7 +195,7 @@ class TestsRunnerTest {
             assertTrue(resultsFile.exists(), "Results file should have been created");
 
             try (FileReader reader = new FileReader(resultsFile)) {
-                TestsRunner.SuccessfulTestsResult result = GSON.fromJson(reader, TestsRunner.SuccessfulTestsResult.class);
+                TestResult.SuccessfulTestResult result = GSON.fromJson(reader, TestResult.SuccessfulTestResult.class);
                 assertTrue(result.isSuccess(), "Test should have not failed");
 
                 // Remove stacktrace to compare with expected
@@ -229,10 +228,10 @@ class TestsRunnerTest {
             assertTrue(resultsFile.exists(), "Results file should have been created");
 
             try (FileReader reader = new FileReader(resultsFile)) {
-                TestsRunner.ThrowableResult result = GSON.fromJson(reader, TestsRunner.ThrowableResult.class);
+                TestResult.ThrowableResult result = GSON.fromJson(reader, TestResult.ThrowableResult.class);
                 assertFalse(result.isSuccess(), "Test should have failed");
 
-                TestsRunner.ThrowableData data = result.getException();
+                TestResult.ThrowableData data = result.getException();
                 assertEquals(
                         RuntimeException.class.getCanonicalName(),
                         data.getThrowableName(),
@@ -254,38 +253,6 @@ class TestsRunnerTest {
     void testThatRunTestsDoesNotThrowOnWriteException() {
         TestsRunner runner = new TestsRunner(new File("/tests/"), LOGGER);
         assertDoesNotThrow(() -> runner.runTests(CLASS_LOADER));
-    }
-
-    @Test
-    void testThatExceptionDataGeneratesCorrectData() {
-        Exception subcause = new IllegalStateException();
-        Exception cause = new IllegalArgumentException("cause", subcause);
-        Exception main = new RuntimeException("test", cause);
-
-        TestsRunner.ThrowableData expected = new TestsRunner.ThrowableData(
-                RuntimeException.class.getCanonicalName(),
-                "test",
-                generateStacktrace(main),
-                new TestsRunner.ThrowableData(
-                        IllegalArgumentException.class.getCanonicalName(),
-                        "cause",
-                        generateStacktrace(cause),
-                        new TestsRunner.ThrowableData(
-                                IllegalStateException.class.getCanonicalName(),
-                                null,
-                                generateStacktrace(subcause),
-                                null
-                        )
-                )
-        );
-
-        TestsRunner.ThrowableData actual = TestsRunner.ThrowableData.of(main);
-
-        assertEquals(expected, actual, "ExceptionData should be generated correctly");
-    }
-
-    private static @NotNull List<String> generateStacktrace(final @NotNull Exception exception) {
-        return Arrays.stream(exception.getStackTrace()).map(Object::toString).collect(Collectors.toList());
     }
 
 }

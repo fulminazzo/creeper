@@ -42,7 +42,7 @@ public class TestsRunnerIntegrationTest {
         assertTrue(resultsFile.exists(), "Results file should have been created");
 
         try (FileReader reader = new FileReader(resultsFile)) {
-            TestsRunner.SuccessfulTestsResult result = GSON.fromJson(reader, TestsRunner.SuccessfulTestsResult.class);
+            TestResult.SuccessfulTestResult result = GSON.fromJson(reader, TestResult.SuccessfulTestResult.class);
             assertTrue(result.isSuccess(), "Test should have not failed");
 
             assertEquals(0, result.getFailedContainers(), "There should have been no failed containers: " + result);
