@@ -29,7 +29,7 @@ import java.util.stream.Stream;
 
 /**
  * A runner for executing tests from the given test sources.
- * Check {@link #runTests(ClassLoader, Collection)} to understand how reports are computed.
+ * Check {@link #runTests(ClassLoader, List)} to understand how reports are computed.
  */
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
@@ -101,8 +101,8 @@ public final class TestRunner {
     /**
      * Executes a single test class with the <b>JUnit</b> test launcher.
      *
-     * @param classLoader the class loader to get the classes from
-     * @param testClassName   the test class to run
+     * @param classLoader   the class loader to get the classes from
+     * @param testClassName the test class to run
      * @return the test result
      */
     @NotNull TestResult runSingleTest(final @NotNull ClassLoader classLoader, final @NotNull String testClassName) {
