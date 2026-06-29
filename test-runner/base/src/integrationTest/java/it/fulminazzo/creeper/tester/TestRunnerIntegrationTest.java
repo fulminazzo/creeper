@@ -5,6 +5,7 @@ import com.google.gson.reflect.TypeToken;
 import it.fulminazzo.creeper.tester.util.ResourceUtils;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -15,6 +16,7 @@ import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -22,7 +24,7 @@ import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class TestsRunnerIntegrationTest {
+public class TestRunnerIntegrationTest {
     /**
      * Java - JUnit
      * Java - TestNG
@@ -40,34 +42,45 @@ public class TestsRunnerIntegrationTest {
             .map(c -> String.format("build/classes/%s/functionalTest", c))
             .map(File::new)
             .collect(Collectors.toList());
-    private static final @NotNull URLClassLoader CLASS_LOADER = new URLClassLoader(
-            TEST_SOURCES.stream()
-                    .map(File::toURI)
-                    .map(f -> {
-                        try {
-                            return f.toURL();
-                        } catch (MalformedURLException e) {
-                            throw new RuntimeException(e);
-                        }
-                    })
-                    .toArray(URL[]::new),
-            TestsRunnerIntegrationTest.class.getClassLoader()
-    );
 
     private static final @NotNull File WORKING_DIR = new File("build/resources/test/integration_test");
-    private static final @NotNull Logger LOGGER = LoggerFactory.getLogger(TestsRunnerIntegrationTest.class);
+    private static final @NotNull Logger LOGGER = LoggerFactory.getLogger(TestRunnerIntegrationTest.class);
 
     private static final @NotNull Gson GSON = new Gson();
 
+    private static URLClassLoader classLoader;
+
+    @BeforeAll
+    static void setUpAll() {
+        String[] dependenciesPaths = System.getProperty("functionaltest.framework.classpath").split(File.pathSeparator);
+
+        classLoader = new URLClassLoader(
+                Stream.concat(
+                                TEST_SOURCES.stream(),
+                                Arrays.stream(dependenciesPaths).map(File::new)
+                        )
+                        .map(File::toURI)
+                        .map(f -> {
+                            try {
+                                return f.toURL();
+                            } catch (MalformedURLException e) {
+                                throw new RuntimeException(e);
+                            }
+                        })
+                        .toArray(URL[]::new),
+                TestRunnerIntegrationTest.class.getClassLoader()
+        );
+    }
+
     @AfterAll
     static void tearDownAll() throws IOException {
-        CLASS_LOADER.close();
+        classLoader.close();
     }
 
     @Test
     void testThatTestRunnerLoadsTestsFromDifferentPlatforms() throws IOException {
         TestRunner runner = new TestRunner(Runnable::run, WORKING_DIR, LOGGER);
-        assertDoesNotThrow(() -> runner.runTests(CLASS_LOADER, TEST_SOURCES));
+        assertDoesNotThrow(() -> runner.runTests(classLoader, TEST_SOURCES));
 
         File resultsFile = new File(WORKING_DIR, TestRunner.TEST_RESULTS_FILENAME);
         assertTrue(resultsFile.exists(), "Results file should have been created");
@@ -80,7 +93,7 @@ public class TestsRunnerIntegrationTest {
             );
 
             List<Class<?>> testClasses = ResourceUtils.loadClasses(
-                    CLASS_LOADER,
+                    classLoader,
                     TestRunner.class.getPackage().getName() + ".test"
             );
 
